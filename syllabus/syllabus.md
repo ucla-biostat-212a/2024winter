@@ -11,16 +11,16 @@ title: Biostat 212A
 |--------------|---------------|--------------------------------------------|
 | Sat, Jan 6   | 8:30am-12:30pm | CHS 33-105A                                |
 | Sun, Jan 7   | 8:30am-12:30pm | CHS 43-105A                                |
-| Thu, Jan 16  | 5pm-7pm | [Zoom]() |
-| Thu, Jan 23  | 5pm-7pm | [Zoom]() |
-| Thu, Jan 30  | 5pm-7pm | [Zoom]() |
-| Thu, Feb 6   | 5pm-7pm | [Zoom]() |
+| Tue, Jan 16  | 5pm-7pm | [Zoom]() |
+| Tue, Jan 23  | 5pm-7pm | [Zoom]() |
+| Tue, Jan 30  | 5pm-7pm | [Zoom]() |
+| Tue, Feb 6   | 5pm-7pm | [Zoom]() |
 | Sat, Feb 10  | 8:30am-12:30pm | CHS 43-105A                                |
 | Sun, Feb 11  | 8:30am-12:30pm | CHS 43-105A                                |
-| Thu, Feb 20  | 5pm-7pm | [Zoom]() |
-| Thu, Feb 27  | 5pm-7pm | [Zoom]() |
-| Thu, Mar 5   | 5pm-7pm | [Zoom]() |
-| Thu, Mar 12  | 5pm-7pm | [Zoom]() |
+| Tue, Feb 20  | 5pm-7pm | [Zoom]() |
+| Tue, Feb 27  | 5pm-7pm | [Zoom]() |
+| Tue, Mar 5   | 5pm-7pm | [Zoom]() |
+| Tue, Mar 12  | 5pm-7pm | [Zoom]() |
 | Sat, Mar 16  | 8:30am-12:30pm | CHS 43-105A                                |
 | Sun, Mar 17  | 8:30am-12:30pm | CHS 43-105A                                |
 
@@ -35,11 +35,11 @@ Office hours: TBD
 
 Machine learning methods and tools for handling potentially big real world data.
 
-See the [schedule](https://ucla-biostat-212a.github.io/2024winter/schedule/schedule.html) page for a tentative list of topics.
+See the [schedule](https://ucla-biostat-212a.giTueb.io/2024winter/schedule/schedule.html) page for a tentative list of topics.
 
 ## Course Webpage
 
-[https://ucla-biostat-212a.github.io/2024winter](https://ucla-biostat-212a.github.io/2024winter)
+[https://ucla-biostat-212a.giTueb.io/2024winter](https://ucla-biostat-212a.giTueb.io/2024winter)
 
 ## Course Materials
 
