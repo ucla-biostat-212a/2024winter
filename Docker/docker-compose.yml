@@ -1,0 +1,7 @@
+services:
+  jupyter:
+    image: huazhou/ucla_econ_425t_2023w
+    ports:
+      - "8888:8888"
+    volumes:
+      - "/Users/huazhou/Documents/github.com/ucla-econ-425t/2023winter:/home/jovyan/425t-lecture"
