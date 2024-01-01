@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Dr.&nbsp;Hua Zhou @ UCLA">
+<meta name="dcterms.date" content="2023-01-12">
+
+<title>Statistical Learning (ISL 2)</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="statlearn_files/libs/clipboard/clipboard.min.js"></script>
+<script src="statlearn_files/libs/quarto-html/quarto.js"></script>
+<script src="statlearn_files/libs/quarto-html/popper.min.js"></script>
+<script src="statlearn_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="statlearn_files/libs/quarto-html/anchor.min.js"></script>
+<link href="statlearn_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="statlearn_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="statlearn_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="statlearn_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="statlearn_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#what-is-statistical-learning" id="toc-what-is-statistical-learning" class="nav-link active" data-scroll-target="#what-is-statistical-learning"><span class="toc-section-number">1</span>  What is statistical learning</a>
+  <ul>
+  <li><a href="#income-data" id="toc-income-data" class="nav-link" data-scroll-target="#income-data"><span class="toc-section-number">1.1</span>  <code>income</code> data</a></li>
+  <li><a href="#why-estimate-f" id="toc-why-estimate-f" class="nav-link" data-scroll-target="#why-estimate-f"><span class="toc-section-number">1.2</span>  Why estimate <span class="math inline">\(f\)</span>?</a></li>
+  <li><a href="#the-optimal-but-unrealistic-f" id="toc-the-optimal-but-unrealistic-f" class="nav-link" data-scroll-target="#the-optimal-but-unrealistic-f"><span class="toc-section-number">1.3</span>  The optimal (but unrealistic) <span class="math inline">\(f\)</span></a></li>
+  <li><a href="#reducible-and-irreducible-errors" id="toc-reducible-and-irreducible-errors" class="nav-link" data-scroll-target="#reducible-and-irreducible-errors"><span class="toc-section-number">1.4</span>  Reducible and irreducible errors</a></li>
+  <li><a href="#how-to-estimate-f" id="toc-how-to-estimate-f" class="nav-link" data-scroll-target="#how-to-estimate-f"><span class="toc-section-number">1.5</span>  How to estimate <span class="math inline">\(f\)</span>?</a>
+  <ul class="collapse">
+  <li><a href="#parametric-or-structured-model" id="toc-parametric-or-structured-model" class="nav-link" data-scroll-target="#parametric-or-structured-model"><span class="toc-section-number">1.5.1</span>  Parametric or structured model</a></li>
+  <li><a href="#non-parametric-model" id="toc-non-parametric-model" class="nav-link" data-scroll-target="#non-parametric-model"><span class="toc-section-number">1.5.2</span>  Non-parametric model</a></li>
+  </ul></li>
+  <li><a href="#some-trade-offs" id="toc-some-trade-offs" class="nav-link" data-scroll-target="#some-trade-offs"><span class="toc-section-number">1.6</span>  Some trade-offs</a></li>
+  <li><a href="#assessing-model-accuracy" id="toc-assessing-model-accuracy" class="nav-link" data-scroll-target="#assessing-model-accuracy"><span class="toc-section-number">1.7</span>  Assessing model accuracy</a></li>
+  <li><a href="#bias-variance-trade-off" id="toc-bias-variance-trade-off" class="nav-link" data-scroll-target="#bias-variance-trade-off"><span class="toc-section-number">1.8</span>  Bias-variance trade-off</a></li>
+  <li><a href="#classical-regime-vs-modern-regime" id="toc-classical-regime-vs-modern-regime" class="nav-link" data-scroll-target="#classical-regime-vs-modern-regime"><span class="toc-section-number">1.9</span>  Classical regime vs modern regime</a></li>
+  <li><a href="#classification-problems" id="toc-classification-problems" class="nav-link" data-scroll-target="#classification-problems"><span class="toc-section-number">1.10</span>  Classification problems</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Statistical Learning (ISL 2)</h1>
+<p class="subtitle lead">Econ 425T</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Dr.&nbsp;Hua Zhou @ UCLA </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 12, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<p>Credit: This note heavily uses material from the books <a href="https://www.statlearning.com/"><em>An Introduction to Statistical Learning: with Applications in R</em></a> (ISL2) and <a href="https://hastie.su.domains/ElemStatLearn/"><em>Elements of Statistical Learning: Data Mining, Inference, and Prediction</em></a> (ESL2).</p>
+<p>Display system information for reproducibility.</p>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">Julia</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> IPython</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(IPython.sys_info())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{'commit_hash': 'add5877a4',
+ 'commit_source': 'installation',
+ 'default_encoding': 'utf-8',
+ 'ipython_path': '/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/IPython',
+ 'ipython_version': '8.8.0',
+ 'os_name': 'posix',
+ 'platform': 'macOS-10.16-x86_64-i386-64bit',
+ 'sys_executable': '/Library/Frameworks/Python.framework/Versions/3.10/bin/python3',
+ 'sys_platform': 'darwin',
+ 'sys_version': '3.10.9 (v3.10.9:1dd9be6584, Dec  6 2022, 14:37:36) [Clang '
+                '13.0.0 (clang-1300.0.29.30)]'}</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>R version 4.2.2 (2022-10-31)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur ... 10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.9        here_1.0.1        lattice_0.20-45   png_0.1-8        
+ [5] rprojroot_2.0.3   digest_0.6.30     grid_4.2.2        lifecycle_1.0.3  
+ [9] jsonlite_1.8.4    magrittr_2.0.3    evaluate_0.18     rlang_1.0.6      
+[13] stringi_1.7.8     cli_3.4.1         rstudioapi_0.14   Matrix_1.5-1     
+[17] reticulate_1.26   vctrs_0.5.1       rmarkdown_2.18    tools_4.2.2      
+[21] stringr_1.5.0     glue_1.6.2        htmlwidgets_1.6.0 xfun_0.35        
+[25] yaml_2.3.6        fastmap_1.1.0     compiler_4.2.2    htmltools_0.5.4  
+[29] knitr_1.41       </code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">InteractiveUtils</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">versioninfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<section id="what-is-statistical-learning" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> What is statistical learning</h1>
+<section id="income-data" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="income-data"><span class="header-section-number">1.1</span> <code>income</code> data</h2>
+<ul>
+<li>The <code>Income</code> data contains <code>Income</code>, <code>Years of Education</code>, and <code>Seniority</code> of individuals.</li>
+</ul>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-3" role="tab" aria-controls="tabset-2-3" aria-selected="false" href="">Julia</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the pandas library</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load numpy for array manipulation</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Load seaborn plotting library</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Set font sizes in plots</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>sns.<span class="bu">set</span>(font_scale <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Display all columns</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'display.max_columns'</span>, <span class="va">None</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Import income2 data</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>income <span class="op">=</span> pd.read_csv(</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"../data/Income2.csv"</span>,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  index_col <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>income</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Education   Seniority     Income
+1   21.586207  113.103448  99.917173
+2   18.275862  119.310345  92.579135
+3   12.068966  100.689655  34.678727
+4   17.034483  187.586207  78.702806
+5   19.931034   20.000000  68.009922
+6   18.275862   26.206897  71.504485
+7   19.931034  150.344828  87.970467
+8   21.172414   82.068966  79.811030
+9   20.344828   88.275862  90.006327
+10  10.000000  113.103448  45.655529
+11  13.724138   51.034483  31.913808
+12  18.689655  144.137931  96.282997
+13  11.655172   20.000000  27.982505
+14  16.620690   94.482759  66.601792
+15  10.000000  187.586207  41.531992
+16  20.344828   94.482759  89.000701
+17  14.137931   20.000000  28.816301
+18  16.620690   44.827586  57.681694
+19  16.620690  175.172414  70.105096
+20  20.344828  187.586207  98.834012
+21  18.275862  100.689655  74.704699
+22  14.551724  137.931034  53.532106
+23  17.448276   94.482759  72.078924
+24  10.413793   32.413793  18.570665
+25  21.586207   20.000000  78.805784
+26  11.241379   44.827586  21.388561
+27  19.931034  168.965517  90.814035
+28  11.655172   57.241379  22.636163
+29  12.068966   32.413793  17.613593
+30  17.034483  106.896552  74.610960</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot Income ~ Education</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>sns.lmplot(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  data <span class="op">=</span> income, </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  x <span class="op">=</span> <span class="st">"Education"</span>, </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  y <span class="op">=</span> <span class="st">"Income"</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  lowess <span class="op">=</span> <span class="va">True</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  scatter_kws <span class="op">=</span> {<span class="st">'alpha'</span> : <span class="fl">0.5</span>},</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  height <span class="op">=</span> <span class="dv">8</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  ).<span class="bu">set</span>(</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  xlabel <span class="op">=</span> <span class="st">'Years of Education'</span>, </span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  ylabel <span class="op">=</span> <span class="st">'Income (k$)'</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="fig-income-edu" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="statlearn_files/figure-html/fig-income-edu-1.png" class="img-fluid figure-img" width="376"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1: Income increases nonlinearly with education.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot Income ~ Seniority</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>sns.lmplot(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  data <span class="op">=</span> income, </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  x <span class="op">=</span> <span class="st">"Seniority"</span>, </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  y <span class="op">=</span> <span class="st">"Income"</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  lowess <span class="op">=</span> <span class="va">True</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  scatter_kws <span class="op">=</span> {<span class="st">'alpha'</span> : <span class="fl">0.5</span>},</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  height <span class="op">=</span> <span class="dv">8</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  ).<span class="bu">set</span>(</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  xlabel <span class="op">=</span> <span class="st">'Seniority'</span>, </span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  ylabel <span class="op">=</span> <span class="st">'Income (k$)'</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  )  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="fig-income-seniority" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="statlearn_files/figure-html/fig-income-seniority-3.png" class="img-fluid figure-img" width="376"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2: Income increases nonlinearly with seniority.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Income2 data</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>income <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"../data/Income2.csv"</span>, <span class="at">col_select =</span> Education<span class="sc">:</span>Income) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 30 × 3
+   Education Seniority Income
+       &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;
+ 1      21.6     113.    99.9
+ 2      18.3     119.    92.6
+ 3      12.1     101.    34.7
+ 4      17.0     188.    78.7
+ 5      19.9      20     68.0
+ 6      18.3      26.2   71.5
+ 7      19.9     150.    88.0
+ 8      21.2      82.1   79.8
+ 9      20.3      88.3   90.0
+10      10       113.    45.7
+# … with 20 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot income ~ Education</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>income <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Education, <span class="at">y =</span> Income)) <span class="sc">+</span> </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>() <span class="sc">+</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Income increases nonlinearly with education"</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Years of Education"</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Income (k$)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="statlearn_files/figure-html/unnamed-chunk-7-5.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot income ~ Seniority</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>income <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Seniority, <span class="at">y =</span> Income)) <span class="sc">+</span> </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>() <span class="sc">+</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Income increases nonlinearly with seniority"</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Seniority"</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Income (k$)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="statlearn_files/figure-html/unnamed-chunk-7-6.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-2-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-3-tab">
+
+</div>
+</div>
+</div>
+<ul>
+<li><p>Can we predict <code>Income</code> using <code>Years of Education</code>? Can we predict <code>Income</code> using <code>Seniority</code>? Perhaps we can do better with a model using both? <span class="math display">\[
+\text{Income} \approx f(\text{Education}, \text{Seniority})
+\]</span></p></li>
+<li><p><span class="math inline">\(Y\)</span>: <code>Income</code> is the <strong>response</strong>, or <strong>target</strong>, or <strong>output</strong>, or <strong>outcome</strong>, or <strong>dependent variables</strong> that we wish to predict.</p></li>
+<li><p><span class="math inline">\(X\)</span>: <code>Education</code> and <code>Seniority</code>. <span class="math display">\[
+X = \begin{pmatrix} X_1 \\ \vdots \\ X_p \end{pmatrix}
+\]</span> is the vector of <strong>features</strong>, or <strong>inputs</strong>, or <strong>predictors</strong>, or <strong>independent variables</strong>.</p></li>
+<li><p>We assume the model <span id="eq-statistical-model"><span class="math display">\[
+Y = f(X) + \epsilon,
+\tag{1}\]</span></span> where</p>
+<ul>
+<li><span class="math inline">\(f\)</span> represents the <strong>systematic information</strong> that <span class="math inline">\(X\)</span> provides about <span class="math inline">\(Y\)</span>;<br>
+</li>
+<li>The <strong>error term</strong> <span class="math inline">\(\epsilon\)</span> captures measurement errors and other discrepancies.</li>
+</ul></li>
+<li><p>In essence, statistical learning refers to a set of approaches for estimating the function <span class="math inline">\(f\)</span>.</p></li>
+</ul>
+</section>
+<section id="why-estimate-f" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="why-estimate-f"><span class="header-section-number">1.2</span> Why estimate <span class="math inline">\(f\)</span>?</h2>
+<ul>
+<li><p>Prediction. With a good estimate <span class="math inline">\(\hat f\)</span>, we can predict <span class="math inline">\(Y\)</span> at new points <span class="math display">\[
+\hat Y = \hat f (X).
+\]</span></p></li>
+<li><p>Inference.</p>
+<ul>
+<li><p>We can understand which components of <span class="math inline">\(X=(X_1, \ldots, X_p)\)</span> are important in explaining <span class="math inline">\(Y\)</span>, and which are irrelevant. For example, <code>Seniority</code> and <code>Years of Education</code> have a big impact on <code>Income</code>, but <code>Marital Status</code> typically does not.</p></li>
+<li><p>Depending on the complexity of <span class="math inline">\(f\)</span>, we may be able to understand how each component <span class="math inline">\(X_j\)</span> of <span class="math inline">\(X\)</span> affects <span class="math inline">\(Y\)</span>. For example, how much extra income will one earn with two more year of education? Does a linear relationship hold?</p></li>
+<li><p>Causal inference. We may infer whether purposedly changing the values of certain predictors will change outcomes. For example, does an advertising campaign increase the sales? Or it’s just seasonal change in sales?</p></li>
+</ul></li>
+</ul>
+</section>
+<section id="the-optimal-but-unrealistic-f" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="the-optimal-but-unrealistic-f"><span class="header-section-number">1.3</span> The optimal (but unrealistic) <span class="math inline">\(f\)</span></h2>
+<ul>
+<li><p>It can be shown (HW1) that <span class="math display">\[
+f_{\text{opt}} = \operatorname{E}(Y | X)
+\]</span> minimizes the mean-squared prediction error <span class="math display">\[
+\operatorname{E}[Y - f(X)]^2,
+\]</span> where the expectations averages over variations in both <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>.</p></li>
+<li><p>However we almost never know the conditional distribution of <span class="math inline">\(Y\)</span> given <span class="math inline">\(X\)</span>. In practice, we use various learning methods to estimate <span class="math inline">\(f\)</span>.</p></li>
+</ul>
+</section>
+<section id="reducible-and-irreducible-errors" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="reducible-and-irreducible-errors"><span class="header-section-number">1.4</span> Reducible and irreducible errors</h2>
+<ul>
+<li>Assuming <span class="math inline">\(\hat f\)</span> and <span class="math inline">\(X\)</span> are fixed, then</li>
+</ul>
+<p><span class="math display">\[\begin{eqnarray*}
+\operatorname{E}(Y - \hat Y)^2 &amp;=&amp; \operatorname{E} [f(X) + \epsilon - \hat f(X)]^2 \\
+&amp;=&amp; \operatorname{E} \underbrace{[f(X) - \hat f(X)]^2}_\text{Reducible} + \underbrace{\operatorname{Var}(\epsilon)}_\text{Irreducible}.
+\end{eqnarray*}\]</span></p>
+<ul>
+<li><p>Statistical learning techniques may yield better <span class="math inline">\(\hat f\)</span>, thus decreasing the reducible errors.</p></li>
+<li><p>Even if we knew the truth <span class="math inline">\(f\)</span>, we would still make errors in prediction due to the irreducible error.</p></li>
+</ul>
+</section>
+<section id="how-to-estimate-f" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="how-to-estimate-f"><span class="header-section-number">1.5</span> How to estimate <span class="math inline">\(f\)</span>?</h2>
+<p>Our goal is to apply a statistical learning method to find a function <span class="math inline">\(\hat f\)</span> such that <span class="math inline">\(Y \approx \hat f(X)\)</span>.</p>
+<section id="parametric-or-structured-model" class="level3" data-number="1.5.1">
+<h3 data-number="1.5.1" class="anchored" data-anchor-id="parametric-or-structured-model"><span class="header-section-number">1.5.1</span> Parametric or structured model</h3>
+<ul>
+<li><p>Step 1. We make an assumption about the functional form, or shape, of <span class="math inline">\(f\)</span>.</p>
+<p>For example, one may assume that <span class="math inline">\(f\)</span> is linear in <span class="math inline">\(X\)</span>: <span class="math display">\[
+  f(X) = \beta_0 + \beta_1 X_1 + \cdots \beta_p X_p.
+  \]</span></p></li>
+<li><p>Step 2. We use the training data <span class="math inline">\(\{(x_1, y_1), \ldots, (x_n, y_n)\}\)</span> to <strong>train</strong> or <strong>fit</strong> the model.</p>
+<p>The most common approach for fitting the linear model is <strong>least squares</strong>. However there are many other possible ways to fit the linear model (to be discussed later).</p></li>
+</ul>
+<div id="fig-income-lmfit" class="quarto-layout-panel">
+<figure class="figure">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><embed src="./ISL_fig_2_3.pdf" class="img-fluid"></p>
+<p></p><figcaption class="figure-caption">Blue surface is the true <span class="math inline">\(f\)</span></figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><embed src="./ISL_fig_2_4.pdf" class="img-fluid"></p>
+<p></p><figcaption class="figure-caption">Yellow surface is the linear model fit <span class="math inline">\(\hat f\)</span></figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3: Linear approximation of <span class="math inline">\(f\)</span>.</figcaption><p></p>
+</figure>
+</div>
+<ul>
+<li>Although it is <em>almost never correct</em>, a linear model often serves as a good and interpretable approximation to the unknown true function <span class="math inline">\(f\)</span>.</li>
+</ul>
+</section>
+<section id="non-parametric-model" class="level3" data-number="1.5.2">
+<h3 data-number="1.5.2" class="anchored" data-anchor-id="non-parametric-model"><span class="header-section-number">1.5.2</span> Non-parametric model</h3>
+<ul>
+<li><p>Non-parametric methods do not make explicit assumptions about the functional form of <span class="math inline">\(f\)</span>. Instead they seek an estimate of <span class="math inline">\(f\)</span> that gets as close to the data points as much as possible without being too rough or wiggly.</p>
+<ul>
+<li><p>Advantages: better fit.</p></li>
+<li><p>Disadvantage: many more paremeters; need more training samples to accurately estimate <span class="math inline">\(f\)</span>.</p></li>
+</ul></li>
+<li><p><strong>Thin-plate spline</strong> (discussed later) approximates the true <span class="math inline">\(f\)</span> better than the linear model.</p></li>
+</ul>
+<div id="fig-income-tpfit" class="quarto-layout-panel">
+<figure class="figure">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><embed src="ISL_fig_2_3.pdf" class="img-fluid"></p>
+<p></p><figcaption class="figure-caption">Blue surface is the true <span class="math inline">\(f\)</span></figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><embed src="ISL_fig_2_5.pdf" class="img-fluid"></p>
+<p></p><figcaption class="figure-caption">Yellow surface is the thin-plate spline fit <span class="math inline">\(\hat f\)</span></figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4: Thin-plate spline fit of <span class="math inline">\(f\)</span>.</figcaption><p></p>
+</figure>
+</div>
+<ul>
+<li>We may even fit an extremely flexible spline model such that the fitted model makes no errors on the training data! By doing this, we are in the danger of <strong>overfitting</strong>. Overfit models do not generalize well, which means the prediction accuracy on a separate test data can be very bad.</li>
+</ul>
+<div id="fig-income-overfitting" class="quarto-layout-panel">
+<figure class="figure">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><embed src="ISL_fig_2_3.pdf" class="img-fluid"></p>
+<p></p><figcaption class="figure-caption">Blue surface is the true <span class="math inline">\(f\)</span></figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><embed src="ISL_fig_2_6.pdf" class="img-fluid"></p>
+<p></p><figcaption class="figure-caption">Overfitting</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5: Overfitting of <span class="math inline">\(f\)</span>.</figcaption><p></p>
+</figure>
+</div>
+</section>
+</section>
+<section id="some-trade-offs" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="some-trade-offs"><span class="header-section-number">1.6</span> Some trade-offs</h2>
+<ul>
+<li>Prediction accuracy vs interpretability.
+<ul>
+<li>Linear models are easy to interpret; thin-plate splines are not.</li>
+</ul></li>
+<li>Good fit vs over-fit or under-fit.
+<ul>
+<li>How do we know when the fit is just right?</li>
+</ul></li>
+<li>Parsimony vs black-box.
+<ul>
+<li>Practitioners often prefer a simpler model involving fewer variables over a black-box predictor involving them all.</li>
+</ul></li>
+</ul>
+<div id="fig-tradeoff" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p align="center">
+<embed src="ISL_fig_2_7.pdf" width="500" height="300">
+</p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;6: Trade-off of model flexibility vs interpretability.</figcaption><p></p>
+</figure>
+</div>
+</section>
+<section id="assessing-model-accuracy" class="level2" data-number="1.7">
+<h2 data-number="1.7" class="anchored" data-anchor-id="assessing-model-accuracy"><span class="header-section-number">1.7</span> Assessing model accuracy</h2>
+<ul>
+<li><p>Given training data <span class="math inline">\(\{(x_1, y_1), \ldots, (x_n, y_n)\}\)</span>, we fit a model <span class="math inline">\(\hat f\)</span>. We can evaluate the model accuracy on the training data by the <strong>mean squared error</strong> <span class="math display">\[
+\operatorname{MSE}_{\text{train}} = \frac 1n \sum_{i=1}^n [y_i - \hat f(x_i)]^2.
+\]</span> The smaller <span class="math inline">\(\operatorname{MSE}_{\text{train}}\)</span>, the better model fit.</p></li>
+<li><p>However, in most situations, we are not interested in the training MSE. Rather, we are interested in the accuracy of the predictions on previously unseen test data.</p>
+<ul>
+<li><p>If we have a separate test set with both predictors and outcomes. Then the task is easy, we choose the learning method that yields the best test MSE <span class="math display">\[
+  \operatorname{MSE}_{\text{test}} = \frac{1}{n_{\text{test}}} \sum_{i=1}^{n_{\text{test}}} [y_i - \hat f(x_i)]^2.
+  \]</span></p></li>
+<li><p>In many applications, we don’t have a separate test set. Is this a good idea to choose the learning method with smallest training MSE?</p></li>
+</ul></li>
+</ul>
+<div id="fig-tradeoff-truth" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p align="center">
+<embed src="ISL_fig_2_9.pdf" width="500" height="300">
+</p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;7: Black curve is truth. Red curve on right is the test MSE, grey curve is the training MSE. Orange, blue and green curves/squares correspond to fits of different flexibility.</figcaption><p></p>
+</figure>
+</div>
+<div id="fig-tradeoff-smooth-truth" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p align="center">
+<embed src="ISL_fig_2_10.pdf" width="500" height="300">
+</p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;8: Here the truth is smoother, so the smoother fit and linear model do really well.</figcaption><p></p>
+</figure>
+</div>
+<div id="fig-tradeoff-wiggly-truth" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p align="center">
+<embed src="ISL_fig_2_11.pdf" width="500" height="300">
+</p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;9: Here the truth is wiggly and the noise is low, so the more flexible fits do the best.</figcaption><p></p>
+</figure>
+</div>
+<ul>
+<li><p>As the previous three examples illustrate, the flexibility level corresponding to the model with the minimal test MSE can vary considerably among data sets.</p></li>
+<li><p>Later we will discuss the <strong>cross-validation</strong> strategy to estimate test MSE using only the training data.</p></li>
+</ul>
+</section>
+<section id="bias-variance-trade-off" class="level2" data-number="1.8">
+<h2 data-number="1.8" class="anchored" data-anchor-id="bias-variance-trade-off"><span class="header-section-number">1.8</span> Bias-variance trade-off</h2>
+<ul>
+<li><p>The U-shaped observed in the test MSE curves (<a href="#fig-tradeoff-truth">Figure&nbsp;7</a>-<a href="#fig-tradeoff-wiggly-truth">Figure&nbsp;9</a>) reflects the <strong>bias-variance</strong> trade-off.</p></li>
+<li><p>Let <span class="math inline">\((x_0, y_0)\)</span> be a test observation. Under the model <a href="#eq-statistical-model">Equation&nbsp;1</a>, the <strong>expected prediction error (EPE)</strong> at <span class="math inline">\(x_0\)</span>, or the <strong>test error</strong>, or <strong>generalization error</strong>, can be decomposed as (HW1) <span class="math display">\[
+\operatorname{E}[y_0 - \hat f(x_0)]^2 = \underbrace{\operatorname{Var}(\hat f(x_0)) + [\operatorname{Bias}(\hat f(x_0))]^2}_{\text{MSE of } \hat f(x_0) \text{ for estimating } f(x_0)} + \underbrace{\operatorname{Var}(\epsilon)}_{\text{irreducible}},
+\]</span> where</p>
+<ul>
+<li><span class="math inline">\(\operatorname{Bias}(\hat f(x_0)) = \operatorname{E}[\hat f(x_0)] - f(x_0)\)</span>;</li>
+<li>the expectation averages over the variability in <span class="math inline">\(y_0\)</span> and <span class="math inline">\(\hat f\)</span> (function of training data).</li>
+</ul></li>
+<li><p>Typically as the flexibility of <span class="math inline">\(\hat f\)</span> increases, its variance increases and its bias decreases.</p></li>
+</ul>
+<div id="fig-tradeoff-bias-variance-tradeoff" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p align="center">
+<embed src="ISL_fig_2_12.pdf" width="500" height="300">
+</p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;10: Bias-variance trade-off.</figcaption><p></p>
+</figure>
+</div>
+</section>
+<section id="classical-regime-vs-modern-regime" class="level2" data-number="1.9">
+<h2 data-number="1.9" class="anchored" data-anchor-id="classical-regime-vs-modern-regime"><span class="header-section-number">1.9</span> Classical regime vs modern regime</h2>
+<ul>
+<li><p>Above U-shaped test MSE curves are in the so-called <strong>classical regime</strong> where the number of features (or the degree of freedom) is less than the training samples.</p>
+<p>In the <strong>modern regime</strong>, where the number of features (or the degree of freedom) can be order of magnitude larger than the training samples (recall that ChatGPT3 model has 175 billion parameters!), the <strong>double descent</strong> phenomenon is observed and being actively studied. See the recent <a href="https://epubs.siam.org/doi/pdf/10.1137/20M1336072">paper</a> and references therein.</p></li>
+</ul>
+<div id="fig-double-descent" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="https://openai.com/content/images/2019/12/modeldd.svg" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;11: Double descent phenomenon (<a href="https://openai.com/blog/deep-double-descent/">OpenAI Blog</a>).</figcaption><p></p>
+</figure>
+</div>
+</section>
+<section id="classification-problems" class="level2" data-number="1.10">
+<h2 data-number="1.10" class="anchored" data-anchor-id="classification-problems"><span class="header-section-number">1.10</span> Classification problems</h2>
+<ul>
+<li><p>When the outcome <span class="math inline">\(Y\)</span> is discrete, for example, email is one of <span class="math inline">\(\mathcal{C}=\)</span>{<code>spam</code>, <code>ham</code>} (<code>ham</code>=good email), handwritten digit is one of <span class="math inline">\(\mathcal{C} = \{0,1,\ldots,9\}\)</span>.</p></li>
+<li><p>Our goals are to</p>
+<ul>
+<li>build a classifier <span class="math inline">\(f(X)\)</span> that assigns a class label from <span class="math inline">\(\mathcal{C}\)</span> to a future unlabeled observation <span class="math inline">\(X\)</span>;</li>
+<li>assess the uncertainty in each classification;<br>
+</li>
+<li>understand the roles of the different predictors among <span class="math inline">\(X=(X_1,\ldots,X_p)\)</span>.</li>
+</ul></li>
+<li><p>To evaluate the performance of classification algorithms, the <strong>training error rate</strong> is <span class="math display">\[
+\frac 1n \sum_{i=1}^n I(y_i \ne \hat y_i),
+\]</span> where <span class="math inline">\(\hat y_i = \hat f(x_i)\)</span> is the predicted class label for the <span class="math inline">\(i\)</span>th observation using <span class="math inline">\(\hat f\)</span>.</p></li>
+<li><p>As in the regression setting, we are most interested in the <strong>test error rate</strong> associated with a set of test observations <span class="math display">\[
+\frac{1}{n_{\text{test}}} \sum_{i=1}^{n_{\text{test}}} I(y_i \ne \hat y_i).
+\]</span></p></li>
+<li><p>Suppose <span class="math inline">\(\mathcal{C}=\{1,2,\ldots,K\}\)</span>, the <strong>Bayes classifier</strong> assigns a test observation with predictor vector <span class="math inline">\(x_0\)</span> to the class <span class="math inline">\(j \in \mathcal{C}\)</span> for which <span class="math display">\[
+\operatorname{Pr}(Y=j \mid X = x_0)
+\]</span> is largest.</p>
+<p>In a two-class problem <span class="math inline">\(K=2\)</span>, the Bayes classifier assigns a test case to class 1 if <span class="math inline">\(\operatorname{Pr}(Y=1 \mid X = x_0) &gt; 0.5\)</span>, and to class 2 otherwise.</p></li>
+<li><p>The Bayes classifier produces the <strong>lowest</strong> possible test error rate, called the <strong>Bayes error rate</strong> <span class="math display">\[
+1 - \max_j \operatorname{Pr}(Y=j \mid X = x_0)
+\]</span> at <span class="math inline">\(X=x_0\)</span>. The <strong>overall Bayes error</strong> is given by <span class="math display">\[
+1 - \operatorname{E} [\max_j \operatorname{Pr}(Y=j \mid X)],
+\]</span> where the expectation averages over all possible values of <span class="math inline">\(X\)</span>.</p></li>
+<li><p>Unfortunately, for real data, we don’t know the conditional distribution of <span class="math inline">\(Y\)</span> given <span class="math inline">\(X\)</span>, and computing the Bayes classifier is impossible.</p></li>
+<li><p>Various learning algorithms attempt to estimate the conditional distribution of <span class="math inline">\(Y\)</span> given <span class="math inline">\(X\)</span>, and then classify a given observation to the class with the highest estimated probability.</p></li>
+<li><p>One simple classifier is the <strong><span class="math inline">\(K\)</span>-nearest neighbor (KNN)</strong> classifier. Given a positive integer <span class="math inline">\(K\)</span> and a test observation <span class="math inline">\(x_0\)</span>, the KNN classifier first identifies the <span class="math inline">\(K\)</span> points in the training data that are closest to <span class="math inline">\(x_0\)</span>, represented by <span class="math inline">\(\mathcal{N}_0\)</span>. It then estimates the conditional probability by <span class="math display">\[
+\operatorname{Pr}(Y=j \mid X = x_0) = \frac{1}{K} \sum_{i \in \mathcal{N}_0} I(y_i = j)
+\]</span> and then classifies the test observation <span class="math inline">\(x_0\)</span> to the class with the largest probability.</p></li>
+</ul>
+<div id="fig-KNN-K-10" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p align="center">
+<embed src="ISL_fig_2_15.pdf" width="500" height="300">
+</p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;12: Black curve is the KNN decision boundary using <span class="math inline">\(K=10\)</span>. The purple dashed line is the Bayes decision boundary.</figcaption><p></p>
+</figure>
+</div>
+<ul>
+<li>Smaller <span class="math inline">\(K\)</span> yields more flexible classification rule.</li>
+</ul>
+<div id="fig-KNN-K-1-K-100" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p align="center">
+<embed src="ISL_fig_2_16.pdf" width="500" height="300">
+</p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;13: Left panel: KNN with <span class="math inline">\(K=1\)</span>. Right panel: KNN with <span class="math inline">\(K=100\)</span>.</figcaption><p></p>
+</figure>
+</div>
+<ul>
+<li>Bias-variance trade-off of KNN.</li>
+</ul>
+<div id="fig-KNN-tradeoff" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p align="center">
+<embed src="ISL_fig_2_17.pdf" width="500" height="300">
+</p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;14: KNN with <span class="math inline">\(K \approx 10\)</span> achieves the Bayes error rate (black dashed line).</figcaption><p></p>
+</figure>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
