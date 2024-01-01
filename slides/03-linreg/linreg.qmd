@@ -1,0 +1,804 @@
+---
+title: "Linear Regression (ISL 3)"
+subtitle: "Biostat 212A"
+author: "Dr. Jin Zhou @ UCLA"
+date: today
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+engine: knitr
+knitr:
+  opts_chunk: 
+    fig.align: 'center'
+    # fig.width: 6
+    # fig.height: 4
+    message: FALSE
+    cache: false
+---
+
+Credit: This note heavily uses material from the books [_An Introduction to Statistical Learning: with Applications in R_](https://www.statlearning.com/) (ISL2) and [_Elements of Statistical Learning: Data Mining, Inference, and Prediction_](https://hastie.su.domains/ElemStatLearn/) (ESL2).
+
+Display system information for reproducibility.
+
+::: {.panel-tabset}
+
+## R
+
+```{r}
+sessionInfo()
+```
+
+## Python
+
+```{python}
+import IPython
+print(IPython.sys_info())
+```
+
+
+:::
+
+## Linear regression
+
+- This lecture serves as a review of your Econ 430+442A material.
+
+- Linear regression is a simple approach to supervised learning. It assumes that the dependence of $Y$ on $X_1, X_2, \ldots, X_p$ is linear.
+
+- True regression functions are never linear!
+
+- Although it may seem overly simplistic, linear regression is extremely useful both conceptually and practically.
+
+> Essentially, all models are wrong, but some are useful.
+> 
+> George Box
+
+## `Advertising` data
+
+- Response variable: `sales` (in thousands of units).
+
+- Predictor variables:  
+    - `TV`: budget for TV advertising (in thousands of dollars). 
+    - `radio`: budget for radio advertising (in thousands of dollars). 
+    - `newspaper`: budget for newspaper advertising (in thousands of dollars). 
+
+::: {.panel-tabset}
+
+
+#### R
+
+```{r}
+library(GGally) # ggpairs function
+library(tidyverse)
+
+# Advertising
+Advertising <- read_csv("../data/Advertising.csv",  col_select = TV:sales) %>% 
+  print(width = Inf)
+
+# Visualization by pair plot
+ggpairs(
+  data = Advertising, 
+  mapping = aes(alpha = 0.25), 
+  lower = list(continuous = "smooth")
+  ) + 
+  labs(title = "Advertising Data")
+```
+
+#### Python
+
+```{python}
+# Load the pandas library
+import pandas as pd
+# Load numpy for array manipulation
+import numpy as np
+# Load seaborn plotting library
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Set font sizes in plots
+sns.set(font_scale = 2)
+# Display all columns
+pd.set_option('display.max_columns', None)
+
+# Import Advertising data
+Advertising = pd.read_csv("../data/Advertising.csv", index_col = 0)
+Advertising
+```
+
+```{python}
+# Visualization by pair plot
+sns.pairplot(data = Advertising)
+```
+
+
+:::
+
+- A few questions we might ask
+
+    - Is there a relationship between advertising budget and sales?  
+    - How strong is the relationship between advertising budget and sales?  
+    - Which media contribute to sales?  
+    - How accurately can we predict future sales?  
+    - Is the relationship linear?  
+    - Is there synergy among the advertising media?  
+    
+## Simple linear regression vs multiple linear regression
+
+- In **simple linear regression**, we assume a model
+$$
+Y = \underbrace{\beta_0}_{\text{intercept}} + \underbrace{\beta_1}_{\text{slope}} X + \epsilon.
+$$
+For example
+$$
+\text{sale} \approx \beta_0 + \beta_1 \times \text{TV}.
+$$
+The lower left plot in the pair plot (R) displays the fitted line 
+$$
+\hat y = \hat \beta_0 + \hat \beta_1 \times \text{TV}.
+$$
+
+- In **multiple linear regression**, we assume the model
+$$
+Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_p X_p + \epsilon.
+$$
+For example,
+$$
+\text{sales} \approx \beta_0 + \beta_1 \times \text{TV} + \beta_2 \times \text{radio} + \cdots + \beta_3 \times \text{newspaper}.
+$$
+We review the multiple linear regression below.
+
+## Estimation in multiple linear regression
+
+- We estimate regression coefficients $\beta_0, \beta_1, \ldots, \beta_p$ by the **method of least squares**, which minimizes the sum of squared residuals
+$$
+\text{RSS} = \sum_{i=1}^n (y_i - \hat y_i)^2 = \sum_{i=1}^n (y_i - \beta_0 - \beta_1 x_{i1} - \cdots - \beta_p x_{ip})^2.
+$$
+- The minimizer $\hat \beta_0, \hat \beta_1, \ldots, \hat \beta_p$ admits the analytical solution
+$$
+\hat \beta = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}.
+$$
+and we can make prediction using the formula
+$$
+\hat y = \hat \beta_0 + \hat \beta_1 x_1 + \cdots + \hat \beta_p x_p.
+$$
+
+::: {.panel-tabset}
+
+
+
+#### R
+
+```{r}
+library(gtsummary)
+
+# Linear regression
+lmod <- lm(sales ~ TV + radio + newspaper, data = Advertising)
+summary(lmod)
+# Better summary table
+lmod %>%
+  tbl_regression() %>%
+  bold_labels() %>%
+  bold_p(t = 0.05)
+```
+
+#### Python (sklearn)
+
+```{python}
+# sklearn does not offer much besides coefficient estimate
+from sklearn.linear_model import LinearRegression
+
+X = Advertising[['TV', 'radio', 'newspaper']]
+y = Advertising['sales']
+lmod = LinearRegression().fit(X, y)
+lmod.intercept_
+lmod.coef_
+# Score is the R^2
+lmod.score(X, y)
+```
+
+#### Python (statsmodels)
+
+```{python}
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
+# Fit linear regression
+lmod = smf.ols(formula = 'sales ~ TV + radio + newspaper', data = Advertising).fit()
+lmod.summary()
+```
+
+:::
+
+## Interpreting regression coefficients
+
+- We interpret $\beta_j$ as the average effect on $Y$ of a a one-unit increase in $X_j$, _holding all other predictors fixed_. 
+
+> a regression coefficient $\beta_j$ estimates the expected change in $Y$ per unit change in $X_j$, with all other predictors held fixed. But predictors usually change together!
+> 
+> "Data Analysis and Regression", Mosteller and Tukey 1977
+
+- Only when the predictors are uncorrelated (balanced or orthogonal design), each coefficient can be estimated, interpreted, and tested separately.
+
+    In other words, only in a balanced design, the regression coefficients estimated from multiple linear regression are the same as those from separate simple linear regressions.
+
+- Claims of **causality** should be avoided for observational data.
+
+## Some important questions
+
+### Goodness of fit
+
+**Question:** Is at least one of the predictors $X_1, X_2, \ldots, X_p$ useful in predicting the response? 
+
+- We can use the F-statistic to assess the fit of the overall model
+$$
+F = \frac{(\text{TSS} - \text{RSS})/p}{\text{RSS}/(n-p-1)} \sim F_{p, n-p-1},
+$$
+where
+$$
+\text{TSS} = \sum_{i=1}^n (y_i - \bar y)^2.
+$$
+Formally we are testing the null hypothesis
+$$
+H_0: \beta_1 = \cdots = \beta_p = 0
+$$
+versus the alternative
+$$
+H_a: \text{at least one } \beta_j \text{ is non-zero}.
+$$
+
+- In general, the F-statistic for testing 
+$$
+H_0: \text{ a restricted model } \omega
+$$
+versus 
+$$
+H_a: \text{a more general model } \Omega
+$$
+takes the form
+$$
+F = \frac{(\text{RSS}_\omega - \text{RSS}_\Omega) / (\text{df}(\Omega) - \text{df}(\omega))}{\text{RSS}_\Omega / (n - \text{df}(\Omega))},
+$$
+where df is the degree of freedom (roughly speaking the number of free parameters) of a model.
+
+::: {.panel-tabset}
+
+
+
+#### R
+
+```{r}
+lmod_null <- lm(sales ~ 1, data = Advertising)
+anova(lmod_null, lmod)
+```
+
+#### Python (statsmodels)
+
+```{python}
+# F test for R \beta = 0
+R = [[0, 1, 0 , 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+lmod.f_test(R)
+```
+
+:::
+
+### Model selection
+
+**Question:** Do all the predictors help to explain $Y$ , or is only a subset of the predictors useful?
+
+- For a naive implementation of the best subset, forward selection, and backward selection regressions in Python, interesting readers can read this [blog](https://xavierbourretsicotte.github.io/subset_selection.html). 
+
+#### Best subset regression
+
+- The most direct approach is called **all subsets** or **best subsets** regression: we compute the least squares fit for all possible subsets and then choose between them based on some criterion that balances training error with model size.
+
+-  We try the highly-optimized [`abess`](https://abess.readthedocs.io/en/latest/index.html) package here.
+
+::: {.panel-tabset}
+
+
+
+#### R
+
+```{r}
+library(leaps)
+
+bs_mod <- regsubsets(
+  sales ~ ., 
+  data = Advertising, 
+  method = "exhaustive"
+  ) %>% summary()
+bs_mod
+tibble(
+  K = 1:3, 
+  R2 = bs_mod$rsq,
+  adjR2 = bs_mod$adjr2,
+  BIC = bs_mod$bic,
+  CP = bs_mod$cp
+) %>% print(width = Inf)
+```
+
+#### Python
+
+```{python, eval = FALSE}
+from abess.linear import LinearRegression
+from patsy import dmatrices
+
+# Create design matrix and response vector using R-like formula
+ym, Xm = dmatrices(
+  'sales ~ TV + radio + newspaper', 
+  data = Advertising, 
+  return_type = 'matrix'
+  )
+lmod_abess = LinearRegression(support_size = range(3))
+lmod_abess.fit(Xm, ym)
+lmod_abess.coef_
+```
+
+:::
+
+- However we often can't examine all possible models, since there are $2^p$ of them. For example, when $p = 30$, there are $2^{30} = 1,073,741,824$ models!
+
+- Recent advances make possible to solve best subset regression with $p \sim 10^3 \sim 10^5$ with high-probability guarantee of optimality. See this [article](https://doi.org/10.1073/pnas.2014241117).
+
+- For really big $p$, we need some heuristic approaches to search through a subset of them. We discuss three commonly use approaches next.
+
+#### Forward selection
+
+- Begin with the **null model**, a model that contains an intercept but no predictors.
+
+- Fit $p$ simple linear regressions and add to the null model the variable that results in the lowest RSS (equivalently the lowest AIC).
+
+- Add to that model the variable that results in the lowest RSS among all two-variable models.
+
+- Continue until some stopping rule is satisfied, for example when the AIC does not decrease anymore.
+    
+::: {.panel-tabset}
+
+#### R
+
+```{r}
+step(lmod_null,
+     scope = list(lower = sales ~ 1, upper = sales ~ TV + radio + newspaper),
+     trace = TRUE, 
+     direction = "forward"
+     )
+```
+
+:::
+
+#### Backward selection
+
+- Start with all variables in the model.
+
+- Remove the variable with the largest $p$-value. That is the variable that is the least statistically significant.
+
+- The new $(p-1)$-variable model is fit, and the variable with the largest p-value is removed.
+
+- Continue until a stopping rule is reached. For instance, we may stop when AIC does not decrease anymore, or when all remaining variables have a significant $p$-value defined by some significance threshold.
+
+- Backward selection cannot start with a model with $p > n$.
+
+::: {.panel-tabset}
+
+#### R
+
+```{r}
+step(lmod,
+     scope = list(lower = sales ~ 1, upper = sales ~ TV + radio + newspaper),
+     trace = TRUE, 
+     direction = "backward"
+     )
+```
+
+
+:::
+
+#### Mixed selection
+
+- We alternately perform forward and backward steps until all variables in the model have a sufficiently low $p$-value, and all variables outside the model would have a large $p$-value if added to the model.
+
+::: {.panel-tabset}
+
+#### R
+
+```{r}
+step(lmod_null,
+     scope = list(lower = sale ~ 1, upper = sale ~ TV + radio + newspaper),
+     trace = TRUE, 
+     direction = "both"
+     )
+```
+
+
+
+:::
+
+#### Other model selection criteria
+
+Commonly used model selection criteria include Mallow's $C_p$, Akaike information criterion (AIC), Bayesian information criterion (BIC), adjusted $R^2$, and cross-validation (CV).
+
+### Model fit
+
+**Question:** How well does the selected model fit the data?
+
+- **$R^2$**: the fraction of variance explained
+$$
+R^2 = 1 - \frac{\text{RSS}}{\text{TSS}} = 1 - \frac{\sum_i (y_i - \hat y_i)^2}{\sum_i (y_i - \bar y)^2}.
+$$
+It turns out (HW1 bonus question)
+$$
+R^2 = \operatorname{Cor}(Y, \hat Y)^2.
+$$
+Adding more predictors into a model **always** increase $R^2$.
+
+- From computer output, we see the fitted linear model by using `TV`, `radio`, and `newspaper` has an $R^2=0.8972$. 
+
+::: {.panel-tabset}
+
+
+
+#### R
+
+```{r}
+# R^2
+summary(lmod)$r.squared
+# Cor(Y, \hat Y)^2
+cor(predict(lmod), Advertising$sales)^2
+```
+
+#### Python
+
+```{python}
+# R^2
+lmod.rsquared
+# Cor(Y, \hat Y)^2
+np.corrcoef(Advertising['sales'], lmod.predict())
+np.corrcoef(Advertising['sales'], lmod.predict())[0, 1]**2
+```
+
+:::
+
+- The **adjusted $R_a^2$** adjusts to the fact that a larger model also uses more parameters. 
+$$
+R_a^2 = 1 - \frac{\text{RSS}/(n-p-1)}{\text{TSS}/(n-1)}.
+$$
+Adding a predictor will only increase $R_a^2$ if it has some predictive value.
+
+::: {.panel-tabset}
+
+#### R
+
+```{r}
+# Adjusted R^2
+summary(lmod)$adj.r.squared
+```
+
+#### Python
+
+```{python}
+# Adjusted R^2
+lmod.rsquared_adj
+```
+
+
+:::
+
+
+- The **rooted squared error (RSE)**
+$$
+\text{RSE} = \sqrt{\frac{\text{RSS}}{n - p - 1}}
+$$
+is an estimator of the noise standard error $\sqrt{\operatorname{Var}(\epsilon)}$. The smaller RSE, the better fit of the model.
+
+### Prediction
+
+**Question:** Given a set of predictor values, what response value should we predict, and how accurate is our prediction?
+
+- Given a new set of predictors $x$, we predict $y$ by
+$$
+\hat y = \hat \beta_0 + \hat \beta_1 x_1 + \cdots + \hat \beta_p x_p.
+$$
+
+- Under the selected model
+$$
+\text{sales} \approx \beta_0 + \beta_1 \times \text{TV} + \beta_2 \times \text{radio},
+$$
+how many units of sale do we expect with \$100k budget in `TV` and \$20k budget in `radio`?
+
+::: {.panel-tabset}
+
+
+#### R
+
+```{r}
+x_new <- list(TV = 100, radio = 20)
+lmod_small <- lm(sales ~ TV + radio, data = Advertising)
+predict(lmod_small, x_new, interval = "confidence")
+predict(lmod_small, x_new, interval = "prediction")
+```
+
+#### Python
+
+```{python}
+from patsy import dmatrices
+# Create design matrix and response vector using R-like formula
+y_small, X_small = dmatrices(
+  'sales ~ TV + radio', 
+  data = Advertising, 
+  return_type = 'dataframe'
+  )
+# Fit linear regression
+lmod_small = sm.OLS(y_small, X_small).fit()
+lmod_small_pred = lmod_small.get_prediction(pd.DataFrame({'Intercept': [1], 'TV': [100], 'radio': [20]})).summary_frame()
+lmod_small_pred
+```
+
+
+
+:::
+
+- 95\% **Confidence interval**: probability of covering the true $f(X)$ is 0.95. 
+
+- 95\% **Predictive interval**: probability of covering the true $Y$ is 0.95.
+
+    Predictive interval is always wider than the confidence interval because it incorporates the randomness in both $\hat \beta$ and $\epsilon$.
+    
+## Qualitative (or categorical) predictors
+
+- In the `Advertising` data, all predictors are quantitative (or continuous). 
+
+- The `Credit` data has a mix of quantitative (`Balance`, `Age`, `Cards`, `Education`, `Income`, `Limit`, `Rating`) and qualitative predictors (`Own`, `Student`, `Married`, `Region`).
+
+::: {.panel-tabset}
+
+
+
+#### R
+
+```{r}
+library(ISLR2)
+
+# Credit
+Credit <- as_tibble(Credit) %>% print(width = Inf)
+
+# Pair plot of continuous predictors
+ggpairs(
+  data = Credit[, c(1:6, 11)],
+  mapping = aes(alpha = 0.25)
+  ) + 
+  labs(title = "Credit Data")
+
+# Pair plot of categorical predictors
+ggpairs(
+  data = Credit[, c(7:10, 11)],
+  mapping = aes(alpha = 0.25)
+  ) + 
+  labs(title = "Credit Data")
+```
+
+#### Python
+
+```{python}
+# Import Credit data
+Credit = pd.read_csv("../data/Credit.csv")
+Credit
+```
+
+```{python}
+# Visualization by pair plot
+sns.pairplot(data = Credit)
+```
+
+:::
+
+- By default, most software create **dummy variables**, also called **one-hot coding**, for categorical variables. Both Python (statsmodels) and R use the first level (in alphabetical order) as the base level.
+
+::: {.panel-tabset}
+
+
+
+#### R
+
+```{r}
+lm(Balance ~ ., data = Credit) %>%
+  tbl_regression() %>%
+  bold_labels() %>%
+  bold_p(t = 0.05)
+```
+
+#### Python
+
+```{python}
+# Hack to get all predictors
+my_formula = "Balance ~ " + "+".join(Credit.columns.difference(["Balance"]))
+# Create design matrix and response vector using R-like formula
+y, X = dmatrices(
+  my_formula,
+  data = Credit, 
+  return_type = 'dataframe'
+  )
+# One-hot coding for categorical variables  
+X
+```
+
+```{python}
+# Fit linear regression
+sm.OLS(y, X).fit().summary()
+```
+
+:::
+
+- There are many different ways of coding qualitative variables, measuring particular **contrasts**.
+
+## Interactions
+
+- In our previous analysis of the `Advertising` data, we assumed that the effect on `sales` of increasing one advertising medium is independent of the amount spent on the other media
+$$
+\text{sales} \approx \beta_0 + \beta_1 \times \text{TV} + \beta_2 \times \text{radio}.
+$$
+
+- But suppose that spending money on radio advertising actually increases the effectiveness of TV advertising, so that the slope term for `TV` should increase as `radio` increases.
+
+- In this situation, given a fixed budget of $100,000, spending half on `radio` and half on `TV` may increase sales more than allocating the entire amount to either `TV` or to `radio`.
+
+- In marketing, this is known as a **synergy** effect, and in statistics it is referred to as an **interaction** effect.
+
+- Assume the interaction model:
+$$
+\text{sales} \approx \beta_0 + \beta_1 \times \text{TV} + \beta_2 \times \text{radio} + \beta_3 \times (\text{TV} \times \text{radio}).
+$$
+
+::: {.panel-tabset}
+
+
+
+#### R
+
+```{r}
+lmod_int <- lm(sales ~ 1 + TV * radio, data = Advertising) 
+summary(lmod_int)
+lmod_int %>%
+  tbl_regression(estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+  bold_labels() %>%
+  bold_p(t = 0.05)
+```
+
+#### Python
+
+```{python}
+# Design matrix with interaction
+y, X_int = dmatrices(
+  'sales ~ 1 + TV * radio',
+  data = Advertising, 
+  return_type = 'dataframe'
+  )
+
+# Fit linear regression with interaction
+sm.OLS(y, X_int).fit().summary()
+```
+
+:::
+
+- The results in this table suggests that the TV $\times$ Radio interaction is important.
+
+- The $R^2$ for the interaction model is 96.8\%, compared to only 89.7\% for the model that predicts sales using `TV` and `radio` without an interaction term.
+
+- This means that (96.8 - 89.7)/(100 - 89.7) = 69\% of the variability in sales that remains after fitting the additive model has been explained by the interaction term.
+
+- The coefficient estimates in the table suggest that an increase in TV advertising of \$1,000 is associated with increased sales of
+$$
+(\hat \beta_1 + \hat \beta_3 \times \text{radio}) \times 1000 = 19 + 1.1 \times \text{radio units}.
+$$
+
+- An increase in radio advertising of \$1,000 will be associated with an increase in sales of
+$$
+(\hat \beta_2 + \hat \beta_3 \times \text{TV}) \times 1000 = 29 + 1.1 \times \text{TV units}.
+$$
+
+- Sometimes it is the case that an interaction term has a very small p-value, but the associated main effects (in this case, `TV` and `radio`) do not.
+
+    The **hierarchy principle** staties
+    
+> If we include an interaction in a model, we should also include the main effects, even if the $p$-values associated with their coefficients are not significant.
+
+- The rationale for this principle is that interactions are hard to interpret in a model without main effects -- their meaning is changed. Specifically, the interaction terms still contain main effects, if the model has no main effect terms.
+
+## Non-linear effects of predictors
+
+- `Auto` data. 
+
+- Linear fit vs polynomial fit.
+
+::: {.panel-tabset}
+
+
+
+#### R
+
+```{r}
+Auto <- as_tibble(Auto) %>% print(width = Inf)
+
+# Linear fit
+lm(mpg ~ horsepower, data = Auto) %>% summary()
+# Degree 2
+lm(mpg ~ poly(horsepower, 2), data = Auto) %>% summary()
+# Degree 5
+lm(mpg ~ poly(horsepower, 5), data = Auto) %>% summary()
+
+ggplot(data = Auto, mapping = aes(x = horsepower, y = mpg)) +
+  geom_point() + 
+  geom_smooth(method = lm, color = 1) + 
+  geom_smooth(method = lm, formula = y ~ poly(x, 2), color = 2) + 
+  geom_smooth(method = lm, formula = y ~ poly(x, 5), color = 3) +
+  labs(x = "Horsepower", y = "Miles per gallon")
+```
+
+#### Python
+
+```{python}
+# Import Auto data (missing data represented by '?')
+Auto = pd.read_csv("../data/Auto.csv", na_values = '?').dropna()
+Auto
+```
+
+```{python}
+plt.clf()
+# Linear fit
+ax = sns.regplot(
+  data = Auto,
+  x = 'horsepower',
+  y = 'mpg', 
+  order = 1
+  )
+# Quadratic fit  
+sns.regplot(
+  data = Auto,
+  x = 'horsepower',
+  y = 'mpg', 
+  order = 2,
+  ax = ax
+  )
+# 5-degree fit  
+sns.regplot(
+  data = Auto,
+  x = 'horsepower',
+  y = 'mpg', 
+  order = 5,
+  ax = ax
+  )
+ax.set(
+  xlabel = 'Horsepower',
+  ylabel = 'Miles per gallon'
+)
+```
+
+:::
+
+## What we did not cover
+
+- Outliers.
+
+- Non-constant variance of error terms.
+
+- High leverage points.
+
+- Collinearity.
+
+See ISL Section 3.3.3.
+
+## Generalizations of linear models
+
+In much of the rest of this course, we discuss methods that expand the scope of linear models and how they are fit.
+
+- Classification problems: logistic regression, discriminant analysis, support vector machines.  
+
+- Non-linearity: kernel smoothing, splines and generalized additive models, nearest neighbor methods. 
+
+- Interactions: tree-based methods, bagging, random forests, boosting, neural networks.
+
+- Regularized fitting: ridge regression and lasso.

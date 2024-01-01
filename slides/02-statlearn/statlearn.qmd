@@ -2,10 +2,11 @@
 title: "Statistical Learning (ISL 2)"
 subtitle: "Biostat 212A"
 author: "Dr. Jin Zhou @ UCLA"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+date: today
 format:
   html:
     theme: cosmo
+    embed-resources: true
     number-sections: true
     toc: true
     toc-depth: 4
@@ -26,6 +27,12 @@ Credit: This note heavily uses material from the books [_An Introduction to Stat
 Display system information for reproducibility.
 
 ::: {.panel-tabset}
+## R
+
+```{r}
+sessionInfo()
+```
+
 
 ## Python
 
@@ -34,20 +41,7 @@ import IPython
 print(IPython.sys_info())
 ```
 
-## R
 
-```{r}
-sessionInfo()
-```
-
-## Julia
-
-```{julia}
-#| eval: false
-using InteractiveUtils
-
-versioninfo()
-```
 
 :::
 
@@ -59,6 +53,34 @@ versioninfo()
 - The `Income` data contains `Income`, `Years of Education`, and `Seniority` of individuals.
 
 ::: {.panel-tabset}
+
+#### R
+
+```{r}
+library(tidyverse)
+
+# Import Income2 data
+income <- read_csv("../data/Income2.csv", col_select = Education:Income) %>% 
+  print(width = Inf)
+
+# Plot income ~ Education
+income %>%
+  ggplot(mapping = aes(x = Education, y = Income)) + 
+  geom_point() + 
+  geom_smooth() +
+  labs(title = "Income increases nonlinearly with education",
+       x = "Years of Education",
+       y = "Income (k$)")
+
+# Plot income ~ Seniority
+income %>%
+  ggplot(mapping = aes(x = Seniority, y = Income)) + 
+  geom_point() + 
+  geom_smooth() +
+  labs(title = "Income increases nonlinearly with seniority",
+       x = "Seniority",
+       y = "Income (k$)")
+```
 
 #### Python
 
@@ -120,35 +142,6 @@ sns.lmplot(
   )  
 ```
 
-#### R
-
-```{r}
-library(tidyverse)
-
-# Import Income2 data
-income <- read_csv("../data/Income2.csv", col_select = Education:Income) %>% 
-  print(width = Inf)
-
-# Plot income ~ Education
-income %>%
-  ggplot(mapping = aes(x = Education, y = Income)) + 
-  geom_point() + 
-  geom_smooth() +
-  labs(title = "Income increases nonlinearly with education",
-       x = "Years of Education",
-       y = "Income (k$)")
-
-# Plot income ~ Seniority
-income %>%
-  ggplot(mapping = aes(x = Seniority, y = Income)) + 
-  geom_point() + 
-  geom_smooth() +
-  labs(title = "Income increases nonlinearly with seniority",
-       x = "Seniority",
-       y = "Income (k$)")
-```
-
-#### Julia
 
 :::
 
