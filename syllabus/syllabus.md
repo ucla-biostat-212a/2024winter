@@ -11,16 +11,16 @@ title: Biostat 212A
 |--------------|---------------|--------------------------------------------|
 | Sat, Jan 6   | 8:30am-12:30pm | CHS 33-105A                                |
 | Sun, Jan 7   | 8:30am-12:30pm | CHS 43-105A                                |
-| Tue, Jan 16  | 5pm-7pm | [Zoom]() |
-| Tue, Jan 23  | 5pm-7pm | [Zoom]() |
-| Tue, Jan 30  | 5pm-7pm | [Zoom]() |
-| Tue, Feb 6   | 5pm-7pm | [Zoom]() |
+| Tue, Jan 16  | 5pm-7pm | [Zoom](https://ucla.zoom.us/j/95767445277) |
+| Tue, Jan 23  | 5pm-7pm | [Zoom](https://ucla.zoom.us/j/95767445277) |
+| Tue, Jan 30  | 5pm-7pm | [Zoom](https://ucla.zoom.us/j/95767445277) |
+| Tue, Feb 6   | 5pm-7pm | [Zoom](https://ucla.zoom.us/j/95767445277) |
 | Sat, Feb 10  | 8:30am-12:30pm | CHS 43-105A                                |
 | Sun, Feb 11  | 8:30am-12:30pm | CHS 43-105A                                |
-| Tue, Feb 20  | 5pm-7pm | [Zoom]() |
-| Tue, Feb 27  | 5pm-7pm | [Zoom]() |
-| Tue, Mar 5   | 5pm-7pm | [Zoom]() |
-| Tue, Mar 12  | 5pm-7pm | [Zoom]() |
+| Tue, Feb 20  | 5pm-7pm | [Zoom](https://ucla.zoom.us/j/95767445277) |
+| Tue, Feb 27  | 5pm-7pm | [Zoom](https://ucla.zoom.us/j/95767445277) |
+| Tue, Mar 5   | 5pm-7pm | [Zoom](https://ucla.zoom.us/j/95767445277) |
+| Tue, Mar 12  | 5pm-7pm | [Zoom](https://ucla.zoom.us/j/95767445277) |
 | Sat, Mar 16  | 8:30am-12:30pm | CHS 43-105A                                |
 | Sun, Mar 17  | 8:30am-12:30pm | CHS 43-105A                                |
 
@@ -29,7 +29,7 @@ title: Biostat 212A
 [Dr. Jin Zhou](https://ph.ucla.edu/about/faculty-staff-directory/jin-zhou)  
 Office: CHS 21-254  
 Email: <jinjinzhou@ucla.edu>  
-Office hours: TBD  
+Office hours:   
 
 ## Course Description
 
@@ -53,7 +53,7 @@ Class attendance to both in-person and Zoom lectures is **mandatory**.
 
 ## Homework
 
-There will at least 5 homework assignments throughout the quarter.  
+There will be at least 5 homework assignments throughout the quarter.  
 
 ## Exam
 
@@ -61,7 +61,7 @@ There will be no midterm and final exams.
 
 ## Final Grade
 
-Grades will be based on the homework (75%) and participation (class attendance, pop quiz, ask questions, engage on Slack and in office hours, 25%).
+Grades will be based on homework (75%) and participation (class attendance, pop quizzes, asking questions, and engaging in office hours, 25%).
 
 ## UCLA ADA Policy 
 
