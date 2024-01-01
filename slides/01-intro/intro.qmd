@@ -1,11 +1,12 @@
 ---
 title: "Introduction (ISL 1)"
-subtitle: "Biostat 212a"
+subtitle: "Biostat 212A"
 author: "Dr. Jin Zhou @ UCLA"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+date: today
 format:
   html:
     theme: cosmo
+    embed-resources: true
     number-sections: true
     toc: true
     toc-depth: 4
@@ -29,6 +30,12 @@ Display system information for reproducibility.
 
 ::: {.panel-tabset}
 
+#### R
+
+```{r}
+sessionInfo()
+```
+
 #### Python
 
 ```{python}
@@ -36,20 +43,6 @@ import IPython
 print(IPython.sys_info())
 ```
 
-#### R
-
-```{r}
-sessionInfo()
-```
-
-#### Julia
-
-```{julia}
-#| eval: false
-using InteractiveUtils
-
-versioninfo()
-```
 
 :::
 
@@ -108,6 +101,47 @@ $$
 - Since wage is a quantitative variable, it is a regression problem. 
 
 ::: {.panel-tabset}
+#### R
+
+```{r}
+#| message: false
+library(gtsummary)
+library(ISLR2)
+library(tidyverse)
+
+# Convert to tibble
+Wage <- as_tibble(Wage) %>% print(width = Inf)
+
+# Summary statistics
+Wage %>% tbl_summary()
+
+# Plot wage ~ age
+Wage %>%
+  ggplot(mapping = aes(x = age, y = wage)) + 
+  geom_point() + 
+  geom_smooth() +
+  labs(title = "Wage changes nonlinearly with age",
+       x = "Age",
+       y = "Wage (k$)")
+
+# Plot wage ~ year
+Wage %>%
+  ggplot(mapping = aes(x = year, y = wage)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") +
+  labs(title = "Average wage increases by $10k in 2003-2009",
+       x = "Year",
+       y = "Wage (k$)")
+
+# Plot wage ~ education
+Wage %>%
+  ggplot(mapping = aes(x = education, y = wage)) + 
+  geom_point() + 
+  geom_boxplot() +
+  labs(title = "Wage increases with education level",
+       x = "Year",
+       y = "Wage (k$)")
+```
 
 #### Python
 
@@ -219,65 +253,7 @@ ax.set_xticklabels(ax.get_xticklabels(), rotation = 15)
 ```
 
 
-#### R
 
-```{r}
-#| message: false
-library(gtsummary)
-library(ISLR2)
-library(tidyverse)
-
-# Convert to tibble
-Wage <- as_tibble(Wage) %>% print(width = Inf)
-
-# Summary statistics
-Wage %>% tbl_summary()
-
-# Plot wage ~ age
-Wage %>%
-  ggplot(mapping = aes(x = age, y = wage)) + 
-  geom_point() + 
-  geom_smooth() +
-  labs(title = "Wage changes nonlinearly with age",
-       x = "Age",
-       y = "Wage (k$)")
-
-# Plot wage ~ year
-Wage %>%
-  ggplot(mapping = aes(x = year, y = wage)) + 
-  geom_point() + 
-  geom_smooth(method = "lm") +
-  labs(title = "Average wage increases by $10k in 2003-2009",
-       x = "Year",
-       y = "Wage (k$)")
-
-# Plot wage ~ education
-Wage %>%
-  ggplot(mapping = aes(x = education, y = wage)) + 
-  geom_point() + 
-  geom_boxplot() +
-  labs(title = "Wage increases with education level",
-       x = "Year",
-       y = "Wage (k$)")
-```
-
-#### Julia
-
-```{julia}
-#| eval: false
-using AlgebraOfGraphics, CairoMakie, CSV, DataFrames
-ENV["DATAFRAMES_COLUMNS"] = 1000
-CairoMakie.activate!(type = "png")
-
-# Import Wage data
-Wage = DataFrame(CSV.File("../data/Wage.csv"))
-
-# Summary statistics
-describe(Wage)
-
-# Plot Wage ~ age
-data(Wage) * mapping(:age, :wage) * (smooth() + visual(Scatter)) |> draw
-```
 
 :::
 
@@ -309,6 +285,33 @@ chartSeries(SP500, theme = chartTheme("white"),
 - From the boxplots in @fig-sp500-lag, it seems that the previous 5 days percentage returns do not discriminate whether today's return is positive or negative. 
 
 ::: {.panel-tabset}
+
+
+
+#### R
+
+```{r}
+# Data information
+help(Smarket)
+
+# Convert to tibble
+Smarket <- as_tibble(Smarket) %>% print(width = Inf)
+
+# Summary statistics
+summary(Smarket)
+
+# Plot Direction ~ Lag1, Direction ~ Lag2, ...
+Smarket %>%
+  pivot_longer(cols = Lag1:Lag5, names_to = "Lag", values_to = "Perc") %>%
+  ggplot() + 
+  geom_boxplot(mapping = aes(x = Direction, y = Perc)) +
+  labs(
+    x = "Today's Direction", 
+    y = "Percentage change in S&P",
+    title = "Up and down of S&P doesn't depend on previous day(s)'s percentage of change."
+    ) +
+  facet_wrap(~ Lag)
+```
 
 #### Python
 
@@ -344,32 +347,7 @@ g.map_dataframe(sns.boxplot, x = "Direction", y = "Perc")
 plt.clf()
 ```
 
-#### R
 
-```{r}
-# Data information
-help(Smarket)
-
-# Convert to tibble
-Smarket <- as_tibble(Smarket) %>% print(width = Inf)
-
-# Summary statistics
-summary(Smarket)
-
-# Plot Direction ~ Lag1, Direction ~ Lag2, ...
-Smarket %>%
-  pivot_longer(cols = Lag1:Lag5, names_to = "Lag", values_to = "Perc") %>%
-  ggplot() + 
-  geom_boxplot(mapping = aes(x = Direction, y = Perc)) +
-  labs(
-    x = "Today's Direction", 
-    y = "Percentage change in S&P",
-    title = "Up and down of S&P doesn't depend on previous day(s)'s percentage of change."
-    ) +
-  facet_wrap(~ Lag)
-```
-
-#### Julia
 
 :::
 
@@ -467,6 +445,28 @@ research assistants surveying the area. The objective is to classify the land us
 
 ::: {.panel-tabset}
 
+
+#### R
+
+```{r}
+# NCI60 data and cancel labels
+str(NCI60)
+# Cancer type of each cell line
+table(NCI60$labs)
+
+# Apply PCA using prcomp function
+# Need to scale / Normalize as
+# PCA depends on distance measure
+prcomp(NCI60$data, scale = TRUE, center = TRUE, retx = T)$x %>%
+  as_tibble() %>%
+  add_column(cancer_type = NCI60$labs) %>%
+  # Plot PC2 vs PC1
+  ggplot() + 
+  geom_point(mapping = aes(x = PC1, y = PC2, color = cancer_type)) +
+  labs(title = "Gene expression profiles cluster according to cancer types")
+```
+
+
 #### Python
 
 ```{python}
@@ -503,27 +503,7 @@ sns.relplot(
   )
 ```
 
-#### R
 
-```{r}
-# NCI60 data and cancel labels
-str(NCI60)
-# Cancer type of each cell line
-table(NCI60$labs)
-
-# Apply PCA using prcomp function
-# Need to scale / Normalize as
-# PCA depends on distance measure
-prcomp(NCI60$data, scale = TRUE, center = TRUE, retx = T)$x %>%
-  as_tibble() %>%
-  add_column(cancer_type = NCI60$labs) %>%
-  # Plot PC2 vs PC1
-  ggplot() + 
-  geom_point(mapping = aes(x = PC1, y = PC2, color = cancer_type)) +
-  labs(title = "Gene expression profiles cluster according to cancer types")
-```
-
-#### Julia
 
 :::
 
