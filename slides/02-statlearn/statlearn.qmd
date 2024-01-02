@@ -379,7 +379,7 @@ Bias-variance trade-off.
 
 ::: {#fig-double-descent}
 
-![](https://openai.com/content/images/2019/12/modeldd.svg)
+![](double-decent.png){width=600px height=300px}
 
 Double descent phenomenon ([OpenAI Blog](https://openai.com/blog/deep-double-descent/)).
 :::
