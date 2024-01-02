@@ -81,7 +81,7 @@ x_{11} & \cdots & x_{1p} \\
 \vdots & \ddots & \vdots \\
 x_{n1} & \cdots & x_{np}
 \end{pmatrix} = \begin{pmatrix} \mathbf{x}_1^T \\ \vdots \\ \mathbf{x}_n^T \end{pmatrix}
-$$ {#eq-predictor-matrix}
+$$ {#eq-predictor-matrix}  
 and a response vector
 $$
 \mathbf{y} = \begin{pmatrix} y_1 \\ \vdots \\ y_n \end{pmatrix}
@@ -649,3 +649,270 @@ A: No single method dominates. One method may prove useful in answering some que
 - I'm happy to share my professional connections.
 
 - I'll try my best to be responsive in class, in office hours, and other professional encounters.
+
+
+# Notation and Simple Matrix Algebra
+
+## Notation
+- We will use $n$ to represent the number of distinct data points, or observations, in our sample. 
+- We will let $p$ denote the number of variables that are available for use in making predictions. 
+  + For example, the `Wage` data set consists of 11 variables for 3,000 people, so we have $n = 3,000$ observations and $p = 11$ variables (such as year, age, race, and more). 
+  + $p$ can be quite large, such as on the order of thousands or even millions, e.g., modern biological data, like gene expression, DNA sequences along the genome. 
+- We will let $x_{ij}$ represent the value of the $j$th variable for the $i$th observation, where $i = 1,2,\ldots,n$ and $j = 1,2,\ldots,p$. 
+- We will let $i$ be the index of the samples or observations (from 1 to $n$) and $j$ will be used to index the variables (from 1 to $p$). 
+- We let $\mathbf{X}$ denote an $n \times p$ matrix whose $(i, j )$th element is $x_{ij}$
+$$
+\mathbf{X} = \begin{pmatrix}
+x_{11} & \cdots & x_{1p} \\
+\vdots & \ddots & \vdots \\
+x_{n1} & \cdots & x_{np}
+\end{pmatrix} = \begin{pmatrix} \mathbf{x}_1^T \\ \vdots \\ \mathbf{x}_n^T \end{pmatrix}
+$$ {#eq-predictor-matrix}  
+
+- Rows of X, which we write as $x_1, x_2, \ldots , x_n$. Here $x_i$ is a vector of length $p$, containing the $p$ variable measurements for the $i$th observation. That is,
+$$
+x_i = \begin{pmatrix} x_{i1} \\ \vdots \\ x_{ip} \end{pmatrix}.
+$$
+**Note: Vectors are by default represented as columns.** 
+
+- At other times we will instead be interested in the columns of $\mathbf{X}$, which we write as $\mathbf{x}_1,\mathbf{x}_2,\ldots,\mathbf{x}_p$. Each is a vector of length $n$. That is,
+$$
+\mathbf{x}_j = \begin{pmatrix} \mathbf{x}_{1j} \\ \vdots \\ \mathbf{x}_{nj} \end{pmatrix}.
+$$
+
+
+- Using this notation, the matrix $\mathbf{X}$ can be written as
+$$
+\mathbf{X} = (\mathbf{x}_1 \quad \mathbf{x}_2 \quad \ldots \quad \mathbf{x}_p),  
+$$
+or 
+$$
+\mathbf{X} = \begin{pmatrix} x_{1}^T \\ \vdots \\ x_{n}^T \end{pmatrix}.
+$$ 
+
+- We use $y_i$ to denote the $i$th observation of the variable on which we wish to make predictions (i.e., "outcome"), such as wage. Hence, we write the set of all $n$ observations in vector form as
+$$
+\mathbf{y} = \begin{pmatrix} y_1 \\ \vdots \\ y_n \end{pmatrix}
+$$
+Then our observed data consists of  ${(x_1, y_1), (x_2, y_2), \ldots , (x_n, y_n)}$, where each $x_i$ is a vector of length $p$. (If $p = 1$, then $x_i$ is simply a scalar.)
+
+## Matrix Algebra
+
+- Matrices will be denoted using bold capitals, such as $\mathbf{A}$. 
+- To indicate that an object is a scalar, we will use the notation $a \in R$. 
+- To indicate that it is a vector of length $k$,we will use $\mathbf{a}\in R^k$ (or $\mathbf{a}\in R^n$ if it is of length $n$). 
+- We will indicate that an object is an $r \times s$ matrix using $\mathbf{A} \in R^{r\times s}$.
+
+### Special cases of matrices
+
+- A column vector is a matrix with only one column, e.g.
+$$
+\mathbf{A} = \left(\begin{array}{c}
+  1  \\
+ 4   \\ 
+ 0\\
+ -2\\
+\end{array}\right)
+$$ 
+- A row vector is a matrix with only one row, e.g.
+$$
+\mathbf{A} = \left(\begin{array}{cccc}
+  1  & 4   & 0 & -2\\
+\end{array}\right)
+$$
+- A matrix with $r = s$, that is, with the same number of rows and columns is called a **square matrix**. If a matrix \mathbf{A} is square, the elements $a_{ii}$ are said to lie on the **diagonal**
+of \mathbf{A}. 
+$$
+\mathbf{A} = \left(\begin{array}{cc}
+  1  & 4   \\
+  0 & -2
+\end{array}\right)
+$$
+- A square matrix \mathbf{A} is called \alert{symmetric} if $a_{ij} = a_{ji}$ for all values of i and j. 
+$$
+\mathbf{A} =  \left(\begin{array}{ccc}
+3 &5& 7 \\
+5 &1& 4 \\
+7 &4 &8
+\end{array}\right)
+$$
+Symmetric matrices turn out to be quite important in formulating statistical models for all types of data!
+
+-  An important special case of a square, symmetric matrix is the identity matrix, i.e., a square matrix with $1$s on diagonal, $0$s elsewhere, e.g.
+$$
+\mathbf{A} =  \left(\begin{array}{ccc}
+1 & 0 & 0 \\ 
+ 0 & 1 & 0 \\
+0& 0& 1\\
+\end{array}\right)
+$$
+The identity matrix functions the same way as "$1$" does in the real number system.
+
+### Matrix operations
+- The $^T$ notation denotes the transpose of a matrix or vector
+
+$$
+\mathbf{X}^T = \begin{pmatrix}
+x_{11} & \cdots & x_{1n} \\
+\vdots & \ddots & \vdots \\
+x_{p1} & \cdots & x_{pn}
+\end{pmatrix} = \begin{pmatrix} \mathbf{x}_1^T \\ \vdots \\ \mathbf{x}_n^T \end{pmatrix}
+$$ {#eq-predictor-matrix}
+So the transpose of a $n\times p$ matrix is a $p\times n$ matrix.  That is, the transpose of $A$ is the matrix found by ``flipping" the matrix around.
+- For example,
+$$
+\mathbf{A} = 
+\left(
+\begin{array}{ccc}
+ 1 & 2  & 3  \\
+ 4 & 5  & 6  \\ 
+\end{array}
+\right)
+\quad
+\mathbf{A}^T = 
+\left(
+\begin{array}{cc}
+ 1 & 4 \\
+ 2 & 5 \\ 
+ 3 & 6 \\
+\end{array}
+\right)
+$$
+A **fundamental property of a symmetric matrix** is that the matrix and its transpose are the same; i.e., if $\mathbf{A}$ is symmetric then $\mathbf{A} = \mathbf{A}^T$. (Try it on the symmetric matrix above.)
+
+### Matrix Addition and Subtraction
+Adding or subtracting two matrices are operations that are defined **element-by-element**. That is, to add to matrices, add their corresponding elements, e.g.
+$$
+\mathbf{A} = 
+\left(
+\begin{array}{cc}
+ 1 & 2    \\
+ 4 & 5    \\ 
+\end{array}
+\right)
+\quad
+\mathbf{B} = 
+\left(
+\begin{array}{cc}
+ 6 & 4  \\
+ 2 & -1   \\ 
+\end{array}
+\right)
+$$
+Then,
+$$
+\mathbf{A} + \mathbf{B} = 
+\left(
+\begin{array}{cc}
+ 7 & 6    \\
+ 6 & 4    \\ 
+\end{array}
+\right)
+\quad
+\mathbf{A} - \mathbf{B} = 
+\left(
+\begin{array}{cc}
+ -5 &-2  \\
+ -2 & 6  \\ 
+\end{array}
+\right)
+$$
+- Note that these operations only make sense if the two matrices have the **same dimension**; the operations are not defined otherwise.
+
+### Matrix Multiplication
+
+- The effect of multiplying a matrix $\mathbf{A}$ with any dimension by a real number (scalar) $b$, say, is to multiply each element in $\mathbf{A}$ by $b$. 
+$$
+3\left(
+\begin{array}{cc}
+1 & 2     \\
+4 & 5    \\ 
+\end{array}
+\right) = 
+\left(
+\begin{array}{cc}
+  3 & 6     \\
+ 12 & 15    \\ 
+\end{array}
+\right)
+$$
+
+- General rules,
+  + $\mathbf{A} + \mathbf{B} = \mathbf{B} + \mathbf{A}$, $b(\mathbf{A} + \mathbf{B})=b\mathbf{A} + b\mathbf{B}$
+  + $(\mathbf{A} + \mathbf{B})^T=\mathbf{A}^T + \mathbf{B}^T$, $(b\mathbf{A})^T=b\mathbf{A}^T$
+
+- Order matters
+  + Number of columns of first matrix must = Number of rows of second matrix, e.g.,
+$$
+\mathbf{A} = \left(
+\begin{array}{ccc}
+ 1 & 2  &5   \\
+ 4 & 5  &1 \\ 
+\end{array}
+\right) \quad
+\mathbf{B} = \left(
+\begin{array}{cc}
+ 3 & 6    \\
+ 2 & 5    \\ 
+ 1 & 2    \\
+\end{array}
+\right)\\ \quad
+\mathbf{C} = (c_{ij}) = \mathbf{AB} = \left(
+\begin{array}{cc}
+ 12 & 26    \\
+ 23 & 51    \\ 
+\end{array}
+\right)
+$$
+- Formally, if $\mathbf{A}$ is $(r\times s)$ and $\mathbf{B}$ is $(s\times q)$, then $\mathbf{AB}$ is a $(r\times q)$ matrix with $(i,j)$th element 
+$$
+\sum_{k=1}^s a_{ik}b_{kj}.
+$$
+- General rules,
+  + $\mathbf{A}(\mathbf{B} + \mathbf{C}) = \mathbf{A}\mathbf{B} + \mathbf{A}\mathbf{C}$, $(\mathbf{A}+\mathbf{B}) \mathbf{C}) = \mathbf{A}\mathbf{C} + \mathbf{B}\mathbf{C}$
+  + For any matrix $\mathbf{A}$, $\mathbf{A}^T\mathbf{A}$ will be a square matrix. 
+  + The transpose of a matrix product: $(\mathbf{AB})^T=\mathbf{A}^T\mathbf{B}^T$.
+
+### Example
+- Consider a prediction model, e.g., `wage` data example: suppose that we have $n$ pairs $(x_1,Y_1),\ldots,(x_n,Y_n)$, and we believe that, except for a random deviation, the relationship between the \alert{covariate} $x$ (e.g., `age`) and the response $\mathbf{Y}$ follows a straight line. That is, for $j=1,\ldots,n$, we have 
+$$
+\mathbf{Y}_j = \beta_0 + \beta_1x_j + \epsilon_j,
+$$
+where $\epsilon_j$ is a random deviation representing the amount by which the actual observed response $Y_j$ deviates from the exact straight line relationship. Defining,
+$$
+\mathbf{X}= \left(
+\begin{array}{cc}
+  1 & x_1    \\
+ 1 & x_2   \\ 
+ \vdots & \vdots\\
+ 1&x_n\\
+\end{array}
+\right),\quad
+Y= \left(
+\begin{array}{c}
+  Y_1    \\
+ Y_2   \\ 
+ \vdots \\
+ Y_n\\
+\end{array}
+\right),\quad
+\epsilon= \left(
+\begin{array}{c}
+  \epsilon_1    \\
+ \epsilon_2   \\ 
+ \vdots \\
+ \epsilon_n\\
+\end{array}
+\right),
+\beta= \left(
+\begin{array}{c}
+  \beta_0    \\
+ \beta_1  \\ 
+\end{array}
+\right),
+$$ 
+we may express the model succinctly as 
+$$
+\mathbf{Y}=\mathbf{X}\beta +\epsilon.
+$$
+
