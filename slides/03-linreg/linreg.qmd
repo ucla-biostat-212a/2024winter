@@ -46,8 +46,6 @@ print(IPython.sys_info())
 
 ## Linear regression
 
-- This lecture serves as a review of your Econ 430+442A material.
-
 - Linear regression is a simple approach to supervised learning. It assumes that the dependence of $Y$ on $X_1, X_2, \ldots, X_p$ is linear.
 
 - True regression functions are never linear!
@@ -127,7 +125,7 @@ sns.pairplot(data = Advertising)
     - Is the relationship linear?  
     - Is there synergy among the advertising media?  
     
-## Simple linear regression vs multiple linear regression
+## Linear regression  
 
 - In **simple linear regression**, we assume a model
 $$
@@ -152,12 +150,252 @@ $$
 $$
 We review the multiple linear regression below.
 
-## Estimation in multiple linear regression
+### Simple linear regression
+- We will sometimes describe 
+$$
+Y = \beta_0 + \beta_1  X + \epsilon.
+$$
+by saying that we are regressing Y on X (or Y onto X). 
+- $\beta_0$ and $\beta_1$ are two unknown constants which are known as the model **coefficients** or **parameters**. 
+- Using training data, we estimate $\beta_0$ and $\beta_1$. 
+- The estimated $\beta_0$ and $\beta_1$ are $\hat \beta_0$ and $\hat \beta_1$. 
+- Then we can predict future sales on the basis of a particular value of TV advertising by computing $\hat y = \hat \beta_0 + \hat \beta_1 \times \text{TV}$.
+- We use a hat symbol,  $\hat \,$ ,  to denote the estimated value for an unknown parameter or coefficient, or to denote the predicted value of the response.
+
+### Estimation in simple linear regression
+- Let
+$$
+(x_1, y_1),\, (x_2,y_2),\ldots , (x_n,y_n)
+$$
+represent $n$ observation pairs, each of which consists of a measurement of $X$ and a measurement of $Y$.
+
+- Our goal is to obtain coefficient estimates $\beta_0$ and $\beta_1$ such that the linear model, $Y = \beta_0 + \beta_1  X + \epsilon$ fits the available data well, i.e., $y_i \approx \hat \beta_0 + \hat \beta_1 x_i$ for $i=1,\ldots, n$. 
+
+- In other words, we want to find an intercept $\beta_0$ and a slope $\beta_1$ such that the resulting line is as close as possible to the $n = 200$ data points.
+
+::: {.panel-tabset}
+
+#### R
+
+```{r}
+fit <- lm(sales ~ TV, data = Advertising)
+(d <- Advertising %>%
+  select(sales, TV) %>%
+  mutate(predicted = predict(fit), # Save the predicted values
+         residuals = residuals(fit))) # Save the residual values
+
+coefficients(fit)
+
+library(ggplot2)
+ggplot(d, aes(x = TV, y = sales)) +  # Set up canvas with outcome variable on y-axis
+  geom_point( color = "red") +
+  geom_abline(intercept = coefficients(fit)[1], slope = coefficients(fit)[2], color = "blue") + 
+  geom_segment(aes(xend = TV, yend = predicted), color = "gray") +  # Add prediction lines
+  scale_x_continuous(breaks = seq(0, 300, by = 50), limits = c(0, 300)) + # Set x-axis limits
+  scale_y_continuous(breaks = seq(0, 30, by = 5), limits = c(0, 28)) +
+  xlab("TV") +
+  ylab("Sales") +
+  theme_bw() + 
+  theme(panel.background = element_rect(colour = "black", linewidth = 1),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "black"))
+
+```
+
+#### Python
+
+:::
+
+- How to define closeness? By far the most common approach involves minimizing the least squares criterion. 
+
+- We define the residual for the $i$th observation as
+$$
+e_i = y_i - \hat y_i,
+$$
+where $\hat y_i = \hat \beta_0 + \hat \beta_1 x_i$ for $i=1,\ldots, n$.
+
+- We define the residual sum of squares (RSS) as
+$$
+RSS = e_1^2 + e_2^2 + \ldots + e_n^2 = (y_1 - \hat \beta_0 + \hat \beta_1 x_1)^2 + \ldots + (y_n - \hat \beta_0 + \hat \beta_1 x_n)^2.
+$$
+
+
+- The **least squares** approach chooses $\beta_0$ and $\beta_1$ to minimize the RSS
+$$
+\hat \beta_0\text{ and }\hat \beta_1 = \underset{\beta_0, \beta_1}{\text{minimize }} RSS = \sum_{i=1}^n (y_i - \beta_0 + \beta_1 x_i)^2.
+$$
+- Using some calculus, we show that the minimizers are
+\begin{align*}
+\hat{\beta}_1 &= \frac{\sum_{i=1}^{n} (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^{n} (x_i - \bar{x})^2},\\
+\hat{\beta}_0 & = \bar{y} - \hat{\beta}_1\bar{x}.
+\end{align*}
+where $\bar{x} = \frac{1}{n} \sum_{i=1}^n x_i$ and $\bar{y} = \frac{1}{n} \sum_{i=1}^n y_i$. These are **least squares coefficient estimates** for simple linear regression.
+
+
+::: {.panel-tabset}
+
+#### R
+
+```{r}
+(beta1 = with(d, sum((TV - mean(TV)) * (sales - mean(sales))) / sum((TV - mean(TV))^2)))
+(beta0 = with(d, mean(sales) - beta1 * mean(TV)))
+```
+
+:::
+
+### Assessing the accuracy of the coefficient estimates
+
+- **Unbiasedness**:  if we could estimate $\beta_0$ and $\beta_1$ over a huge number of data sets, the average of these estimates would be exactly equal to the true population values $\beta_0$ and $\beta_1$.
+$$
+\begin{align*}
+\textbf{E} \hat{\beta}_0 & = \beta_0\\
+\textbf{E} \hat{\beta}_1 & = \beta_1.
+\end{align*}
+$$
+Can you proof it? 
+
+- **Standard error**: how variable the least square estimate $\hat \beta_0$ or $\hat \beta_1$ to the truth
+\begin{align*}
+\text{SE}(\hat{\beta}_0)^2 & = \sigma^2 \left[ \frac{1}{n} + \frac{\bar{x}^2}{\sum_{i=1}^{n} (x_i - \bar{x})^2} \right],\\
+\text{SE}(\hat{\beta}_1)^2 & = \frac{\sigma^2}{\sum_{i=1}^{n} (x_i - \bar{x})^2}.
+\end{align*}
+where $\sigma^2 = \text{Var}(\epsilon)$ and under the **assumption**: $\epsilon_i$ are uncorrelated with common variance $\sigma^2$.
+  + We see that $\text{SE}(\hat{\beta}_0)$ would be the same as $SE(\bar y)$ if $\bar x$ were zero (in which case $\beta_0$ would be equal to $\bar y$).
+  + Notice in the formula that $\text{SE}(\hat{\beta}_1)$ is smaller when the $x_i$ are more spread out; intuitively we have more **leverage** to estimate a slope when this is the case.
+  + In general, $\sigma^2$ is not known, but can be estimated from the data
+$$
+\text{RSE} = \sqrt{\frac{1}{n-2} \text{RSS}} = \sqrt{\frac{1}{n-2} \sum_{i=1}^n (y_i - \hat y_i)^2}.
+$$
+- **95% Confidence interval**: 
+$$
+[\hat \beta_1 - 2 \times \text{SE}(\hat \beta_1), \hat \beta_1 + 2 \times \text{SE}(\hat \beta_1)]\text{ or } [\hat \beta_0 - 2 \times \text{SE}(\hat \beta_0), \hat \beta_0 + 2 \times \text{SE}(\hat \beta_0)]
+$$
+  + A 95% confidence interval has the following property: if we take repeated samples and construct the confidence interval for each sample, 95% of the intervals will contain the true unknown value of the parameter. 
+  + For example: In the case of the advertising data, the 95% confidence interval for $\beta_0$ is $[6.130, 7.935]$ and the 95% confidence interval for $\beta_1$ is $[0.042, 0.053]$. 
+  
+::: {.panel-tabset}
+
+#### R
+```{r}
+library(gtsummary)
+
+fit <- lm(sales ~ TV, data = Advertising)
+fit %>%
+  tbl_regression(estimate_fun = function(x) style_number(x, digits = 3),
+                 intercept = T) %>%
+  bold_labels() %>%
+  bold_p(t = 0.05) %>%
+  modify_column_unhide(columns = c(statistic, std.error))
+
+
+```
+
+:::
+
+   + We can conclude that in the absence of any advertising, sales will, on average, fall somewhere between 6,130 and 7,935 units. Furthermore, for each $1,000 increase in television advertising, there will be an average increase in sales of between 42 and 53 units.
+  
+- **Hypothesis tests on the coefficients**: The most common hypothesis test involves testing the **null** hypothesis of
+\begin{center}
+H$_0$: There is no relationship between $X$  and  $Y$. 
+\end{center}
+vs the **alternative** hypothesis
+\begin{center}
+H$_1$: There is some  relationship between $X$  and  $Y$. 
+\end{center}
+  + Mathematically, this corresponds to testing
+$$
+H_0: \beta_1 = 0
+$$
+vs the **alternative** hypothesis
+$$
+H_1: \beta_1 \neq 0. 
+$$
+  + In practice, we compute a t-statistic, given by
+$$
+t = \frac{\beta_1-0}{\text{SE} (\beta_1)},
+$$
+which measures the number of standard deviations that $\beta_1$ is away from 0. 
+
+    + If there really is no relationship between $X$ and $Y$ (i.e., under the null hypothesis), then we expect that $t$ will follow a t-distribution with $n − 2$ degrees of freedom.
+
+- **P-value:** Assuming $\beta_1 = 0$, i.e., under the null hypothesis, the probability of observing any number equal to or larger than $|t|$. 
+  + Roughly, a small p-value indicates that it is unlikely to observe such a substantial association between the predictor and the response due to chance, in the absence of any real association between the predictor and the response. 
+  + Hence, if p-value is small, we can **infer** that there is an association between the predictor and the response. 
+  + The is we reject the null hypothesis and declare a relationship to exist between $X$ and $Y$. 
+  + How small is small? Typical p-value cutoffs for rejecting the null hypothesis are 5% or 1% (more discussions related to this topic will be discussed later).
+
+### Assessing the accuracy of the model
+- Once we have rejected the null hypothesis in favor of the alternative hypothesis, how to quantify the extent to which the model fits the data? 
+- The quality of a linear regression fit is typically assessed by: the residual standard error (RSE) and the R2 statistic.
+
+#### Residual standard error (RSE)
+- Recall that the RSE is an estimate of the standard deviation of $\epsilon$, and hence it is a measure of the **lack of fit** of the model to the data.
+
+
+
+$$
+RSE = \sqrt{\frac{1}{n - 2} RSS} = \sqrt{\frac{1}{n - 2} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}.
+$$
+
+
+::: {.panel-tabset}
+
+#### R
+```{r}
+library(gtsummary)
+
+fit <- lm(sales ~ TV, data = Advertising)
+fit %>%
+  tbl_regression(estimate_fun = function(x) style_number(x, digits = 3),
+                 intercept = T) %>%
+  bold_labels() %>%
+  bold_p(t = 0.05) %>%
+  modify_column_unhide(columns = c(statistic, std.error)) %>%
+  add_glance_source_note(
+    label = list(sigma ~ "\U03C3"),
+    include = c(r.squared, sigma)
+  )
+
+
+```
+:::
+
+> For the `advertising` data, actual sales in each market deviate from the true regression line by approximately 3,260 units, on average. To put in context of our outcome (i.e., sales): since the mean value of sales over all markets is approximately 14,000 units, the percentage error is 3,260/14,000 = 23 %.
+
+#### $R^2$ statistic
+- The  $R^2$ statistic provides an alternative measure of fit. It takes the form of a **proportion** —the proportion of variance explained—and so it always takes on a value between 0 and 1, and is independent of the scale of Y .
+To calculate R2, we use the formula
+$$
+R^2 = \frac{\text{TSS}-\text{RSS}}{\text{TSS}} = 1 - \frac{\text{RSS}}{\text{TSS}},
+$$
+where $\text{TSS} = \sum(y_i-\bar y)^2$ is the **total sum of squares**, and RSS is defined as above.
+  + TSS measures the total variance in the response Y , and can be thought of as the amount of variability inherent in the response before the regression is performed. 
+  + RSS measures the amount of variability that is left unexplained after performing the regression. 
+  + Hence, TSS − RSS measures the amount of variability in the response that is explained (or removed) by performing the regression, and $R^2$ measures the proportion of variability in Y that can be explained using X. 
+  + An $R^2$ statistic that is close to 1 indicates that a large proportion of the variability in the response has been explained by the regression. 
+  + In contrast, a $R^2$ statistic that is close to 0 indicates that the regression did not explain much of the variability in the response, e.g., non-linear relationship between $X$ and $Y$ or error variance $\sigma^2$ is high.
+
+> In `advertising` data, the R2 was 0.61, and so just under two-thirds of the variability in sales is explained by a linear regression on TV.
+
+- What is a good $R^2$ value? 
+  + It depends on the application and the type of response that is being predicted, e.g., in typical applications in biology, psychology, marketing, and other domains, the linear model can only explain a small fraction of the total variability in the response. Therefore the $R^2$ can be below 0.1 which is realistic.
+  
+- $R^2$ is closely related to the correlation between the response and the fitted linear model.
+  + Recall that the correlation between two variables is given by
+$$
+r = \text{Cor}(X, Y) = \frac{\sum_{i=1}^n (x_i - \bar x)(y_i - \bar y)}{\sqrt{\sum_{i=1}^n (x_i - \bar x)^2 \sum_{i=1}^n (y_i - \bar y)^2}}.
+$$
+  + In fact, it can be shown that in the simple linear regression setting, $R^2 = r^2$.
+
+## Multiple linear regression
 
 - We estimate regression coefficients $\beta_0, \beta_1, \ldots, \beta_p$ by the **method of least squares**, which minimizes the sum of squared residuals
-$$
-\text{RSS} = \sum_{i=1}^n (y_i - \hat y_i)^2 = \sum_{i=1}^n (y_i - \beta_0 - \beta_1 x_{i1} - \cdots - \beta_p x_{ip})^2.
-$$
+\begin{align*}
+\text{RSS} & = \sum_{i=1}^n (y_i - \hat y_i)^2 = \sum_{i=1}^n (y_i - \beta_0 - \beta_1 x_{i1} - \cdots - \beta_p x_{ip})^2.\\
+& =  (\mathbf{y} - \mathbf{X} \beta)^T (\mathbf{y} - \mathbf{X} \beta).
+\end{align*}
+
 - The minimizer $\hat \beta_0, \hat \beta_1, \ldots, \hat \beta_p$ admits the analytical solution
 $$
 \hat \beta = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}.
@@ -183,8 +421,16 @@ summary(lmod)
 lmod %>%
   tbl_regression() %>%
   bold_labels() %>%
-  bold_p(t = 0.05)
+  bold_p(t = 0.05) %>%
+  modify_column_unhide(columns = c(statistic, std.error)) %>%
+  add_glance_source_note(
+    label = list(sigma ~ "\U03C3"),
+    include = c(r.squared, sigma)
+  )
 ```
+
+
+
 
 #### Python (sklearn)
 
@@ -228,21 +474,31 @@ lmod.summary()
 
 - Claims of **causality** should be avoided for observational data.
 
+::: {.panel-tabset}
+
+#### R
+
+```{r}
+# install.packages("corrr")
+library(corrr)
+
+# Correlation matrix
+Advertising %>%
+  select(sales, TV, radio, newspaper) %>%
+  correlate()
+```
+
+:::
+
+> So newspaper advertising is a surrogate for radio advertising; newspaper gets “credit” for the association between radio on sales. This is called **confounding**.
+
 ## Some important questions
 
 ### Goodness of fit
 
 **Question:** Is at least one of the predictors $X_1, X_2, \ldots, X_p$ useful in predicting the response? 
 
-- We can use the F-statistic to assess the fit of the overall model
-$$
-F = \frac{(\text{TSS} - \text{RSS})/p}{\text{RSS}/(n-p-1)} \sim F_{p, n-p-1},
-$$
-where
-$$
-\text{TSS} = \sum_{i=1}^n (y_i - \bar y)^2.
-$$
-Formally we are testing the null hypothesis
+- We can use the F-statistic to assess the fit of the overall model. Formally we are testing the null hypothesis
 $$
 H_0: \beta_1 = \cdots = \beta_p = 0
 $$
@@ -250,6 +506,25 @@ versus the alternative
 $$
 H_a: \text{at least one } \beta_j \text{ is non-zero}.
 $$
+F-statistic is defined as
+$$
+F = \frac{(\text{TSS} - \text{RSS})/p}{\text{RSS}/(n-p-1)} \sim F_{p, n-p-1},
+$$
+where
+$$
+\text{TSS} = \sum_{i=1}^n (y_i - \bar y)^2.
+$$
+If the linear model assumptions are correct, one can show that 
+$$
+\mathbf{E}{\text{RSS}/(n − p − 1)} = \sigma^2
+$$
+and that, provided $H_0$ is true,
+$$
+\mathbf{E}{(\text{TSS} − \text{RSS})/p} = \sigma^22.
+$$
+Hence, when there is no relationship between the response and predictors, F-statistic to take on a value close to 1. On the other hand, if $H_a$ is true, then $\mathbf{E}{(\text{TSS} − \text{RSS})/p} > \sigma^2$, so we expect F to be greater than 1. 
+
+- The p-value for the F-statistic is computed using the F-distribution with $p$ and $n-p-1$ degrees of freedom.
 
 - In general, the F-statistic for testing 
 $$
@@ -283,6 +558,7 @@ anova(lmod_null, lmod)
 R = [[0, 1, 0 , 0], [0, 0, 1, 0], [0, 0, 0, 1]]
 lmod.f_test(R)
 ```
+the p-value associated with the F -statistic is essentially zero, so we have extremely strong evidence that at least one of the media is associated with increased sales.
 
 :::
 
@@ -366,7 +642,7 @@ step(lmod_null,
      scope = list(lower = sales ~ 1, upper = sales ~ TV + radio + newspaper),
      trace = TRUE, 
      direction = "forward"
-     )
+    )
 ```
 
 :::
