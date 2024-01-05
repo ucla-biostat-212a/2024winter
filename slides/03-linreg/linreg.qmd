@@ -997,6 +997,29 @@ $$
 #### R
 
 ```{r}
+ggplot(data = Auto, mapping = aes(x = horsepower, y = mpg)) +
+  geom_point() + 
+  geom_smooth(method = lm, color = 1) + 
+  geom_smooth(method = lm, formula = y ~ poly(x, 2), color = 2) + 
+  geom_smooth(method = lm, formula = y ~ poly(x, 5), color = 3) +
+  labs(x = "Horsepower", y = "Miles per gallon")
+```
+
+:::
+
+
+The figure suggests that `mpg`  vs `horsepower` to have a quadratic shape. And the following model
+$$
+\text{mpg} = \beta_0 + \beta_1 \times \text{horsepower} + \beta_2 \times \text{horsepower}^2 + \epislon.
+$$
+may provide a better fit.  But it is still a linear model! So we can use standard linear regression software to estimate $\beta_0$, $\beta_1$, $\beta_2$  in order to produce a non-linear fit.
+
+::: {.panel-tabset}
+
+
+#### R
+
+```{r}
 Auto <- as_tibble(Auto) %>% print(width = Inf)
 
 # Linear fit
@@ -1005,13 +1028,6 @@ lm(mpg ~ horsepower, data = Auto) %>% summary()
 lm(mpg ~ poly(horsepower, 2), data = Auto) %>% summary()
 # Degree 5
 lm(mpg ~ poly(horsepower, 5), data = Auto) %>% summary()
-
-ggplot(data = Auto, mapping = aes(x = horsepower, y = mpg)) +
-  geom_point() + 
-  geom_smooth(method = lm, color = 1) + 
-  geom_smooth(method = lm, formula = y ~ poly(x, 2), color = 2) + 
-  geom_smooth(method = lm, formula = y ~ poly(x, 5), color = 3) +
-  labs(x = "Horsepower", y = "Miles per gallon")
 ```
 
 #### Python
@@ -1055,17 +1071,17 @@ ax.set(
 
 :::
 
-## What we did not cover
+## Potential Problems
 
-- Outliers.
+###  Outliers.
 
-- Non-constant variance of error terms.
+### Non-constant variance of error terms.
 
-- High leverage points.
+### High leverage points.
 
-- Collinearity.
+### Collinearity.
 
-See ISL Section 3.3.3.
+
 
 ## Generalizations of linear models
 
