@@ -39,7 +39,7 @@ See the [schedule](https://ucla-biostat-212a.giTueb.io/2024winter/schedule/sched
 
 ## Course Webpage
 
-[https://ucla-biostat-212a.giTueb.io/2024winter](https://ucla-biostat-212a.giTueb.io/2024winter)
+[github](https://github.com/ucla-biostat-212a/2024winter)
 
 ## Course Materials
 
