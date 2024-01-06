@@ -46,6 +46,18 @@ print(IPython.sys_info())
 
 :::
 
+# Brief intro
+- PhD in Biomathematics, UCLA
+- Postdoc \& Statistician, Harvard University
+  + Department of Biostatistics
+  + Channing's Lab, Brigham and Women's Hospital
+- Assistant \& Associate professor,  University of Arizona (UofA)
+  + Department of Epidemiology and Biostatistics 
+  + Statistics and Genetics Graduate Interdisciplinary Program (GIDP)
+- Research principal investigator, Phoenix VA Health Care System}
+- Associate professor, UCLA
+  + Department of Medicine Statistics Core (DOMStat)
+  + Department of Biostatistics 
 
 
 # Overview of statistical/machine learning
@@ -352,6 +364,45 @@ plt.clf()
 
 
 :::
+
+### Real Example (1) 
+**Genomic classifier for acute cellular rejection (ACR) among lung transplant recipients**
+
+- **Lung transplant** recipients are at risk for acute cellular rejection (ACR), which is a major cause of morbidity and mortality.
+
+- Genomic classifier 
+<p align="center">
+![](./genomic_classifier.png){width=600px height=250px}
+</p>
+
+- RNA Seq data (Transcriptome) is a high-dimensional data set.
+
+<p align="center">
+![](./RNASequencing.png){width=500px height=400px}
+![](./RNASeqCounts.png){width=500px height=200px}
+</p>
+
+- 183 lung transplant recipients with 58,735 gene transcripts' expression levels measured  
+<p align="center">
+![](./RNASeqRF.png){width=500px height=300px}
+</p>
+
+### Real Example (2)
+**Dynamically Predicting Renal Complications After Development of Diabetes for Millions Across Biobanks, Transportability and Transferability** 
+
+- Diabetes is a major cause of kidney disease, which can lead to kidney failure and death.
+- After developing diabetes, the risk of kidney disease varies across individuals.
+- Goal: Develop a prediction model for kidney disease after developing diabetes.
+- EHR and Biobanks provide a rich source of data for developing prediction models.
+- AI in healthcare (e.g., <https://www.youtube.com/playlist?list=PLe6zdIMe5B7L-2XFpyJOqEfKJzB1PH794>)
+
+<p align="center">
+![](./DP-KF.png){width=700px height=200px} 
+</p>
+
+<p align="center">
+![](./schema.png){width=500px height=600px}
+</p>
 
 ### Example: handwritten digit recognition
 
@@ -749,6 +800,8 @@ $$
 The identity matrix functions the same way as "$1$" does in the real number system.
 
 ### Matrix operations
+
+#### Transpose
 - The $^T$ notation denotes the transpose of a matrix or vector
 
 $$
@@ -759,6 +812,7 @@ x_{p1} & \cdots & x_{pn}
 \end{pmatrix} = \begin{pmatrix} \mathbf{x}_1^T \\ \vdots \\ \mathbf{x}_n^T \end{pmatrix}
 $$ {#eq-predictor-matrix}
 So the transpose of a $n\times p$ matrix is a $p\times n$ matrix.  That is, the transpose of $A$ is the matrix found by ``flipping" the matrix around.
+
 - For example,
 $$
 \mathbf{A} = 
@@ -780,7 +834,7 @@ $$
 $$
 A **fundamental property of a symmetric matrix** is that the matrix and its transpose are the same; i.e., if $\mathbf{A}$ is symmetric then $\mathbf{A} = \mathbf{A}^T$. (Try it on the symmetric matrix above.)
 
-### Matrix Addition and Subtraction
+#### Matrix Addition and Subtraction
 Adding or subtracting two matrices are operations that are defined **element-by-element**. That is, to add to matrices, add their corresponding elements, e.g.
 $$
 \mathbf{A} = 
@@ -819,7 +873,7 @@ $$
 $$
 - Note that these operations only make sense if the two matrices have the **same dimension**; the operations are not defined otherwise.
 
-### Matrix Multiplication
+#### Matrix Multiplication
 
 - The effect of multiplying a matrix $\mathbf{A}$ with any dimension by a real number (scalar) $b$, say, is to multiply each element in $\mathbf{A}$ by $b$. 
 $$
