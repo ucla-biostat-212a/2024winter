@@ -1,6 +1,6 @@
 ---
 title: "Introduction (ISL 1)"
-subtitle: "Biostat 212A"
+subtitle: "Biostat 212A, Statistical Learning A"
 author: "Dr. Jin Zhou @ UCLA"
 date: today
 format:
@@ -291,6 +291,9 @@ chartSeries(SP500, theme = chartTheme("white"),
 #### R
 
 ```{r}
+#| label: fig-sp500-lag
+#| fig-cap: "LagX is the percentage return for the previous X days."
+
 # Data information
 help(Smarket)
 
@@ -329,8 +332,7 @@ Smarket.describe(include = "all")
 ```
 
 ```{python}
-#| label: fig-sp500-lag
-#| fig-cap: "LagX is the percentage return for the previous X days."
+
 
 # Pivot to long format for facet plotting
 Smarket_long = pd.melt(
@@ -559,9 +561,7 @@ The Netflix challenge.
     
 ### Example: large language models (LLMs)    
 
-Modern large language models, such as [ChatGPT3](https://chat.openai.com), combine both supervised learning and reinforcement learning. 
-
-<script type="text/javascript" src="https://ssl.gstatic.com/trends_nrtr/3197_RC01/embed_loader.js"></script> <script type="text/javascript"> trends.embed.renderExploreWidget("TIMESERIES", {"comparisonItem":[{"keyword":"chatgpt","geo":"","time":"2022-01-08 2023-01-08"}],"category":0,"property":""}, {"exploreQuery":"q=chatgpt&date=today 12-m","guestPath":"https://trends.google.com:443/trends/embed/"}); </script>
+Modern large language models, such as [ChatGPT3](https://chat.openai.com), combine both supervised learning and reinforcement learning [google trends](https://trends.google.com/trends/explore?date=2022-11-01%202024-01-05&geo=US&q=chatgpt&hl=en)
 
 ## Statistical learning vs machine learning
 
