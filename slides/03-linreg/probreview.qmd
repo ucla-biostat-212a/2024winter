@@ -24,7 +24,9 @@ knitr:
 
 Credit: This note is compiled using content from multiple sources
 
-- [Introduction to Probability, by Dr. Dennis Sun](https://dlsun.github.io/probability/), [git repo](https://github.com/dlsun/probability). 
+- [Introduction to Probability](https://dlsun.github.io/probability/), [git repo](https://github.com/dlsun/probability) by Dennis Sun
+
+- [An Introduction to Probability and Simulation](https://bookdown.org/kevin_davisross/probsim-book/ce.html) by Kevin Ross
 
 - [Probability : An Introduction](https://search.library.ucla.edu/permalink/01UCS_LAL/192ecse/cdi_askewsholts_vlebooks_9780191019937) by Geoffrey Grimmett, Dominic Welsh, and Professor of Mathematics (Retired) Dominic Welsh
 
