@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="YOUR NAME and UID">
+<meta name="dcterms.date" content="2023-01-19">
+
+<title>Econ 425T Homework 1</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="hw1_files/libs/clipboard/clipboard.min.js"></script>
+<script src="hw1_files/libs/quarto-html/quarto.js"></script>
+<script src="hw1_files/libs/quarto-html/popper.min.js"></script>
+<script src="hw1_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="hw1_files/libs/quarto-html/anchor.min.js"></script>
+<link href="hw1_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="hw1_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="hw1_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="hw1_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="hw1_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#filling-gaps-in-lecture-notes-10pts" id="toc-filling-gaps-in-lecture-notes-10pts" class="nav-link active" data-scroll-target="#filling-gaps-in-lecture-notes-10pts"><span class="toc-section-number">1</span>  Filling gaps in lecture notes (10pts)</a>
+  <ul>
+  <li><a href="#optimal-regression-function" id="toc-optimal-regression-function" class="nav-link" data-scroll-target="#optimal-regression-function"><span class="toc-section-number">1.1</span>  Optimal regression function</a></li>
+  <li><a href="#bias-variance-trade-off" id="toc-bias-variance-trade-off" class="nav-link" data-scroll-target="#bias-variance-trade-off"><span class="toc-section-number">1.2</span>  Bias-variance trade-off</a></li>
+  </ul></li>
+  <li><a href="#isl-exercise-2.4.3-10pts" id="toc-isl-exercise-2.4.3-10pts" class="nav-link" data-scroll-target="#isl-exercise-2.4.3-10pts"><span class="toc-section-number">2</span>  ISL Exercise 2.4.3 (10pts)</a></li>
+  <li><a href="#isl-exercise-2.4.4-10pts" id="toc-isl-exercise-2.4.4-10pts" class="nav-link" data-scroll-target="#isl-exercise-2.4.4-10pts"><span class="toc-section-number">3</span>  ISL Exercise 2.4.4 (10pts)</a></li>
+  <li><a href="#isl-exercise-2.4.10-30pts" id="toc-isl-exercise-2.4.10-30pts" class="nav-link" data-scroll-target="#isl-exercise-2.4.10-30pts"><span class="toc-section-number">4</span>  ISL Exercise 2.4.10 (30pts)</a></li>
+  <li><a href="#isl-exercise-3.7.3-12pts" id="toc-isl-exercise-3.7.3-12pts" class="nav-link" data-scroll-target="#isl-exercise-3.7.3-12pts"><span class="toc-section-number">5</span>  ISL Exercise 3.7.3 (12pts)</a></li>
+  <li><a href="#isl-exercise-3.7.15-20pts" id="toc-isl-exercise-3.7.15-20pts" class="nav-link" data-scroll-target="#isl-exercise-3.7.15-20pts"><span class="toc-section-number">6</span>  ISL Exercise 3.7.15 (20pts)</a></li>
+  <li><a href="#bonus-question-20pts" id="toc-bonus-question-20pts" class="nav-link" data-scroll-target="#bonus-question-20pts"><span class="toc-section-number">7</span>  Bonus question (20pts)</a></li>
+  </ul>
+</nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Econ 425T Homework 1</h1>
+<p class="subtitle lead">Due Jan 25, 2023 @ 11:59PM</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>YOUR NAME and UID </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 19, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="filling-gaps-in-lecture-notes-10pts" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="filling-gaps-in-lecture-notes-10pts"><span class="header-section-number">1</span> Filling gaps in lecture notes (10pts)</h2>
+<p>Consider the regression model <span class="math display">\[
+Y = f(X) + \epsilon,
+\]</span> where <span class="math inline">\(\operatorname{E}(\epsilon) = 0\)</span>.</p>
+<section id="optimal-regression-function" class="level3" data-number="1.1">
+<h3 data-number="1.1" class="anchored" data-anchor-id="optimal-regression-function"><span class="header-section-number">1.1</span> Optimal regression function</h3>
+<p>Show that the choice <span class="math display">\[
+f_{\text{opt}}(X) = \operatorname{E}(Y | X)
+\]</span> minimizes the mean squared prediction error <span class="math display">\[
+\operatorname{E}[Y - f(X)]^2,
+\]</span> where the expectations averages over variations in both <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>. (Hint: condition on <span class="math inline">\(X\)</span>.)</p>
+</section>
+<section id="bias-variance-trade-off" class="level3" data-number="1.2">
+<h3 data-number="1.2" class="anchored" data-anchor-id="bias-variance-trade-off"><span class="header-section-number">1.2</span> Bias-variance trade-off</h3>
+<p>Given an estimate <span class="math inline">\(\hat f\)</span> of <span class="math inline">\(f\)</span>, show that the test error at a <span class="math inline">\(x_0\)</span> can be decomposed as <span class="math display">\[
+\operatorname{E}[y_0 - \hat f(x_0)]^2 = \underbrace{\operatorname{Var}(\hat f(x_0)) + [\operatorname{Bias}(\hat f(x_0))]^2}_{\text{MSE of } \hat f(x_0) \text{ for estimating } f(x_0)} + \underbrace{\operatorname{Var}(\epsilon)}_{\text{irreducible}},
+\]</span> where the expectation averages over the variability in <span class="math inline">\(y_0\)</span> and <span class="math inline">\(\hat f\)</span>.</p>
+</section>
+</section>
+<section id="isl-exercise-2.4.3-10pts" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="isl-exercise-2.4.3-10pts"><span class="header-section-number">2</span> ISL Exercise 2.4.3 (10pts)</h2>
+</section>
+<section id="isl-exercise-2.4.4-10pts" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="isl-exercise-2.4.4-10pts"><span class="header-section-number">3</span> ISL Exercise 2.4.4 (10pts)</h2>
+</section>
+<section id="isl-exercise-2.4.10-30pts" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="isl-exercise-2.4.10-30pts"><span class="header-section-number">4</span> ISL Exercise 2.4.10 (30pts)</h2>
+<p>Your can read in the <code>boston</code> data set directly from url <a href="https://raw.githubusercontent.com/ucla-econ-425t/2023winter/master/slides/data/Boston.csv" class="uri">https://raw.githubusercontent.com/ucla-econ-425t/2023winter/master/slides/data/Boston.csv</a>. A documentation of the <code>boston</code> data set is <a href="https://www.rdocumentation.org/packages/ISLR2/versions/1.3-2/topics/Boston">here</a>.</p>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">R</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> io</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/ucla-econ-425t/2023winter/master/slides/data/Boston.csv"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> requests.get(url).content</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>Boston <span class="op">=</span> pd.read_csv(io.StringIO(s.decode(<span class="st">'utf-8'</span>)), index_col <span class="op">=</span> <span class="dv">0</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>Boston</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        crim    zn  indus  chas    nox  ...  rad  tax  ptratio  lstat  medv
+1    0.00632  18.0   2.31     0  0.538  ...    1  296     15.3   4.98  24.0
+2    0.02731   0.0   7.07     0  0.469  ...    2  242     17.8   9.14  21.6
+3    0.02729   0.0   7.07     0  0.469  ...    2  242     17.8   4.03  34.7
+4    0.03237   0.0   2.18     0  0.458  ...    3  222     18.7   2.94  33.4
+5    0.06905   0.0   2.18     0  0.458  ...    3  222     18.7   5.33  36.2
+..       ...   ...    ...   ...    ...  ...  ...  ...      ...    ...   ...
+502  0.06263   0.0  11.93     0  0.573  ...    1  273     21.0   9.67  22.4
+503  0.04527   0.0  11.93     0  0.573  ...    1  273     21.0   9.08  20.6
+504  0.06076   0.0  11.93     0  0.573  ...    1  273     21.0   5.64  23.9
+505  0.10959   0.0  11.93     0  0.573  ...    1  273     21.0   6.48  22.0
+506  0.04741   0.0  11.93     0  0.573  ...    1  273     21.0   7.88  11.9
+
+[506 rows x 13 columns]</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>Boston <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://raw.githubusercontent.com/ucla-econ-425t/2023winter/master/slides/data/Boston.csv"</span>, <span class="at">col_select =</span> <span class="sc">-</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 506 × 13
+      crim    zn indus  chas   nox    rm   age   dis   rad   tax ptratio lstat
+     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;
+ 1 0.00632  18    2.31     0 0.538  6.58  65.2  4.09     1   296    15.3  4.98
+ 2 0.0273    0    7.07     0 0.469  6.42  78.9  4.97     2   242    17.8  9.14
+ 3 0.0273    0    7.07     0 0.469  7.18  61.1  4.97     2   242    17.8  4.03
+ 4 0.0324    0    2.18     0 0.458  7.00  45.8  6.06     3   222    18.7  2.94
+ 5 0.0690    0    2.18     0 0.458  7.15  54.2  6.06     3   222    18.7  5.33
+ 6 0.0298    0    2.18     0 0.458  6.43  58.7  6.06     3   222    18.7  5.21
+ 7 0.0883   12.5  7.87     0 0.524  6.01  66.6  5.56     5   311    15.2 12.4 
+ 8 0.145    12.5  7.87     0 0.524  6.17  96.1  5.95     5   311    15.2 19.2 
+ 9 0.211    12.5  7.87     0 0.524  5.63 100    6.08     5   311    15.2 29.9 
+10 0.170    12.5  7.87     0 0.524  6.00  85.9  6.59     5   311    15.2 17.1 
+    medv
+   &lt;dbl&gt;
+ 1  24  
+ 2  21.6
+ 3  34.7
+ 4  33.4
+ 5  36.2
+ 6  28.7
+ 7  22.9
+ 8  27.1
+ 9  16.5
+10  18.9
+# … with 496 more rows</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="isl-exercise-3.7.3-12pts" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="isl-exercise-3.7.3-12pts"><span class="header-section-number">5</span> ISL Exercise 3.7.3 (12pts)</h2>
+</section>
+<section id="isl-exercise-3.7.15-20pts" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="isl-exercise-3.7.15-20pts"><span class="header-section-number">6</span> ISL Exercise 3.7.15 (20pts)</h2>
+</section>
+<section id="bonus-question-20pts" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="bonus-question-20pts"><span class="header-section-number">7</span> Bonus question (20pts)</h2>
+<p>For multiple linear regression, show that <span class="math inline">\(R^2\)</span> is equal to the correlation between the response vector <span class="math inline">\(\mathbf{y} = (y_1, \ldots, y_n)^T\)</span> and the fitted values <span class="math inline">\(\hat{\mathbf{y}} = (\hat y_1, \ldots, \hat y_n)^T\)</span>. That is <span class="math display">\[
+R^2 = 1 - \frac{\text{RSS}}{\text{TSS}} = [\operatorname{Cor}(\mathbf{y}, \hat{\mathbf{y}})]^2.
+\]</span></p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
