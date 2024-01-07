@@ -718,7 +718,7 @@ x_{11} & \cdots & x_{1p} \\
 \vdots & \ddots & \vdots \\
 x_{n1} & \cdots & x_{np}
 \end{pmatrix} = \begin{pmatrix} \mathbf{x}_1^T \\ \vdots \\ \mathbf{x}_n^T \end{pmatrix}
-$$ {#eq-predictor-matrix}  
+$$  
 
 - Rows of X, which we write as $x_1, x_2, \ldots , x_n$. Here $x_i$ is a vector of length $p$, containing the $p$ variable measurements for the $i$th observation. That is,
 $$
@@ -810,7 +810,7 @@ x_{11} & \cdots & x_{1n} \\
 \vdots & \ddots & \vdots \\
 x_{p1} & \cdots & x_{pn}
 \end{pmatrix} = \begin{pmatrix} \mathbf{x}_1^T \\ \vdots \\ \mathbf{x}_n^T \end{pmatrix}
-$$ {#eq-predictor-matrix}
+$$ 
 So the transpose of a $n\times p$ matrix is a $p\times n$ matrix.  That is, the transpose of $A$ is the matrix found by ``flipping" the matrix around.
 
 - For example,
@@ -925,7 +925,7 @@ $$
 - General rules,
   + $\mathbf{A}(\mathbf{B} + \mathbf{C}) = \mathbf{A}\mathbf{B} + \mathbf{A}\mathbf{C}$, $(\mathbf{A}+\mathbf{B}) \mathbf{C}) = \mathbf{A}\mathbf{C} + \mathbf{B}\mathbf{C}$
   + For any matrix $\mathbf{A}$, $\mathbf{A}^T\mathbf{A}$ will be a square matrix. 
-  + The transpose of a matrix product: $(\mathbf{AB})^T=\mathbf{A}^T\mathbf{B}^T$.
+  + The transpose of a matrix product: $(\mathbf{AB})^T=\mathbf{B}^T\mathbf{A}^T$.
 
 ### Example
 - Consider a prediction model, e.g., `wage` data example: suppose that we have $n$ pairs $(x_1,Y_1),\ldots,(x_n,Y_n)$, and we believe that, except for a random deviation, the relationship between the \alert{covariate} $x$ (e.g., `age`) and the response $\mathbf{Y}$ follows a straight line. That is, for $j=1,\ldots,n$, we have 
