@@ -53,7 +53,7 @@ Class attendance to both in-person and Zoom lectures is **mandatory**.
 
 ## Homework
 
-There will be at least 5 homework assignments throughout the quarter.  
+There will be at least 6 homework assignments throughout the quarter.  
 
 ## Exam
 
@@ -61,7 +61,19 @@ There will be no midterm and final exams.
 
 ## Final Grade
 
-Grades will be based on homework (75%) and participation (class attendance, pop quizzes, asking questions, and engaging in office hours, 25%).
+Grades will be based on homework, final project (75%):
+
+|         | %          | 
+|--------------|---------------|
+| HW1  | 10% | 
+| HW2  | 10% | 
+| HW3  | 10% | 
+| HW4  | 10% | 
+| HW5  | 10% | 
+| HW6  | 10% | 
+| Final Project  | 15% | 
+
+And participation (class attendance, pop quizzes, asking questions, and engaging in office hours, 25%).
 
 ## UCLA ADA Policy 
 
