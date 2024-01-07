@@ -28,27 +28,6 @@ Credit: This note is compiled using content from multiple sources, e.g., [Introd
 Geoffrey Grimmett, Dominic Welsh, and Professor of Mathematics (Retired) Dominic Welsh
 
 
-
-Display system information for reproducibility.
-
-::: {.panel-tabset}
-
-#### R
-
-```{r}
-sessionInfo()
-```
-
-#### Python
-
-```{python}
-import IPython
-print(IPython.sys_info())
-```
-
-
-:::
-
 #  Conditional distribution
 
 - For **discrete** random variables $X$ and $Y$, the **conditional probability mass function (p.m.f.)** of $Y$ given $X$ is defined as 
