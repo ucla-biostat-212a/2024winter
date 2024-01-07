@@ -1,11 +1,12 @@
 ---
-title: "Econ 425T Homework 1"
-subtitle: "Due Jan 25, 2023 @ 11:59PM"
+title: "Biostat 212a Homework 1"
+subtitle: "Due Jan 23, 2024 @ 11:59PM"
 author: "YOUR NAME and UID"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 format:
   html:
     theme: cosmo
+    embed-resources: true
     number-sections: true
     toc: true
     toc-depth: 4
@@ -59,6 +60,15 @@ Your can read in the `boston` data set directly from url <https://raw.githubuser
 
 ::: {.panel-tabset}
 
+#### R
+
+```{r}
+library(tidyverse)
+
+Boston <- read_csv("https://raw.githubusercontent.com/ucla-biostat-212a/2023winter/master/slides/data/Boston.csv", col_select = -1) %>% 
+  print(width = Inf)
+```
+
 #### Python
 
 ```{python}
@@ -72,14 +82,6 @@ Boston = pd.read_csv(io.StringIO(s.decode('utf-8')), index_col = 0)
 Boston
 ```
 
-#### R
-
-```{r}
-library(tidyverse)
-
-Boston <- read_csv("https://raw.githubusercontent.com/ucla-econ-425t/2023winter/master/slides/data/Boston.csv", col_select = -1) %>% 
-  print(width = Inf)
-```
 
 :::
 
