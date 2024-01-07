@@ -22,10 +22,13 @@ knitr:
     cache: false
 ---
 
+Credit: This note is compiled using content from multiple sources
 
+- [Introduction to Probability, by Dr. Dennis Sun](https://dlsun.github.io/probability/), [git repo](https://github.com/dlsun/probability). 
 
-Credit: This note is compiled using content from multiple sources, e.g., [Introduction to Probability, by Dr. Dennis Sun](https://dlsun.github.io/probability/), [git repo](https://github.com/dlsun/probability). [Probability : An Introduction](https://search.library.ucla.edu/permalink/01UCS_LAL/192ecse/cdi_askewsholts_vlebooks_9780191019937) by
-Geoffrey Grimmett, Dominic Welsh, and Professor of Mathematics (Retired) Dominic Welsh
+- [Probability : An Introduction](https://search.library.ucla.edu/permalink/01UCS_LAL/192ecse/cdi_askewsholts_vlebooks_9780191019937) by Geoffrey Grimmett, Dominic Welsh, and Professor of Mathematics (Retired) Dominic Welsh
+
+- [Deeplearning book](https://www.deeplearningbook.org/contents/prob.html) 
 
 
 #  Conditional distribution
