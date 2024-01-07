@@ -148,7 +148,7 @@ For example,
 $$
 \text{sales} \approx \beta_0 + \beta_1 \times \text{TV} + \beta_2 \times \text{radio} + \cdots + \beta_3 \times \text{newspaper}.
 $$
-We review the multiple linear regression below.
+
 
 ### Simple linear regression
 - We will sometimes describe 
