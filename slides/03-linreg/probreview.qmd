@@ -69,7 +69,12 @@ f_{Y|X}(y|x) \overset{\text{def}}{=} \frac{f(x, y)}{f_X(x)}.
 $$
 \text{conditional} =\frac{\text{joint}}{\text{marginal}} 
 $$
-Conditional distributions can be obtained from a joint distribution by slicing and renormalizing. A nice graphic example is shown here: Lesson 20 of [Introduction to Probability, by Dr. Dennis Sun](https://dlsun.github.io/probability/).
+
+- Conditional distributions can be obtained from a joint distribution by slicing and renormalizing. A nice graphic example is shown here: Lesson 20 of [Introduction to Probability, by Dr. Dennis Sun](https://dlsun.github.io/probability/).
+
+<p align="center">
+![](conditional-x-1.png){width=700px height=300px} 
+</p>
 
 - This is not one "conditional distribution of $Y$ given $X$", but rather a family of conditional distributions of $Y$ given different values of $X$.
 
@@ -107,7 +112,7 @@ $$
 
 - Conditional expected value, whether viewed as a number $\mathbf{E}( Y | X = x)$ or as a random variable $\mathbf{E}(Y|X)$, possesses properties analogous to those of (unconditional) expected value. In particular, we have linearity of conditional expected value.
 \begin{align*}
-\mathbf{E}(a_1Y_1 + \ldots + a_nY_n | X = x) & = a_1\mathbf{E}(Y_1 | X = x) + \ldots + a_nE(Y_n | X = x)
+\mathbf{E}(a_1Y_1 + \ldots + a_nY_n | X = x) & = a_1\mathbf{E}(Y_1 | X = x) + \ldots + a_nE(Y_n | X = x)\\
 \mathbf{E}(a_1Y_1 + \ldots + a_nY_n | X) & = a_1\mathbf{E}(Y_1 | X = x) + \ldots + a_nE(Y_n | X)
 \end{align*}
 The first line above is an equality involving numbers; the second line is an equality involving random variables (i.e., functions).
@@ -122,12 +127,30 @@ $$
   + $\mathbf{E}( Y | X = x)$ is a random variable and so it has an expected value $\mathbf{E}(\mathbf{E}(Y|X))$ representing the average value of the random variable $\mathbf{E}(\mathbf{E}(Y|X))$. 
   + $\mathbf{E}( Y | X = x)$ is a function of $X$ and so $\mathbf{E}(\mathbf{E}(Y|X))$ can be computed with respect to $X$. For two discrete random variables X and Y
 \begin{align*}
-\mathbf{E}(\mathbf{E}(Y|X)) & = \sum_{x} \mathbf{E}(Y|X = x) P(X = x)\\
-& = \sum_{x} \sum_{y} y p_{Y|X} (y|x) P(X = x)\\
-& = \sum_{x} \sum_{y} y p_{X,Y} (x, y)\\
-& = \sum_{y} y\sum_{x} p_{X,Y} (x, y)\\
-& = \sum_{y} y p_{Y} (y)\\
+\mathbf{E}(\mathbf{E}(Y|X)) & = \sum_{x} \mathbf{E}(Y|X = x) \mathbf{P}(X = x)\\
+& = \sum_{x} \sum_{y} y \mathbf{P}_{Y|X} (y|x) \mathbf{P}(X = x)\\
+& = \sum_{x} \sum_{y} y \mathbf{P}_{X,Y} (x, y)\\
+& = \sum_{y} y\sum_{x} \mathbf{P}_{X,Y} (x, y)\\
+& = \sum_{y} y \mathbf{P}_{Y} (y)\\
 & = \mathbf{E}(Y)
 \end{align*}
+
+# Excercises
+
+Roll a fair four-sided die twice. Let  $X$ be the sum of the two rolls, and let  
+$Y$ be the larger of the two rolls (or the common value if a tie). We found the joint and marginal distributions of $X$ and $Y$ displayed in the table below.
+
+<p align="center">
+  <img src="joint-dist.png" width="700" height="350">
+</p>
+
+(a) Find $\mathbf{E}(Y)$.
+(b) Find $\mathbf{E}(Y|X = 5)$.
+(c) Find $\mathbf{E}(Y|X = 6)$.
+(d) Find $\mathbf{E}(Y|X = x)$.
+(e) Find $\mathbf{E}(X|Y)$.
+(f) Find $\mathbf{E}(X|Y = y)$.
+
+
 
 
