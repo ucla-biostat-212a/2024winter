@@ -72,10 +72,10 @@ Your can read in the `boston` data set directly from url <https://raw.githubuser
 
 #### R
 
-```{r}
+```{r, evalue = F}
 library(tidyverse)
 
-Boston <- read_csv("https://raw.githubusercontent.com/ucla-biostat-212a/2023winter/master/slides/data/Boston.csv", col_select = -1) %>% 
+Boston <- read_csv("https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/data/Boston.csv", col_select = -1) %>% 
   print(width = Inf)
 ```
 
