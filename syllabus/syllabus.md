@@ -29,7 +29,7 @@ title: Biostat 212A
 [Dr. Jin Zhou](https://ph.ucla.edu/about/faculty-staff-directory/jin-zhou)  
 Office: CHS 21-254  
 Email: <jinjinzhou@ucla.edu>  
-Office hours:   
+Office hours: Tuesday after class, i.e., 8-9 pm, or if there is no class on Tuesday, 5-7 pm.   
 
 ## Course Description
 
