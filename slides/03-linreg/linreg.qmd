@@ -146,7 +146,7 @@ Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_p X_p + \epsilon.
 $$
 For example,
 $$
-\text{sales} \approx \beta_0 + \beta_1 \times \text{TV} + \beta_2 \times \text{radio} + \cdots + \beta_3 \times \text{newspaper}.
+\text{sales} \approx \beta_0 + \beta_1 \times \text{TV} + \beta_2 \times \text{radio} + \beta_3 \times \text{newspaper}.
 $$
 
 
@@ -217,13 +217,13 @@ where $\hat y_i = \hat \beta_0 + \hat \beta_1 x_i$ for $i=1,\ldots, n$.
 
 - We define the residual sum of squares (RSS) as
 $$
-RSS = e_1^2 + e_2^2 + \ldots + e_n^2 = (y_1 - \hat \beta_0 + \hat \beta_1 x_1)^2 + \ldots + (y_n - \hat \beta_0 + \hat \beta_1 x_n)^2.
+RSS = e_1^2 + e_2^2 + \ldots + e_n^2 = (y_1 - \hat \beta_0 - \hat \beta_1 x_1)^2 + \ldots + (y_n - \hat \beta_0 - \hat \beta_1 x_n)^2.
 $$
 
 
 - The **least squares** approach chooses $\beta_0$ and $\beta_1$ to minimize the RSS
 $$
-\hat \beta_0\text{ and }\hat \beta_1 = \underset{\beta_0, \beta_1}{\text{minimize }} RSS = \sum_{i=1}^n (y_i - \beta_0 + \beta_1 x_i)^2.
+\hat \beta_0\text{ and }\hat \beta_1 = \underset{\beta_0, \beta_1}{\text{minimize }} RSS = \sum_{i=1}^n (y_i - \beta_0 - \beta_1 x_i)^2.
 $$
 - Using some calculus, we show that the minimizers are
 \begin{align*}

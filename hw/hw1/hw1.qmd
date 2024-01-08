@@ -42,7 +42,8 @@ $$
 $$
 where the expectations averages over variations in both $X$ and $Y$. (Hint: condition on $X$.)
 
-A
+#### Answer
+contditional xxx 
 
 ### Bias-variance trade-off
 
@@ -53,6 +54,11 @@ $$
 where the expectation averages over the variability in $y_0$ and $\hat f$.
 
 ## ISL Exercise 2.4.3 (10pts)
+
+```{r}
+library(tidyverse)
+fit <- lm(sales ~ TV, data = )
+```
 
 ## ISL Exercise 2.4.4 (10pts)
 
