@@ -30,6 +30,7 @@ title: Biostat 212A
 Office: CHS 21-254  
 Email: <jinjinzhou@ucla.edu>  
 Office hours: Tuesday after class, i.e., 8-9 pm, or if there is no class on Tuesday, 5-7 pm.   
+Zoom link: <https://ucla.zoom.us/j/5842633983> 
 
 ## Course Description
 
