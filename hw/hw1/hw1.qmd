@@ -38,12 +38,12 @@ f_{\text{opt}}(X) = \operatorname{E}(Y | X)
 $$
 minimizes the mean squared prediction error
 $$
-\operatorname{E}[Y - f(X)]^2,
+\operatorname{E}\{[Y - f(X)]^2\},
 $$
 where the expectations averages over variations in both $X$ and $Y$. (Hint: condition on $X$.)
 
 \textbf{Answer}
-conditional on xxx 
+
 
 ### Bias-variance trade-off
 
