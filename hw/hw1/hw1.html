@@ -2684,7 +2684,7 @@ f_{\text{opt}}(X) = \operatorname{E}(Y | X)
 <section id="bias-variance-trade-off" class="level3" data-number="1.2">
 <h3 data-number="1.2" class="anchored" data-anchor-id="bias-variance-trade-off"><span class="header-section-number">1.2</span> Bias-variance trade-off</h3>
 <p>Given an estimate <span class="math inline">\(\hat f\)</span> of <span class="math inline">\(f\)</span>, show that the test error at a <span class="math inline">\(x_0\)</span> can be decomposed as <span class="math display">\[
-\operatorname{E}[y_0 - \hat f(x_0)]^2 = \underbrace{\operatorname{Var}(\hat f(x_0)) + [\operatorname{Bias}(\hat f(x_0))]^2}_{\text{MSE of } \hat f(x_0) \text{ for estimating } f(x_0)} + \underbrace{\operatorname{Var}(\epsilon)}_{\text{irreducible}},
+\operatorname{E}\{[y_0 - \hat f(x_0)]^2\} = \underbrace{\operatorname{Var}(\hat f(x_0)) + [\operatorname{Bias}(\hat f(x_0))]^2}_{\text{MSE of } \hat f(x_0) \text{ for estimating } f(x_0)} + \underbrace{\operatorname{Var}(\epsilon)}_{\text{irreducible}},
 \]</span> where the expectation averages over the variability in <span class="math inline">\(y_0\)</span> and <span class="math inline">\(\hat f\)</span>.</p>
 </section>
 </section>
