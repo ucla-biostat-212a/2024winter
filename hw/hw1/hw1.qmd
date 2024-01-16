@@ -42,7 +42,7 @@ $$
 $$
 where the expectations averages over variations in both $X$ and $Y$. (Hint: condition on $X$.)
 
-\textbf{Answer}
+
 
 
 ### Bias-variance trade-off
