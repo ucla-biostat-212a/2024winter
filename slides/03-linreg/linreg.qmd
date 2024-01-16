@@ -520,7 +520,7 @@ $$
 $$
 and that, provided $H_0$ is true,
 $$
-\mathbf{E}{(\text{TSS} − \text{RSS})/p} = \sigma^22.
+\mathbf{E}{(\text{TSS} − \text{RSS})/p} = \sigma^2.
 $$
 Hence, when there is no relationship between the response and predictors, F-statistic to take on a value close to 1. On the other hand, if $H_a$ is true, then $\mathbf{E}{(\text{TSS} − \text{RSS})/p} > \sigma^2$, so we expect F to be greater than 1. 
 
@@ -829,6 +829,10 @@ lmod_small_pred
 - In the `Advertising` data, all predictors are quantitative (or continuous). 
 
 - The `Credit` data has a mix of quantitative (`Balance`, `Age`, `Cards`, `Education`, `Income`, `Limit`, `Rating`) and qualitative predictors (`Own`, `Student`, `Married`, `Region`).
+   + `balance`: average credit card debt for each individual 
+   + quantitative predictors: `age`, `cards` (number of credit cards), `education` (years of education), `income` (in thousands of dollars), `limit` (credit limit), and `rating` (credit rating)
+   + qualitative variables: `own` (house ownership), `student` (student status), `status` (marital status), and `region` (East, West or South).
+
 
 ::: {.panel-tabset}
 
@@ -873,10 +877,28 @@ sns.pairplot(data = Credit)
 :::
 
 - By default, most software create **dummy variables**, also called **one-hot coding**, for categorical variables. Both Python (statsmodels) and R use the first level (in alphabetical order) as the base level.
+  + For example: `own` has two levels: `no` and `yes`. The dummy variable `ownyes` is 1 if `own` is `yes` and 0 otherwise: 
+$$
+x_i = \begin{cases}
+1 & \text{if own}_i = \text{yes, } \text{i.e., if ith person owns a house} \\
+0 & \text{if own}_i = \text{no, }  \text{i.e., if ith person does not own a house}
+\end{cases}
+$$
+
+This results in the model
+
+$$
+y_i = \beta_0 + \beta_1x_i + \epsilon = \begin{cases}
+\beta_0 + \beta_1 + \epsilon & \text{if own}_i = \text{yes, } \text{i.e., if ith person owns a house} \\
+\beta_0 + \epsilon & \text{if own}_i = \text{no, }  \text{i.e., if ith person does not own a house}
+\end{cases}
+$$
+   + $\beta_0$: the average credit card balance among those who do not own
+   + $\beta_0 + \beta_1$ as the average credit card balance among those who do own their house
+   + $\beta_1$ as the average difference in credit card balance between owners and non-owners.
+   + Since the p-value for the dummy variable is very high, this indicates that there is no statistical evidence of a difference in average credit card balance based on house ownership.
 
 ::: {.panel-tabset}
-
-
 
 #### R
 
@@ -910,6 +932,52 @@ sm.OLS(y, X).fit().summary()
 :::
 
 - There are many different ways of coding qualitative variables, measuring particular **contrasts**.
+  + For example, instead of 0/1 coding scheme, we could create a dummy variable as: `ownyes` is 1 if `own` is `yes` and - otherwise: 
+$$
+x_i = \begin{cases}
+1 & \text{if own}_i = \text{yes, } \text{i.e., if ith person owns a house} \\
+- & \text{if own}_i = \text{no, }  \text{i.e., if ith person does not own a house}
+\end{cases}
+$$
+This results in the model
+$$
+y_i = \beta_0 + \beta_1x_i + \epsilon = \begin{cases}
+\beta_0 + \beta_1 + \epsilon & \text{if own}_i = \text{yes, } \text{i.e., if ith person owns a house} \\
+\beta_0 + \epsilon & \text{if own}_i = \text{no, }  \text{i.e., if ith person does not own a house}
+\end{cases}
+$$
+  + Question: how to interpret $\beta_0$ and $\beta_1$?
+  
+### More than two levels 
+- When a qualitative predictor has more than two levels, more dummy variables is needed to represent all possible values.
+- For example, for the `region` variable we create two dummy variables:
+$$
+x_{i1} = \begin{cases}
+1 & \text{ if ith person is from South} \\
+0 & \text{ if ith person is not from South}
+\end{cases}
+$$
+and 
+$$
+x_{i2} = \begin{cases}
+1 & \text{ if ith person is from West} \\
+0 & \text{ if ith person is not from West}
+\end{cases}
+$$
+This results in 
+$$
+y_i = \beta_0 + \beta_1x_{i1} + \beta_2x_{i2} + \epsilon = 
+\begin{cases}
+\beta_0 + \beta_1 + \epsilon & \text{ if ith person is from South} \\
+\beta_0 + \beta_2 + \epsilon & \text{ if ith person is from West}\\
+\beta_0 + \epsilon & \text{ if ith person is from East}
+\end{cases}
+$$
+- Question: how to interpret $\beta_0$, $\beta_1$, and $\beta_2$?
+- There will always be **one fewer** dummy variable than the number of levels.
+- The level with no dummy variable (i.e., East) is known as the **baseline** or **reference** level.
+- The choice of reference level depends on the question. It doesn't impact the prediction. But it will impact the value of coefficients and their p-values.
+- Use $F$-test to test $\beta_1=\beta_2=0$
 
 ## Interactions
 
@@ -984,7 +1052,39 @@ $$
 
 - The rationale for this principle is that interactions are hard to interpret in a model without main effects -- their meaning is changed. Specifically, the interaction terms still contain main effects, if the model has no main effect terms.
 
-## Non-linear effects of predictors
+### Interaction between a qualitative variable and a quantitative variable
+- Consider the `Credit` data set, let's predict balance using the income (quantitative) and student (qualitative) variables. 
+  + In the absence of an interaction term, the model takes the form
+\begin{align*}
+\text{balance}_i &\approx \beta_0 + \beta_1 \times \text{income}_i + 
+\begin{cases}
+\beta_2 & \text{ if ith person is a student}\\
+0 & \text{ if ith person is not a student}
+\end{cases}\\
+&=  \beta_1 \times \text{income}_i + 
+\begin{cases}
+\beta_0+\beta_2 & \text{ if ith person is a student}\\
+\beta_0 & \text{ if ith person is not a student}
+\end{cases}
+\end{align*}
+  + With an interaction term, i.e., a change in income may have a very different effect on the credit card balance of a student versus a non-student.
+\begin{align*}
+\text{balance}_i &\approx \beta_0 + \beta_1 \times \text{income}_i + 
+\begin{cases}
+\beta_2 + \beta_3 \times \text{income}_i& \text{ if ith person is a student}\\
+0 & \text{ if ith person is not a student}
+\end{cases}\\
+&=   
+\begin{cases}
+\beta_0+\beta_2 + (\beta_1 + \beta_3) \times \text{income}_i& \text{ if ith person is a student}\\
+\beta_0 + \beta_1 \times \text{income}_i& \text{ if ith person is not a student}
+\end{cases}
+\end{align*}  
+
+## Potential Problems
+
+### Non-linear effects of predictors
+- Assumption for the linear regression model: there is a straight-line relationship between the predictors and the response. What if the data violates this assumptions? 
 
 - `Auto` data. 
 
@@ -1010,7 +1110,7 @@ ggplot(data = Auto, mapping = aes(x = horsepower, y = mpg)) +
 
 The figure suggests that `mpg`  vs `horsepower` to have a quadratic shape. And the following model
 $$
-\text{mpg} = \beta_0 + \beta_1 \times \text{horsepower} + \beta_2 \times \text{horsepower}^2 + \epislon.
+\text{mpg} = \beta_0 + \beta_1 \times \text{horsepower} + \beta_2 \times \text{horsepower}^2 + \epsilon
 $$
 may provide a better fit.  But it is still a linear model! So we can use standard linear regression software to estimate $\beta_0$, $\beta_1$, $\beta_2$  in order to produce a non-linear fit.
 
@@ -1071,18 +1171,84 @@ ax.set(
 
 :::
 
-## Potential Problems
+## Residual Plots
+- A useful graphical tool for identifying non-linearity, outliers, etc. 
+- Recall residuals are 
+$$
+\epsilon_i = y_i - \hat{y}_i
+$$
+Predicted/fitted values are 
+$$
+\hat{y}_i = \mathbf{X}\hat{\beta}
+$$
+- We plot the residuals versus the predicted (or fitted) values
+```{r}
+# Linear fit
+lm.fit <- lm(mpg ~ horsepower, data = Auto) 
+plot(lm.fit, which = c(1))
+```
+Ideally, the residual plot will show no discernible pattern. The presence of a pattern may indicate a problem with some aspect of the linear model.
 
-###  Outliers.
+```{r}
+# Linear fit
+lm.df2.fit <- lm(mpg ~ poly(horsepower, 2), data = Auto) 
+plot(lm.df2.fit, which = c(1))
+```
+If the residual plot indicates that there are non-linear associations in the data, then a simple approach is to use non-linear transformations of the predictors, such as $\text{log}X$, $\sqrt{X}$, and $X^2$, in the regression model.
+
+### Correlation of error terms.
+- One important assumption of the linear regression model is that the error terms, $\epsilon_1, \ldots, \epsilon_n$, are uncorrelated, e.g., longitudinal data, time series data, etc.  
 
 ### Non-constant variance of error terms.
+- Another important assumption of the linear regression model is that the error terms have a constant variance, $\text{Var}(\epsilon_i) = \sigma^2$. 
+- Residual plot 
+<p align="center">
+![](figure_3.11.png){width=560px height=300px} 
+</p>
+- Transformation of outcome or weighted least squares.
+
+
+### Outliers.
 
 ### High leverage points.
 
 ### Collinearity.
+- Collinearity refers to the situation in which two or more predictor variables are closely related to one another. 
+```{r}
 
+library(ggplot2)
+ggplot(Credit, aes(x = Limit, y = Age)) +  # Set up canvas with outcome variable on y-axis
+  geom_point( color = "red") +
+  scale_x_continuous(breaks = seq(2000, 12000, by = 2000)) + # Set x-axis limits
+  scale_y_continuous(breaks = seq(30, 80, by = 10)) +
+  xlab("Limit") +
+  ylab("Age") +
+  theme_bw() + 
+  theme(panel.background = element_rect(colour = "black", linewidth = 1),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "black"))
 
+ggplot(Credit, aes(x = Limit, y = Rating)) +  # Set up canvas with outcome variable on y-axis
+  geom_point( color = "red") +
+  scale_x_continuous(breaks = seq(2000, 12000, by = 2000)) + # Set x-axis limits
+  scale_y_continuous(breaks = seq(200, 800, by = 200)) +
+  xlab("Limit") +
+  ylab("Rating") +
+  theme_bw() + 
+  theme(panel.background = element_rect(colour = "black", linewidth = 1),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "black"))
 
+```
+
+- Collinearity reduces the accuracy of the estimates of the regression coefficients, it causes the standard error to grow.
+- The power of the hypothesis test—the probability of correctly detecting a non-zero coefficient—is reduced by collinearity.
+- Solution: 
+  + drop one of the problematic variables from the regression.
+  + combine the collinear variables together into a single predictor.
+  
 ## Generalizations of linear models
 
 In much of the rest of this course, we discuss methods that expand the scope of linear models and how they are fit.
