@@ -364,7 +364,7 @@ fit %>%
 > For the `advertising` data, actual sales in each market deviate from the true regression line by approximately 3,260 units, on average. To put in context of our outcome (i.e., sales): since the mean value of sales over all markets is approximately 14,000 units, the percentage error is 3,260/14,000 = 23 %.
 
 #### $R^2$ statistic
-- The  $R^2$ statistic provides an alternative measure of fit. It takes the form of a **proportion** —the proportion of variance explained—and so it always takes on a value between 0 and 1, and is independent of the scale of Y .
+- The  $R^2$ statistic provides an alternative measure of fit. It takes the form of a **proportion** —the proportion of variance explained—and so it always takes on a value between 0 and 1, and is independent of the scale of Y. 
 To calculate R2, we use the formula
 $$
 R^2 = \frac{\text{TSS}-\text{RSS}}{\text{TSS}} = 1 - \frac{\text{RSS}}{\text{TSS}},
