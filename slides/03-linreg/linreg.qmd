@@ -468,9 +468,9 @@ lmod.summary()
 > 
 > "Data Analysis and Regression", Mosteller and Tukey 1977
 
-- Only when the predictors are uncorrelated (balanced or orthogonal design), each coefficient can be estimated, interpreted, and tested separately.
+- Only when the predictors are uncorrelated, each coefficient can be estimated, interpreted, and tested separately.
 
-    In other words, only in a balanced design, the regression coefficients estimated from multiple linear regression are the same as those from separate simple linear regressions.
+    In other words, only when the predictors are uncorrelated, the regression coefficients estimated from multiple linear regression are the same as those from separate simple linear regressions.
 
 - Claims of **causality** should be avoided for observational data.
 
@@ -1171,7 +1171,7 @@ ax.set(
 
 :::
 
-## Residual Plots
+#### Residual Plots
 - A useful graphical tool for identifying non-linearity, outliers, etc. 
 - Recall residuals are 
 $$
