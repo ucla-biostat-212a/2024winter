@@ -893,9 +893,10 @@ y_i = \beta_0 + \beta_1x_i + \epsilon = \begin{cases}
 \beta_0 + \epsilon & \text{if own}_i = \text{no, }  \text{i.e., if ith person does not own a house}
 \end{cases}
 $$
+   
    + $\beta_0$: the average credit card balance among those who do not own
-   + $\beta_0 + \beta_1$ as the average credit card balance among those who do own their house
-   + $\beta_1$ as the average difference in credit card balance between owners and non-owners.
+   + $\beta_0 + \beta_1$: the average credit card balance among those who do own their house
+   + $\beta_1$: the average difference in credit card balance between owners and non-owners
    + Since the p-value for the dummy variable is very high, this indicates that there is no statistical evidence of a difference in average credit card balance based on house ownership.
 
 ::: {.panel-tabset}
@@ -1080,6 +1081,11 @@ $$
 \beta_0 + \beta_1 \times \text{income}_i& \text{ if ith person is not a student}
 \end{cases}
 \end{align*}  
+
+<p align="center">
+![](./figure_3.7.png){width=800px height=350px}
+</p>
+
 
 ## Potential Problems
 
