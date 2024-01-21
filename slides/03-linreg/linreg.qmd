@@ -877,27 +877,24 @@ sns.pairplot(data = Credit)
 :::
 
 - By default, most software create **dummy variables**, also called **one-hot coding**, for categorical variables. Both Python (statsmodels) and R use the first level (in alphabetical order) as the base level.
-  + For example: `own` has two levels: `no` and `yes`. The dummy variable `ownyes` is 1 if `own` is `yes` and 0 otherwise: 
+  + For example: `own` has two levels: `no` and `yes`. The dummy variable `own` is 1 if `own` is `yes` and 0 otherwise: 
 $$
 x_i = \begin{cases}
 1 & \text{if own}_i = \text{yes, } \text{i.e., if ith person owns a house} \\
 0 & \text{if own}_i = \text{no, }  \text{i.e., if ith person does not own a house}
 \end{cases}
 $$
-
 This results in the model
-
 $$
 y_i = \beta_0 + \beta_1x_i + \epsilon = \begin{cases}
 \beta_0 + \beta_1 + \epsilon & \text{if own}_i = \text{yes, } \text{i.e., if ith person owns a house} \\
 \beta_0 + \epsilon & \text{if own}_i = \text{no, }  \text{i.e., if ith person does not own a house}
 \end{cases}
 $$
-   
-   + $\beta_0$: the average credit card balance among those who do not own
-   + $\beta_0 + \beta_1$: the average credit card balance among those who do own their house
-   + $\beta_1$: the average difference in credit card balance between owners and non-owners
-   + Since the p-value for the dummy variable is very high, this indicates that there is no statistical evidence of a difference in average credit card balance based on house ownership.
+  + $\beta_0$: the average credit card balance among those who do not own
+  + $\beta_0 + \beta_1$: the average credit card balance among those who do own their house
+  + $\beta_1$: the average difference in credit card balance between owners and non-owners
+  + Since the p-value for the dummy variable is very high, this indicates that there is no statistical evidence of a difference in average credit card balance based on house ownership.
 
 ::: {.panel-tabset}
 
@@ -933,18 +930,18 @@ sm.OLS(y, X).fit().summary()
 :::
 
 - There are many different ways of coding qualitative variables, measuring particular **contrasts**.
-  + For example, instead of 0/1 coding scheme, we could create a dummy variable as: `ownyes` is 1 if `own` is `yes` and - otherwise: 
+  + For example, instead of 0/1 coding scheme, we could create a dummy variable as: `own` is 1 if `own` is `yes` and -1 otherwise:
 $$
 x_i = \begin{cases}
 1 & \text{if own}_i = \text{yes, } \text{i.e., if ith person owns a house} \\
-- & \text{if own}_i = \text{no, }  \text{i.e., if ith person does not own a house}
+-1 & \text{if own}_i = \text{no, }  \text{i.e., if ith person does not own a house}
 \end{cases}
 $$
 This results in the model
 $$
 y_i = \beta_0 + \beta_1x_i + \epsilon = \begin{cases}
 \beta_0 + \beta_1 + \epsilon & \text{if own}_i = \text{yes, } \text{i.e., if ith person owns a house} \\
-\beta_0 + \epsilon & \text{if own}_i = \text{no, }  \text{i.e., if ith person does not own a house}
+\beta_0 -\beta_1 \epsilon & \text{if own}_i = \text{no, }  \text{i.e., if ith person does not own a house}
 \end{cases}
 $$
   + Question: how to interpret $\beta_0$ and $\beta_1$?
