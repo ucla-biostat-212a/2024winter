@@ -1,11 +1,12 @@
 ---
-title: "Econ 425T Homework 3"
-subtitle: "Due Feb 15, 2023 @ 11:59PM"
+title: "Biostat 212a Homework 2"
+subtitle: "Due Feb 6, 2024 @ 11:59PM"
 author: "YOUR NAME and UID"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 format:
   html:
     theme: cosmo
+    embed-resources: true
     number-sections: true
     toc: true
     toc-depth: 4
