@@ -30,17 +30,19 @@ knitr:
 
 ### 4. Which method we used in linear regression lectures for parameter estimation?
 
-### 5. Can you list 3 methods for variable selection in the linear regression?
+### 5. How to interpret the coefficients in linear regression?
 
-### 6. How to diagnose the model fit in linear regression?
+### 6. Can you list 2 methods for variable selection in the linear regression?
 
-### 7. For a two level factor variable, how many dummy variables we need to create? how about 3-level factor?
+### 7. How to diagnose the model fit in linear regression?
 
-### 8. Explain what is "colinearity" regression?
+### 8. For a two level factor variable, how many dummy variables we need to create? how about 3-level factor?
 
-### 9. Which test can you use to determin whether a subset of the predictors among $X_1, X_2, \ldots, X_p$ is useful in predicting the response? 
+### 9. Explain what is "colinearity" regression?
 
-### 10. What is the difference between "forward selection" and "backward selection" in variable selection?
+### 10. Which test can you use to determin whether a subset of the predictors among $X_1, X_2, \ldots, X_p$ is useful in predicting the response? 
+
+### 11. What is the difference between "forward selection" and "backward selection" in variable selection?
 
 
 

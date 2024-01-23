@@ -87,6 +87,74 @@ ggpairs(
   labs(title = "Credit Default Data")
 ```
 
+```{r}
+ggplot(
+  data = Default, 
+  mapping = aes(x = balance, y = income, color = default)
+  ) + 
+  geom_point() + 
+  labs(
+    title = "Credit Default Data", 
+    x = "Balance", 
+    y = "Income"
+    )
+```
+```{r}
+# Visualize income ~ balance
+ggplot(
+  data = Default, 
+  mapping = aes(x = balance, y = income, color = default)
+  ) + 
+  geom_point() + 
+  labs(
+    title = "Credit Default Data", 
+    x = "Balance", 
+    y = "Income"
+    )
+```
+
+```{r}
+# Visualize balance ~ default
+ggplot(
+  data = Default, 
+  mapping = aes(x = default, y = balance)
+  ) + 
+  geom_boxplot() + 
+  labs(
+    title = "Credit Default Data", 
+    x = "Default", 
+    y = "Balance"
+    )
+```
+
+```{r}
+# Visualize income ~ default
+ggplot(
+  data = Default, 
+  mapping = aes(x = default, y = income)
+  ) + 
+  geom_boxplot() + 
+  labs(
+    title = "Credit Default Data", 
+    x = "Default", 
+    y = "Income"
+    )
+```
+
+```{r}
+# Visualize student ~ default
+ggplot(
+  data = Default, 
+  mapping = aes(x = default, fill = student)
+  ) + 
+  geom_bar(position = "fill") + 
+  labs(
+    title = "Credit Default Data", 
+    x = "Default", 
+    y = "Count"
+    )
+```
+
 #### Python
 
 ```{python}
@@ -189,6 +257,8 @@ can we simply perform a linear regression of $Y$ on $X$ and classify as `Yes` if
 #### R
 
 ```{r}
+#| label: fig-default-lm-vs-logisitc
+#| fig-cap: "Predicted probabilities by linear regression (blue line) vs logistic regression (green line)."
 #| code-fold: true
 
 Default %>%
@@ -215,9 +285,7 @@ Default %>%
 #### Python
 
 ```{python}
-#| label: fig-default-lm-vs-logisitc
-#| fig-cap: "Predicted probabilities by linear regression (blue line) vs logistic regression (green line)."
-#| code-fold: true
+
 
 # 0-1 (No-Yes) coding
 Default['y'] = (Default['default'] == 'Yes').astype(int)
@@ -274,6 +342,11 @@ $$
 \log \left( \frac{p(X)}{1 - p(X)} \right) = \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p.
 $$
 This monotone transformation is called the **log odds** or **logit** transformation of $p(X)$. 
+
+    - The left-hand side is called the **logit** of $p(X)$.
+    - The quantity $p(X)/[1−p(X)]$ is called the **odds**, and can take on any value between $[0, \infty]$.
+    - For example, on average 1 in 5 people with an odds of $1/4$ will default, since $p(X) = 0.2$ implies an odds of $0.2 = 1/4$.
+
 
 - We use maximum likelihood to estimate the parameters. That is find $\beta_0, \ldots, \beta_p$ that maximizes the *likelihood* function
 $$
@@ -410,6 +483,16 @@ logit_smauc
 
 - We interpret the logistic regression coefficient as the **expected change in log odds** associated with one-unit increase in the corresponding predictor.
 
+    +  Equivalently, it multiplies the odds by a factor of $e^{\beta}$.
+
+- We can measure the accuracy of the coefficient estimates by computing their standard errors. 
+
+- The z-statistic (`z value`) in R output plays the same role as the t-statistic in the linear regression output
+
+    + It is the coefficient divided by its standard error.
+    + The null hypotheses is that the coefficient is zero, or equivalently that the **odds ratio** is 1.
+    + If pvalue is small, we can reject the null hypothesis and conclude that higher `balance` is associated with the higher probability of `default`.
+
 - Wait! Why the coefficient of `student` is negative, contradicting with the plot?
 
 - **Confounding:** `student` status is confounded with `balance`. Students tend to have higher balances than non-students, so their marginal default rate is higher than for non-students. 
@@ -490,6 +573,31 @@ plt.show()
 
 :::
 
+### Making Predictions
+
+- Once the coefficients have been estimated, we can compute the probability of `default` for any given credit card balance. For example, we predict that the `default` probability for an individual with a balance of $X=\$1,000$ is
+$$
+\hat p(X) = \frac{e^{\hat \beta_0+\hat\beta_1 X}}{1+e^{\hat \beta_0+\hat\beta_1 X}} =\frac{e^{-10.65 + 0.005 \times 1000}}{1 + e^{-10.65 + 0.005 \times 1000}} = 0.0058.
+$$
+which is below $1\%$. In contrast, the predicted probability of default for an individual with a balance of $\$2,000$ is much higher, and equals $0.586$ or $58.6 \%$.
+
+- Dummy variable approach is used for qualitative predictors with the logistic regression model as well. 
+
+    + For example, `student` is a qualitative predictor with two levels, `Yes` and `No`. 
+    + We can create a dummy variable: a value of $1$ for students and $0$ for non-students. 
+    + Then we include this dummy variable as a predictor in the logistic regression equation in order to predict the probability of default for a given value of `balance` for both students and non-students, e.g., a student with a credit card balance of $\$1,500$ and an income of $\$40,000$ has an estimated probability of `default` of
+\begin{eqnarray*}
+& & \hat p(\text{default = Yes} | \text{balance = 1500, income = 40,000, student = Yes})  \\
+&=& \frac{e^{−10.869+0.00574\times 1500+0.003\times 40−0.6468\times 1}}{1 + e^{−10.869+0.00574\times 1500+0.003\times40−0.6468\times 1}} \\
+&=& 0.058
+\end{eqnarray*}
+
+- We can use the `predict()` function to predict the probability that a given observation belongs to a particular class, rather than predicting the class itself.
+```{r}
+(p = predict(logit_mod, 
+             newdata = data.frame(balance = 1500, income = 40000, student = "Yes"), 
+             type = "response"))
+```
 
 ## Multinomial logit regression
 
@@ -498,6 +606,25 @@ $$
 \operatorname{Pr}(Y = k \mid X) = \frac{e^{\beta_{0k} + \beta_{1k} X_1 + \cdots + \beta_{pk} X_p}}{\sum_{\ell = 1}^K e^{\beta_{0\ell} + \beta_{1\ell} X_1 + \cdots + \beta_{p\ell} X_p}}.
 $$
 Note each class has its own set of regression coefficients.
+
+- We first select a single class to serve as the baseline; then for each of the remaining $K-1$ classes, we fit a separate binary logistic regression model that compares that class to the baseline.
+$$
+p(Y=k|X=x) = \frac{e^{\beta_{k0}+\beta_{k1}x_1+\ldots+\beta_{kp}x_p}}{1+\sum_{\ell=1}^{K-1}e^{\beta_{\ell0}+\beta_{\ell1}x_1+\ldots+\beta_{\ell p}x_p}}, \quad k=1,\ldots,K-1.
+$$
+and the baseline class is
+$$
+p(Y=K|X=x) = \frac{1}{1+\sum_{\ell=1}^{K-1}e^{\beta_{\ell0}+\beta_{\ell1}x_1+\ldots+\beta_{\ell p}x_p}}.
+$$
+Then we can show
+$$
+\log\left(\frac{p(Y=k|X=x)}{p(Y=K|X=x)}\right) = \beta_{k0}+\beta_{k1}x_1+\ldots+\beta_{kp}x_p, \quad k=1,\ldots,K-1.
+$$
+- Therefore, the interpretation of the coefficients in a multinomial logistic regression model is tied to the choice of baseline.
+    + For example, if we set  `epileptic seizure` to be the baseline, then a one-unit increase in $X_j$ is associated with a $\beta_{stroke,j}$ increase in the log odds of stroke over epileptic seizure. Stated another way, if $X_j$ increases by one unit, then the odds of stroke over epileptic seizure 
+$$
+\frac{p(Y=\text{stroke}|X=x)}{p(Y=\text{epileptic seizure}|X=x)}
+$$
+are multiplied by $e^{\beta_{stroke,j}}$.
 
 In Python, we can fit multinomial logit model by [`statsmodels.discrete.discrete_model.MNLogit`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.MNLogit.html). In R, we can use `glmnet` package or `nnet` package.
 
@@ -537,6 +664,21 @@ $$
 \delta_k(x) = x^T \boldsymbol{\Sigma}^{-1} \mu_k - \frac{1}{2} \mu_k^T \boldsymbol{\Sigma}^{-1} \mu_k + \log \pi_k,
 $$
 which is a linear function in $x$!
+
+    + For example, in the one-dimensional setting, the normal density takes the form
+$$
+f_k(x) = \frac{1}{\sqrt{2\pi\sigma_k}} \exp\left(-\frac{1}{2\sigma_k^2}(x - \mu_k)^2\right)
+$$
+    + where $\mu_k$ and $\sigma_{k}^2$ are the mean and variance parameters for the $k$th class. We assume shared variance term across all $K$ classes, $\sigma_{1}^2=\ldots=\sigma_{K}^2 = \sigma^2$. Then 
+$$
+p_k(x) = \frac{\pi_k \frac{1}{\sqrt{2\pi\sigma}} \exp\left(-\frac{1}{2\sigma^2}(x - \mu_k)^2\right)}{\sum_{l=1}^{K} \pi_l \frac{1}{\sqrt{2\pi\sigma}} \exp\left(-\frac{1}{2\sigma^2}(x - \mu_l)^2\right)}.
+$$
+      Taking the log of both sides and rearrange terms with $k$
+$$
+\delta_k = x \frac{\mu_k}{\sigma^2} - \frac{\mu_k^2}{2\sigma^2} + \log \pi_k.
+$$ 
+
+- The linear discriminant function $\delta_k(x)$ is a linear combination of the features $x_1, \ldots, x_p$.
 
 - We estimate the unknown parameters $\pi_k$, $\mu_k$, and $\boldsymbol{\Sigma}$ by
 \begin{eqnarray*}
