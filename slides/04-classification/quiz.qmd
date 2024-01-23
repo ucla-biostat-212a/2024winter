@@ -7,8 +7,8 @@ format:
   html:
     theme: cosmo
     embed-resources: true
-    number-sections: true
-    toc: true
+    number-sections: false
+    toc: false
     toc-depth: 4
     toc-location: left
     code-fold: false
@@ -22,20 +22,20 @@ knitr:
     cache: false
 ---
 
-## Is linear regression a classification method?  
+### 1. Is linear regression a classification method?  
 
-## Is linear regression a parametric or non-parametric method?
+### 2. Is linear regression a parametric or non-parametric method?
 
-## What are the assumptions for linear regression?
+### 3. What are the assumptions for linear regression?
 
-## Which method we used in linear regression lecture (lec3) for parameter estimation?
+### 4. Which method we used in linear regression lectures for parameter estimation?
 
-## Can you list 3 methods for variable selection in the linear regression?
+### 5. Can you list 3 methods for variable selection in the linear regression?
 
-## How to diagnose the model fit in linear regression?
+### 6. How to diagnose the model fit in linear regression?
 
-## For a two level factor variable, how many dummy variables we need to create? how about 3-level factor?
+### 7. For a two level factor variable, how many dummy variables we need to create? how about 3-level factor?
 
-## Explain what is "colinearity" regression?
+### 8. Explain what is "colinearity" regression?
 
 
