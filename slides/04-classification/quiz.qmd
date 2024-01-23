@@ -1,7 +1,7 @@
 ---
-title: "Biostat 212a Homework 2"
-subtitle: "Due Feb 6, 2024 @ 11:59PM"
-author: "YOUR NAME and UID"
+title: "Biostat 212a In Class Quiz"
+subtitle: " "
+author: "Dr. Jin Zhou"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 format:
   html:
@@ -22,14 +22,20 @@ knitr:
     cache: false
 ---
 
-## ISL Exercise 4.8.1 (10pts)
+## Is linear regression a classification method?  
 
-## ISL Exercise 4.8.6 (10pts)
+## Is linear regression a parametric or non-parametric method?
 
-## ISL Exercise 4.8.9 (10pts)
+## What are the assumptions for linear regression?
 
-## ISL Exercise 4.8.13 (a)-(i) (50pts)
+## Which method we used in linear regression lecture (lec3) for parameter estimation?
 
-## Bonus question: ISL Exercise 4.8.13 Part (j) (30pts)
+## Can you list 3 methods for variable selection in the linear regression?
 
-## Bonus question: ISL Exercise 4.8.4 (30pts)
+## How to diagnose the model fit in linear regression?
+
+## For a two level factor variable, how many dummy variables we need to create? how about 3-level factor?
+
+## Explain what is "colinearity" regression?
+
+
