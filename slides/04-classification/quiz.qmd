@@ -38,4 +38,9 @@ knitr:
 
 ### 8. Explain what is "colinearity" regression?
 
+### 9. Which test can you use to determin whether a subset of the predictors among $X_1, X_2, \ldots, X_p$ is useful in predicting the response? 
+
+### 10. What is the difference between "forward selection" and "backward selection" in variable selection?
+
+
 
