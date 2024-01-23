@@ -1,0 +1,35 @@
+---
+title: "Biostat 212a Homework 2"
+subtitle: "Due Feb 6, 2024 @ 11:59PM"
+author: "YOUR NAME and UID"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+engine: knitr
+knitr:
+  opts_chunk: 
+    fig.align: 'center'
+    # fig.width: 6
+    # fig.height: 4
+    message: FALSE
+    cache: false
+---
+
+## ISL Exercise 4.8.1 (10pts)
+
+## ISL Exercise 4.8.6 (10pts)
+
+## ISL Exercise 4.8.9 (10pts)
+
+## ISL Exercise 4.8.13 (a)-(i) (50pts)
+
+## Bonus question: ISL Exercise 4.8.13 Part (j) (30pts)
+
+## Bonus question: ISL Exercise 4.8.4 (30pts)
