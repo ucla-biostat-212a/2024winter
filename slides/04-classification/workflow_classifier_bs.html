@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Dr. Jin Zhou @ UCLA">
-<meta name="dcterms.date" content="2024-01-22">
+<meta name="dcterms.date" content="2024-01-23">
 
 <title>Machine Learning Workflow: Classifiers With Nonlinear Features</title>
 <style>
@@ -2622,9 +2622,9 @@ vertical-align: -.125em;
   <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><span class="toc-section-number">1</span>  Overview</a></li>
   <li><a href="#default-data" id="toc-default-data" class="nav-link" data-scroll-target="#default-data"><span class="toc-section-number">2</span>  Default data</a></li>
   <li><a href="#initial-split-into-test-and-non-test-sets" id="toc-initial-split-into-test-and-non-test-sets" class="nav-link" data-scroll-target="#initial-split-into-test-and-non-test-sets"><span class="toc-section-number">3</span>  Initial split into test and non-test sets</a></li>
-  <li><a href="#preprocessing-python-or-recipe-r" id="toc-preprocessing-python-or-recipe-r" class="nav-link" data-scroll-target="#preprocessing-python-or-recipe-r"><span class="toc-section-number">4</span>  Preprocessing (Python) or recipe (R)</a></li>
+  <li><a href="#recipe-r-or-preprocessing-python" id="toc-recipe-r-or-preprocessing-python" class="nav-link" data-scroll-target="#recipe-r-or-preprocessing-python"><span class="toc-section-number">4</span>  Recipe (R) or Preprocessing (Python)</a></li>
   <li><a href="#model" id="toc-model" class="nav-link" data-scroll-target="#model"><span class="toc-section-number">5</span>  Model</a></li>
-  <li><a href="#pipeline-python-or-workflow-r" id="toc-pipeline-python-or-workflow-r" class="nav-link" data-scroll-target="#pipeline-python-or-workflow-r"><span class="toc-section-number">6</span>  Pipeline (Python) or workflow (R)</a></li>
+  <li><a href="#workflow-r-or-pipeline-python" id="toc-workflow-r-or-pipeline-python" class="nav-link" data-scroll-target="#workflow-r-or-pipeline-python"><span class="toc-section-number">6</span>  Workflow (R) or Pipeline (Python)</a></li>
   <li><a href="#tuning-grid" id="toc-tuning-grid" class="nav-link" data-scroll-target="#tuning-grid"><span class="toc-section-number">7</span>  Tuning grid</a></li>
   <li><a href="#cross-validation-cv" id="toc-cross-validation-cv" class="nav-link" data-scroll-target="#cross-validation-cv"><span class="toc-section-number">8</span>  Cross-validation (CV)</a></li>
   <li><a href="#finalize-our-model" id="toc-finalize-our-model" class="nav-link" data-scroll-target="#finalize-our-model"><span class="toc-section-number">9</span>  Finalize our model</a></li>
@@ -2655,7 +2655,7 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 22, 2024</p>
+      <p class="date">January 23, 2024</p>
     </div>
   </div>
   
@@ -2916,8 +2916,8 @@ max     2654.322576  73554.233495</code></pre>
 </div>
 </div>
 </section>
-<section id="preprocessing-python-or-recipe-r" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="preprocessing-python-or-recipe-r"><span class="header-section-number">4</span> Preprocessing (Python) or recipe (R)</h2>
+<section id="recipe-r-or-preprocessing-python" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="recipe-r-or-preprocessing-python"><span class="header-section-number">4</span> Recipe (R) or Preprocessing (Python)</h2>
 <div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true" href>Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false" href>R</a></li></ul>
 <div class="tab-content">
@@ -2988,8 +2988,8 @@ max     2654.322576  73554.233495</code></pre>
 </div>
 </div>
 </section>
-<section id="pipeline-python-or-workflow-r" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="pipeline-python-or-workflow-r"><span class="header-section-number">6</span> Pipeline (Python) or workflow (R)</h2>
+<section id="workflow-r-or-pipeline-python" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="workflow-r-or-pipeline-python"><span class="header-section-number">6</span> Workflow (R) or Pipeline (Python)</h2>
 <p>Here we bundle the preprocessing step (Python) or recipe (R) and model. Again remember KNN is a placeholder here. Later we will choose the better classifier according to cross validation.</p>
 <div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-6-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-1" role="tab" aria-controls="tabset-6-1" aria-selected="true" href>R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-2" role="tab" aria-controls="tabset-6-2" aria-selected="false" href>Python</a></li></ul>

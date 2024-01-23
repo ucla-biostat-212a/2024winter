@@ -73,6 +73,7 @@ a function $C(X)$ that takes as input the feature vector $X$ and predicts its va
 library(ISLR2)
 library(GGally) # ggpairs function
 library(tidyverse)
+library(pROC)
 
 # Credit default data
 Default <- as_tibble(Default) %>% 
@@ -725,8 +726,19 @@ lda_pred = predict(lda_mod, Default)
 # Confusion matrix
 lda_cfm = table(Predicted = lda_pred$class, Default = Default$default)
 
+```
+
+Overall training accuracy of LDA (using 0.5 as threshold) is
+```{r}
 # Accuracy
 (lda_cfm['Yes', 'Yes'] + lda_cfm['No', 'No']) / sum(lda_cfm)
+```
+
+The area-under-ROC curve (AUC) of LDA is
+```{r}
+# AUC
+
+(lda_auc = roc(Default$default, lda_pred$posterior[, 2])$auc)
 ```
 
 #### Python
@@ -756,10 +768,11 @@ lda_cfm = pd.crosstab(
   )
 lda_cfm
 ```
+:::
 
 Overall training accuracy of LDA (using 0.5 as threshold) is
-```{python}
-(lda_cfm.loc['Yes', 'Yes'] + lda_cfm.loc['No', 'No']) / lda_cfm.loc['All', 'All']
+```{r}
+(lda_cfm['Yes', 'Yes'] + lda_cfm['No', 'No']) / sum(lda_cfm)
 ```
 
 The area-under-ROC curve (AUC) of LDA is
@@ -772,7 +785,21 @@ lda_auc
 ```
 
 
-:::
+- Note: 
+
+    + Training error rates will usually be lower than test error rates, which are the real quantity of interest. 
+    + The higher the ratio of parameters $p$ to number of samples n, the more we expect this overfitting to play a role.
+    + Since only $3.33\%$ of the individuals in the training sample defaulted, a simple but useless classifier that always predicts that an individual will not default, regardless of his or her credit card balance and student status, will result in an error rate of $3.33\%$. In other words, the trivial **null classifier** will achieve an error rate that null is only a bit higher than the LDA training set error rate.
+
+- However this can change, depending how we define `default`. In the two-class case, we often assign an observation to the `default` class if
+$$
+p(\text{default = Yes}|X = x) > 0.5
+$$
+
+- But if we are interested in minimizing the number of defaults that we fail to identify, then we should instead assign an observation to the `default` class if
+$$
+p(\text{default = Yes}|X = x) > 0.2.
+$$
 
 ### Quadratic discriminant analysis (QDA)
 
@@ -798,8 +825,6 @@ The Bayes (purple dashed), LDA (black dotted), and QDA (green solid) decision bo
 
 ::: {.panel-tabset}
 
-
-
 #### R
 
 ```{r}
@@ -815,9 +840,20 @@ qda_pred = predict(qda_mod, Default)
 
 # Confusion matrix
 qda_cfm = table(Predicted = qda_pred$class, Default = Default$default)
+```
 
+Overall training accuracy of QDA (using 0.5 as threshold) is
+```{r}
 # Accuracy
 (qda_cfm['Yes', 'Yes'] + qda_cfm['No', 'No']) / sum(qda_cfm)
+```
+
+The area-under-ROC curve (AUC) of QDA is
+```{r}
+(auc_qda = roc(
+  Default$default,
+  qda_pred$posterior[, 'Yes']
+)$auc)
 ```
 
 #### Python
@@ -898,9 +934,20 @@ nb_pred = predict(nb_mod, Default)
 
 # Confusion matrix
 nb_cfm = table(Predicted = nb_pred, Default = Default$default)
+```
 
+Overall training accuracy of Naive Bayes classifier (using 0.5 as threshold) is
+```{r}
 # Accuracy
 (nb_cfm['Yes', 'Yes'] + nb_cfm['No', 'No']) / sum(nb_cfm)
+```
+
+The area-under-ROC curve (AUC) of NB is
+```{r}
+(auc_nb = roc(
+  Default$default, 
+  predict(nb_mod, Default, type = "raw")[, 2]
+  )$auc)
 ```
 
 #### Python
@@ -961,8 +1008,6 @@ and then classifies the test observation $x_0$ to the class with the largest pro
 
 ::: {.panel-tabset}
 
-
-
 #### R
 
 ```{r}
@@ -982,9 +1027,30 @@ knn_pred <- knn(
 
 # Confusion matrix
 knn_cfm = table(Predicted = knn_pred, Default = Default$default)
+```
 
+Overall training accuracy of KNN classifier with $K=5$ (using 0.5 as threshold) is
+```{r}
 # Accuracy
 (knn_cfm['Yes', 'Yes'] + knn_cfm['No', 'No']) / sum(knn_cfm)
+```
+
+The area-under-ROC curve (AUC) of KNN ($K=5$) is
+```{r}
+# AUC
+knn_mod <- knn(
+  train = X_default, 
+  test = X_default,
+  cl = Default$default,
+  prob = TRUE,
+  k = 5
+  )
+knn_pred_prob <- 1 - attr(knn_mod, "prob") 
+
+(knn_auc = auc(
+  Default$default,
+  knn_pred_prob
+))
 ```
 
 #### Python

@@ -186,7 +186,7 @@ y_test = Default_test.default
 
 :::
 
-## Preprocessing (Python) or recipe (R)
+## Recipe (R) or Preprocessing (Python) 
 
 ::: {.panel-tabset}
 
@@ -261,7 +261,7 @@ enet_mod
 
 :::
 
-## Pipeline (Python) or workflow (R)
+## Workflow (R) or Pipeline (Python)
 
 Here we bundle the preprocessing step (Python) or recipe (R) and model. Again remember KNN is a placeholder here. Later we will choose the better classifier according to cross validation.
 
