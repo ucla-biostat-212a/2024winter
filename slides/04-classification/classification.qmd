@@ -1290,3 +1290,149 @@ So it has the same form as logistic regression. The difference is in how the par
 - KNN classifier is non-parametric and can dominate LDA and logistic regression when the decision boundary is highly nonlinear, provided that $n$ is very large and $p$ is small.
 
 - See ISL Section 4.5 for theoretical and empirical comparisons of logistic regression, LDA, QDA, NB, and KNN.
+
+## Poisson regression
+- $Y$ is neither qualitative nor quantitative, but rather a count.
+- For example,  `Bikeshare` data set: 
+    + The response is `bikers`, the number of hourly users of a bike sharing program in Washington, DC.
+    + Predictors: 
+        + `mnth` month of the year, 
+        + `hr` hour of the day, from 0 to 23, 
+        + `workingday` an indicator variable that equals 1 if it is neither a weekend nor a holiday, 
+        + `temp` the normalized temperature, in Celsius, 
+        + `weathersit` a qualitative variable that takes on one of four possible values: clear; misty or cloudy; light rain or light snow; or heavy rain or heavy snow.
+        
+```{r}
+library(ISLR2)
+ggplot(Bikeshare, aes(x = bikers)) + 
+  geom_histogram(bins = 40) 
+```
+### Try linear regression 
+```{r}
+library(ISLR2)
+Bikeshare <- as_tibble(Bikeshare) %>%
+  mutate(mnth = factor(mnth),
+         hr = factor(hr),
+         workingday = factor(workingday, levels = c(0, 1), labels = c("No", "Yes")),
+         weathersit = factor(weathersit))
+```
+
+```{r}
+m1 <- lm(bikers ~ workingday + temp + weathersit, data = Bikeshare)
+
+m1 %>% tbl_regression(
+    pvalue_fun = ~ style_pvalue(.x, digits = 2),
+    estimate_fun = function(x) style_number(x, digits = 3)
+  ) %>%
+  add_global_p() %>%
+  bold_p(t = 0.05) %>%
+  bold_labels() %>%
+  modify_column_unhide(columns = c(statistic, std.error)) %>%
+  add_glance_source_note(
+    label = list(sigma ~ "\U03C3"),
+    include = c(r.squared, sigma)) %>%
+  add_n(location = "label")
+```
+
+```{r}
+m1 %>% 
+  ggplot(aes(x  = .fitted)) +
+  geom_histogram() 
+```
+    
+    + Part of the fitted values in the `Bikeshare` data set are negative.
+
+- Mean-variance relationship 
+    + It shows that the smaller the mean, the smaller the variance.
+    + This violates the assumption of **constant variance** in linear regression.
+```{r}
+ggplot(Bikeshare %>% mutate(hr = as.numeric(hr)), 
+       aes(x = hr, y = bikers)) +
+  geom_point() +
+  geom_jitter(width = 0.1) +
+  geom_smooth(method = "loess", span = 0.65) 
+```
+- We could do a transformation, i.e., $\log$
+$$
+\log(Y) = \sum_{j=1}^p \beta_j X_j + \epsilon.
+$$
+    + But the model is no longer linear in the predictors and the interpretation of the coefficients is for $\log(Y)$ rather than $Y$.
+    
+### Poisson regression
+- We often use Poisson regression to model counts $Y$.
+- Poisson distribution: a random variable $Y$ takes on nonnegative integer values, i.e. $Y \in \{0, 1, 2, \ldots\}$. If $Y$ follows the Poisson distribution, then 
+$$
+p(Y=k) = \frac{\lambda^k e^{-\lambda}}{k!}, \quad k = 0, 1, 2, \ldots
+$$
+where $\lambda$ is the **mean and variance** of $Y$, i.e., $\mathbf{E}(Y)$.
+
+- Poisson regression model: 
+    + Assume that $Y$ follows a Poisson distribution with mean $\lambda$.
+    + We model the log mean as a linear function of the predictors:
+$$
+\log(\lambda(X_1, \ldots, X_p)) = \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p.
+$$
+or equivalently
+$$
+\lambda(X_1, \ldots, X_p) = \exp(\beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p).
+$$
+
+- To estimate the parameters $\beta_0, \ldots, \beta_p$, we use the method of maximum likelihood. 
+    + The likelihood function is
+$$
+\ell(\beta_0,\ldots,\beta_p) = \prod_{i=1}^n \frac{\lambda_i(x_i)^{y_i} e^{-\lambda_i}}{y_i!}
+$$
+    + We estimate the coefficients that maximize the likelihood $\ell(\beta_0,\ldots,\beta_p)$ i.e. that make the observed data as likely as possible.
+    
+```{r}
+m1 <- glm(bikers ~ workingday + temp + weathersit, data = Bikeshare, family = poisson)
+
+m1 %>% tbl_regression(
+    pvalue_fun = ~ style_pvalue(.x, digits = 2),
+    estimate_fun = function(x) style_number(x, digits = 3)
+  ) %>%
+  add_global_p() %>%
+  bold_p(t = 0.05) %>%
+  bold_labels() %>%
+  modify_column_unhide(columns = c(statistic, std.error)) %>%
+  add_n(location = "label")
+```
+      
+      + Interpretation: an increase in $X_j$ by one unit is associated with a change in $\mathbf{E}(Y ) = \lambda$ by a factor of $\exp(\beta_j)$.
+      + Mean-variance relationship: since under the Poisson model, $\lambda = \mathbf{E}(Y ) = \mathbf{Var}(Y)$, we implicitly modeled variance, not a constant any more. If variance is much larger than the mean, i.e., overdispersion, we can use negative binomial regression instead.
+      + Nonnegative fitted values: no negative predictions using the Poisson regression model. This is because the Poisson model itself assumes that the response is nonnegative.
+    
+## Generalized linear models
+
+- We have now discussed three types of regression models: linear, logistic and Poisson. These approaches share some common characteristics:
+
+    + Each approach uses predictors $X_1,\ldots,X_p$ to predict a response $Y$. 
+    + We assume that, conditional on $X_1,\ldots,X_p$, $Y$ belongs to a certain family of distributions. 
+        + For linear regression, assume that $Y$ follows a Gaussian or normal distribution. 
+        + For logistic regression, we assume that $Y$ follows a Bernoulli distribution. 
+        + For Poisson regression, we assume that $Y$ follows a Poisson distribution.
+    - Each approach models the mean of $Y$ as a function of the predictors. 
+        + In linear regression, the mean of $Y$ takes the form, i.e., linear function of the predictors
+$$
+\mathbf{E}(Y \mid X_1,\ldots,X_p) = \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p.
+$$  
+    + For logistic regression, the mean instead takes the form
+$$
+\mathbf{E}(Y \mid X_1,\ldots,X_p) = \frac{\exp(\beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p)}{1 + \exp(\beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p)}.
+$$
+    + For Poisson regression, the mean instead takes the form
+$$
+\mathbf{E}(Y \mid X_1,\ldots,X_p) = \exp(\beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p).
+$$
+- Each equation can be expressed using a **link function**, $\eta$, which applies a transformation to $\mathbf{E}(Y \mid X_1,\ldots,X_p)$ so that the transformed mean is a linear function of the predictors 
+$$
+\eta(\mathbf{E}(Y \mid X_1,\ldots,X_p)) = \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p.
+$$
+     + The link function for linear regression is the identity function, $\eta(\mu) = \mu$.
+     + The link function for logistic regression is the logit function, $\eta(\mu) = \log(\mu/(1-\mu))$.
+     + The link function for Poisson regression is the log function, $\eta(\mu) = \log(\mu)$.
+- The Gaussian, Bernoulli and Poisson distributions are all members of a wider class of distributions, known as the exponential family.
+- In general, we form a regression by modeling the response $Y$ as from a particular member of the exponential family, and then transforming the mean of the response so that the transformed mean is a linear function of the predictors via $\eta(\mathbf{E}(Y \mid X_1,\ldots,X_p)) = \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p$.
+- Any regression approach that follows this very general recipe known as a **generalized linear model(GLM)**.Thus,linear regression,logistic regression and Poisson regression are all special cases of GLMs.
+- Other examples include Gamma regression and negative binomial regression.
+

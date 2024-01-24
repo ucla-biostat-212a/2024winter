@@ -4,14 +4,7 @@ subtitle: " "
 author: "Dr. Jin Zhou"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 format:
-  html:
-    theme: cosmo
-    embed-resources: true
-    number-sections: false
-    toc: false
-    toc-depth: 4
-    toc-location: left
-    code-fold: false
+  revealjs
 engine: knitr
 knitr:
   opts_chunk: 
@@ -22,27 +15,49 @@ knitr:
     cache: false
 ---
 
-### 1. Is linear regression a classification method?  
+## Question 1
 
-### 2. Is linear regression a parametric or non-parametric method?
+- Is linear regression a classification method?  
 
-### 3. What are the assumptions for linear regression?
+## Question 2
 
-### 4. Which method we used in linear regression lectures for parameter estimation?
+- Is linear regression a parametric or non-parametric method?
 
-### 5. How to interpret the coefficients in linear regression?
+## Question 3
 
-### 6. Can you list 2 methods for variable selection in the linear regression?
+- What are the assumptions for linear regression?
 
-### 7. How to diagnose the model fit in linear regression?
+## Question 4 
 
-### 8. For a two level factor variable, how many dummy variables we need to create? how about 3-level factor?
+- Which method we used in linear regression lectures for parameter estimation?
 
-### 9. Explain what is "colinearity" regression?
+## Question 5  
 
-### 10. Which test can you use to determin whether a subset of the predictors among $X_1, X_2, \ldots, X_p$ is useful in predicting the response? 
+- How to interpret the coefficients in linear regression?
 
-### 11. What is the difference between "forward selection" and "backward selection" in variable selection?
+## Question 6
+
+-  Can you list 2 methods for variable selection in the linear regression?
+
+## Question 7
+
+- How to diagnose the model fit in linear regression?
+
+## Question 8
+
+- For a two level factor variable, how many dummy variables we need to create? how about 3-level factor?
+
+## Question 9
+
+- Explain what is "colinearity" regression?
+
+## Question 10
+
+- Which test can you use to determin whether a subset of the predictors among $X_1, X_2, \ldots, X_p$ is useful in predicting the response? 
+
+## Question 11
+
+- What is the difference between "forward selection" and "backward selection" in variable selection?
 
 
 
