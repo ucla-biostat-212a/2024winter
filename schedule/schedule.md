@@ -10,8 +10,13 @@ Biostat 212A tentative schedule and handouts (expect frequent updates)
 BruinLearn: <https://bruinlearn.ucla.edu/courses/176238>  
 Course announcements will be sent via BruinLearn. 
 
-Zoom link: <https://ucla.zoom.us/j/5842633983>  
-Office hours will be on Zoom.  
+Personal Zoom link: <https://ucla.zoom.us/j/5842633983>  
+Office hours will be on Zoom (the same Zoom link as lectures)
+
+# TA Schedule 
+
+TA email: <joaquimteixeira95@gmail.com>
+
 
 
 Books:
