@@ -15,8 +15,13 @@ Office hours will be on Zoom (the same Zoom link as lectures)
 
 # TA Schedule 
 
-TA email: <joaquimteixeira95@gmail.com>
+TA: Joaquim Teixeira 
 
+Email: <joaquimteixeira95@gmail.com>
+
+1. Wednesday 6-7pm. Zoom: https://ucla.zoom.us/j/99441889478.
+
+2. Night before HW is due. Variable time (likely 6-7pm) and Zoom link.
 
 
 Books:
@@ -31,7 +36,7 @@ Books:
 | 1 | Sat Jan 6 | 8:30am-12:30pm | CHS 33-105 | course intro and logistics (ISL 1) \[slides: [qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/01-intro/intro.qmd), [html](../slides/01-intro/intro.html)\], overview of machine learning (ISL 2) \[slides: [qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/02-statlearn/statlearn.qmd), [html](../slides/02-statlearn/statlearn.html)\] | HW1 \[[qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/hw/hw1/hw1.qmd), [html](../hw/hw1/hw1.html)\] |   
 |   | Sun Jan 7 | 8:30am-12:30pm | CHS 43-105 | linear regression (ISL 3) \[slides: [qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/03-linreg/linreg.qmd), [html](../slides/03-linreg/linreg.html)\], probability reveiw \[slides: [qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/03-linreg/probreview.qmd), [html](../slides/03-linreg/probreview.html)\]| |   
 | 2 | Tue Jan 16 | 5pm-7pm | [Zoom](https://ucla.zoom.us/j/95767445277)  | linear regression (ISL 3) review and lab |  |   
-| 3 | Tue Jan 23 | 5pm-7pm | [Zoom](https://ucla.zoom.us/j/95767445277)  | classification (ISL 4) \[slides: [qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/04-classification/classification.qmd), [html](../slides/04-classification/classification.html)\], workflow (classifiers with nonlinear features) \[slides: [qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/04-classification/workflow_classifier_bs.qmd), [html](../slides/04-classification/workflow_classifier_bs.html)\]  | HW2 \[[qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/hw/hw2/hw2.qmd), [html](../hw/hw2/hw2.html)\], **HW1 Due** |  
+| 3 | Tue Jan 23 | 5pm-7pm | [Zoom](https://ucla.zoom.us/j/95767445277)  | classification (ISL 4) \[slides: [qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/04-classification/classification.qmd), [html](../slides/04-classification/classification.html)\], workflow (classifiers with nonlinear features) \[slides: [qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/04-classification/workflow_classifier_bs.qmd), [html](../slides/04-classification/workflow_classifier_bs.html)\], [quiz](../slides/04-classification/quiz.html) | HW2 \[[qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/hw/hw2/hw2.qmd), [html](../hw/hw2/hw2.html)\], **HW1 Due** |  
 | 4 | Tue Jan 30 | 5pm-7pm | [Zoom](https://ucla.zoom.us/j/95767445277)  | resampling method (ISL 5) \[slides: [qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/05-resampling/resampling.qmd), [html](../slides/05-resampling/resampling.html)\], workflow (lasso) \[slides: [qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/06-modelselection/workflow_lasso.qmd), [html](../slides/06-modelselection/workflow_lasso.html)\] | HW3 \[[qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/hw/hw3/hw3.qmd), [html](../hw/hw3/hw3.html)\] |     
 | 5 | Tue Feb 6 | 5pm-7pm | [Zoom](https://ucla.zoom.us/j/95767445277)  | additive model (ISL 7) \[slides: [qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/07-nonlinear/nonlinear.qmd), [html](../slides/07-nonlinear/nonlinear.html)\], workflow (adding nonlinear features to predictive modeling) \[slides: [qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/07-nonlinear/workflow_bs.qmd), [html](../slides/07-nonlinear/workflow_bs.html)\] |   **HW2 Due** |  
 | 6  | Sat Feb 10 | 8:30am-12:30pm | CHS 43-105 | model selection and regularization (ISL 6) \[slides: [qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/06-modelselection/modelselection.qmd), [html](../slides/06-modelselection/modelselection.html)\] | HW4 \[[qmd](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/hw/hw4/hw4.qmd), [html](../hw/hw4/hw4.html)\], **HW3 Due** |    
