@@ -684,7 +684,7 @@ $$
 - We estimate the unknown parameters $\pi_k$, $\mu_k$, and $\boldsymbol{\Sigma}$ by
 \begin{eqnarray*}
 \hat{\pi}_k &=& \frac{n_k}{n} \\
-\hat{\mu}_k &=& \frac{1}{n_k} \sum_{i: y_k = k} x_i \\
+\hat{\mu}_k &=& \frac{1}{n_k} \sum_{i: y_i = k} x_i \\
 \hat{\boldsymbol{\Sigma}} &=& \frac{1}{n-K} \sum_{k=1}^K \sum_{i: y_i = k} (x_i - \hat \mu_k)(x_i - \hat \mu_k)^T.
 \end{eqnarray*}
 
