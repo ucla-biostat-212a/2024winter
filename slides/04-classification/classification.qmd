@@ -575,12 +575,15 @@ plt.show()
 :::
 
 ### Making Predictions
-
-- Once the coefficients have been estimated, we can compute the probability of `default` for any given credit card balance. For example, we predict that the `default` probability for an individual with a balance of $X=\$1,000$ is
+- After fitting the logistic regression, for an individual $i$, we can compute the probability of `default` using the estimated coefficients:
 $$
-\hat p(X) = \frac{e^{\hat \beta_0+\hat\beta_1 X}}{1+e^{\hat \beta_0+\hat\beta_1 X}} =\frac{e^{-10.65 + 0.005 \times 1000}}{1 + e^{-10.65 + 0.005 \times 1000}} = 0.0058.
+\log \left( \frac{ \hat p(\text{balance}_i, \text{income}_i, \text{student}_i)}{1- \hat p(\text{balance}_i, \text{income}_i, \text{student}_i)} \right) = \hat \beta_0 +  \hat \beta_1 \text{balance}_i +  \hat\beta_2 \text{income}_i + \beta_3 \text{student}_i
 $$
-which is below $1\%$. In contrast, the predicted probability of default for an individual with a balance of $\$2,000$ is much higher, and equals $0.586$ or $58.6 \%$.
+which is 
+$$
+\hat p(\text{default}_i = \text{Yes}\mid \text{balance}_i, \text{income}_i, \text{student}_i) = \frac{e^{\hat \beta_0 +  \hat \beta_1 \text{balance}_i +  \hat\beta_2 \text{income}_i + \beta_3 \text{student}_i}}{1+e^{\hat \beta_0 +  \hat \beta_1 \text{balance}_i +  \hat\beta_2 \text{income}_i + \beta_3 \text{student}_i}}
+$$
+then classify the individual to `default` if $\hat p(\text{balance}_i, \text{income}_i, \text{student}_i) > 0.5$.
 
 - Dummy variable approach is used for qualitative predictors with the logistic regression model as well. 
 
@@ -724,7 +727,7 @@ lda_mod
 lda_pred = predict(lda_mod, Default)
 
 # Confusion matrix
-lda_cfm = table(Predicted = lda_pred$class, Default = Default$default)
+(lda_cfm = table(Predicted = lda_pred$class, Default = Default$default))
 
 ```
 
@@ -770,10 +773,6 @@ lda_cfm
 ```
 :::
 
-Overall training accuracy of LDA (using 0.5 as threshold) is
-```{r}
-(lda_cfm['Yes', 'Yes'] + lda_cfm['No', 'No']) / sum(lda_cfm)
-```
 
 The area-under-ROC curve (AUC) of LDA is
 ```{python}
@@ -839,7 +838,7 @@ qda_mod
 qda_pred = predict(qda_mod, Default)
 
 # Confusion matrix
-qda_cfm = table(Predicted = qda_pred$class, Default = Default$default)
+(qda_cfm = table(Predicted = qda_pred$class, Default = Default$default))
 ```
 
 Overall training accuracy of QDA (using 0.5 as threshold) is
@@ -918,7 +917,7 @@ categories.
 
 
 #### R
-
+- Note : For each categorical variable a table giving, for each attribute level, the conditional probabilities given the target class. For each numeric variable, a table giving, for each target class, mean and standard deviation of the (sub-)variable.
 ```{r}
 library(e1071)
 
@@ -933,7 +932,7 @@ nb_mod
 nb_pred = predict(nb_mod, Default)
 
 # Confusion matrix
-nb_cfm = table(Predicted = nb_pred, Default = Default$default)
+(nb_cfm = table(Predicted = nb_pred, Default = Default$default))
 ```
 
 Overall training accuracy of Naive Bayes classifier (using 0.5 as threshold) is
@@ -1026,7 +1025,7 @@ knn_pred <- knn(
   )
 
 # Confusion matrix
-knn_cfm = table(Predicted = knn_pred, Default = Default$default)
+(knn_cfm = table(Predicted = knn_pred, Default = Default$default))
 ```
 
 Overall training accuracy of KNN classifier with $K=5$ (using 0.5 as threshold) is
@@ -1139,7 +1138,7 @@ knn_mod <- knn(
   )
 knn_pred_prob <- 1 - attr(knn_mod, "prob") 
 
-row_names = c("Logit", "LDA", "QDA", "NB", "KNN")
+row_names = c("Null", "Logit", "LDA", "QDA", "NB", "KNN")
 acc_v = sapply(list(logit_cfm, lda_cfm, qda_cfm, nb_cfm, knn_cfm), acc_f)
 fpr_v = sapply(list(logit_cfm, lda_cfm, qda_cfm, nb_cfm, knn_cfm), fpr_f)
 fnr_v = sapply(list(logit_cfm, lda_cfm, qda_cfm, nb_cfm, knn_cfm), fnr_f)
@@ -1154,12 +1153,15 @@ auc_v = sapply(list(data.frame(y = Default$default,
                   data.frame(y = Default$default,
                              prob = knn_pred_prob)), 
              auc_f)
+cfm_null =  matrix(c(9667, 333, 0, 0), nrow = 2, ncol = 2, byrow = TRUE)
+row.names(cfm_null) <- c("No", "Yes")
+colnames(cfm_null) <- c("No", "Yes")
 
 tibble(Classifier = row_names, 
-       ACC = acc_v, 
-       FPR = fpr_v, 
-       FNR = fnr_v, 
-       AUC = auc_v)
+       ACC = c(acc_f(cfm_null), acc_v), 
+       FPR = c(fpr_f(cfm_null), fpr_v), 
+       FNR = c(fnr_f(cfm_null), fnr_v), 
+       AUC = c(0.5, auc_v))
 
 ```
 
@@ -1212,7 +1214,7 @@ sm_df.sort_values('acc')
 
 ```{r, message=F}
 library(pROC)
-classifiers = c("Logit", "LDA", "QDA", "NB", "KNN")
+classifiers = c("Logit", "LDA", "QDA", "NB", "KNN", "Null")
 
 for(i in seq(1, length(classifiers))) {
 # i = 1
@@ -1226,14 +1228,17 @@ for(i in seq(1, length(classifiers))) {
     NB = data.frame(y = Default$default,
                     prob = nb_pred_prob),
     KNN = data.frame(y = Default$default,
-                     prob = knn_pred_prob)
+                     prob = knn_pred_prob),
+    Null = data.frame(y = Default$default,
+                      prob = rep(0, 10000))
     )
   roc_object <- roc(pred[[i]]$y, pred[[i]]$prob)
   auc_c = auc(roc_object)[1]
   
   print(ggroc(roc_object) + 
     ggtitle(str_c(classifiers[i], " ROC with AUC =", round(auc_c, 4), "")) +
-    annotate("segment",x = 1, xend = 0, y = 0, yend = 1, color="red", linetype="dashed"))
+    annotate("segment",x = 1, xend = 0, y = 0, yend = 1, color="red", linetype="dashed") +
+    labs(x = "1 - Specificity", y = "Sensitivity"))
 }
 
 
@@ -1317,7 +1322,7 @@ Bikeshare <- as_tibble(Bikeshare) %>%
          weathersit = factor(weathersit))
 ```
 
-```{r}
+```{r, message=F, warning=F}
 m1 <- lm(bikers ~ workingday + temp + weathersit, data = Bikeshare)
 
 m1 %>% tbl_regression(
@@ -1333,14 +1338,14 @@ m1 %>% tbl_regression(
     include = c(r.squared, sigma)) %>%
   add_n(location = "label")
 ```
-
+::: {.panel-tabset}
+Part of the fitted values in the `Bikeshare` data set are negative.
 ```{r}
 m1 %>% 
   ggplot(aes(x  = .fitted)) +
   geom_histogram() 
 ```
-    
-    + Part of the fitted values in the `Bikeshare` data set are negative.
+:::
 
 - Mean-variance relationship 
     + It shows that the smaller the mean, the smaller the variance.
@@ -1384,7 +1389,7 @@ $$
 $$
     + We estimate the coefficients that maximize the likelihood $\ell(\beta_0,\ldots,\beta_p)$ i.e. that make the observed data as likely as possible.
     
-```{r}
+```{r, message=F, warning=F}
 m1 <- glm(bikers ~ workingday + temp + weathersit, data = Bikeshare, family = poisson)
 
 m1 %>% tbl_regression(
