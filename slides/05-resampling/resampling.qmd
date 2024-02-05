@@ -28,17 +28,17 @@ Display system information for reproducibility.
 
 ::: {.panel-tabset}
 
+## R
+
+```{r}
+sessionInfo()
+```
+
 ## Python
 
 ```{python}
 import IPython
 print(IPython.sys_info())
-```
-
-## R
-
-```{r}
-sessionInfo()
 ```
 
 ## Julia
@@ -68,7 +68,7 @@ versioninfo()
     
 - But the training error rate often is quite different from the test error rate, and in particular the former can dramatically underestimate the latter.
 
-- HW2 Bonus question rigorously justifies that the training error is an under-estimate of the test error.
+- HW3 Bonus question rigorously justifies that the training error is an under-estimate of the test error.
 
 ![](training_vs_test.png)
 
