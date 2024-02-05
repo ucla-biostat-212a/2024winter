@@ -178,7 +178,7 @@ Cross-validation was used on the `Auto` data set in order to estimate the test e
 ![](ISL_fig_5_6.pdf){width=600px height=350px}
 </p>
 
-Blue: true test MSE. Black dashed line: LOOCV estimate of test MSE. Orange: 10-fold CV estimate of test MSE. The crosses indicate the minimum of each of the MSE curves. [Left data](https://ucla-econ-425t.github.io/2023winter/slides/02-statlearn/statlearn.html#fig-tradeoff-truth). [Middle data](https://ucla-econ-425t.github.io/2023winter/slides/02-statlearn/statlearn.html#fig-tradeoff-smooth-truth). [Right data](https://ucla-econ-425t.github.io/2023winter/slides/02-statlearn/statlearn.html#fig-tradeoff-wiggly-truth).
+Blue: true test MSE. Black dashed line: LOOCV estimate of test MSE. Orange: 10-fold CV estimate of test MSE. The crosses indicate the minimum of each of the MSE curves. [Left data](https://ucla-biostat-212a.github.io/2024winter/slides/02-statlearn/statlearn.html#fig-tradeoff-truth). [Middle data](https://ucla-biostat-212a.github.io/2024winter/slides/02-statlearn/statlearn.html#fig-tradeoff-smooth-truth). [Right data](https://ucla-biostat-212a.github.io/2024winter/slides/02-statlearn/statlearn.html#fig-tradeoff-wiggly-truth).
 
 :::
 
@@ -340,7 +340,7 @@ Bootstrap general scheme.
     
     - To estimate prediction error using the bootstrap, we could think about using each bootstrap dataset as our training sample, and the original sample as our validation sample. 
     
-    - But each bootstrap sample has significant overlap with the original data. About two-thirds of the original data points appear in each bootstrap sample. (HW2)
+    - But each bootstrap sample has significant overlap with the original data. About two-thirds of the original data points appear in each bootstrap sample. (HW3)
     
     - This will cause the bootstrap to seriously underestimate the true prediction error.
     
