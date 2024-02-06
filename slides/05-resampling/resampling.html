@@ -2821,7 +2821,7 @@ loaded via a namespace (and not attached):
 <li><p>The special case <span class="math inline">\(K=n\)</span> yields <span class="math inline">\(n\)</span>-fold or <strong>leave-one out cross-validation (LOOCV)</strong>.</p></li>
 <li><p>With least-squares linear or polynomial regression, an amazing shortcut makes the cost of LOOCV the same as that of a single model fit! <span class="math display">\[
 \text{CV}_{(n)} = \frac{1}{n} \sum_{i=1}^n \left( \frac{y_i - \hat y_i}{1 - h_i} \right)^2,
-\]</span> where <span class="math inline">\(\hat y_i\)</span> is the <span class="math inline">\(i\)</span>th fitted value from the original least squares fit, and <span class="math inline">\(h_i\)</span> is the leverage (diagonal of the “hat” matrix). This is like the ordinary MSE, except the <span class="math inline">\(i\)</span>th residual is divided by <span class="math inline">\(1 - h_i\)</span>.</p></li>
+\]</span> where <span class="math inline">\(\hat y_i\)</span> is the <span class="math inline">\(i\)</span>th fitted value from the original least squares fit, and <span class="math inline">\(h_i\)</span> is the leverage (diagonal of the “hat” matrix, i.e., <span class="math inline">\(\mathbf{H} = \mathbf{X}(\mathbf{X}^T\mathbf{X})^{–1}\mathbf{X}^T\)</span>). This is like the ordinary MSE, except the <span class="math inline">\(i\)</span>th residual is divided by <span class="math inline">\(1 - h_i\)</span>.</p></li>
 <li><p>LOOCV sometimes useful, but typically doesn’t shake up the data enough. The estimates from each fold are highly correlated and hence their average can have high variance.</p></li>
 <li><p>A better choice is <span class="math inline">\(K = 5\)</span> or 10.</p></li>
 </ul>
@@ -2961,7 +2961,7 @@ loaded via a namespace (and not attached):
 <ul>
 <li><p>In cross-validation, each of the <span class="math inline">\(K\)</span> validation folds is distinct from the other <span class="math inline">\(K-1\)</span> folds used for training: there is no overlap. This is crucial for its success.</p></li>
 <li><p>To estimate prediction error using the bootstrap, we could think about using each bootstrap dataset as our training sample, and the original sample as our validation sample.</p></li>
-<li><p>But each bootstrap sample has significant overlap with the original data. About two-thirds of the original data points appear in each bootstrap sample. (HW3)</p></li>
+<li><p>But each bootstrap sample has significant overlap with the original data. About two-thirds of the original data points appear in each bootstrap sample.</p></li>
 <li><p>This will cause the bootstrap to seriously underestimate the true prediction error.</p></li>
 <li><p>The other way around - with original sample = training sample, bootstrap dataset = validation sample - is worse!</p></li>
 <li><p>Can partly fix this problem by only using predictions for those observations that did not (by chance) occur in the current bootstrap sample.</p></li>

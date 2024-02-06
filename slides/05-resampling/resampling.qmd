@@ -156,7 +156,7 @@ amazing shortcut makes the cost of LOOCV the same as that of a single model fit!
 $$
 \text{CV}_{(n)} = \frac{1}{n} \sum_{i=1}^n \left( \frac{y_i - \hat y_i}{1 - h_i} \right)^2,
 $$
-where $\hat y_i$ is the $i$th fitted value from the original least squares fit, and $h_i$ is the leverage (diagonal of the "hat" matrix). This is like the ordinary MSE, except the $i$th residual is divided by $1 - h_i$.
+where $\hat y_i$ is the $i$th fitted value from the original least squares fit, and $h_i$ is the leverage (diagonal of the "hat" matrix, i.e., $\mathbf{H} = \mathbf{X}(\mathbf{X}^T\mathbf{X})^{–1}\mathbf{X}^T$). This is like the ordinary MSE, except the $i$th residual is divided by $1 - h_i$.
     
 - LOOCV sometimes useful, but typically doesn't shake up the data enough. The estimates from each fold are highly correlated and hence their average can have high variance.
 
@@ -340,7 +340,7 @@ Bootstrap general scheme.
     
     - To estimate prediction error using the bootstrap, we could think about using each bootstrap dataset as our training sample, and the original sample as our validation sample. 
     
-    - But each bootstrap sample has significant overlap with the original data. About two-thirds of the original data points appear in each bootstrap sample. (HW3)
+    - But each bootstrap sample has significant overlap with the original data. About two-thirds of the original data points appear in each bootstrap sample. 
     
     - This will cause the bootstrap to seriously underestimate the true prediction error.
     
