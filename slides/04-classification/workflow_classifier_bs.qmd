@@ -26,17 +26,17 @@ Display system information for reproducibility.
 
 ::: {.panel-tabset}
 
+#### R
+
+```{r}
+sessionInfo()
+```
+
 #### Python
 
 ```{python}
 import IPython
 print(IPython.sys_info())
-```
-
-#### R
-
-```{r}
-sessionInfo()
 ```
 
 :::
@@ -69,7 +69,7 @@ A documentation of the `Default` data is [here](https://www.rdocumentation.org/p
 #### R
 
 ```{r}
-#| eval: true
+##| eval: true
 library(GGally)
 library(ISLR2)
 library(tidymodels)
@@ -141,7 +141,7 @@ It is a good idea to keep the proportions of `default = 'Yes'` to be roughly sam
 #### R
 
 ```{r}
-#| eval: false
+##| eval: false
 # For reproducibility
 set.seed(425)
 data_split <- initial_split(
@@ -190,6 +190,32 @@ y_test = Default_test.default
 
 ::: {.panel-tabset}
 
+
+
+#### R
+
+```{r}
+##| eval: false
+norm_recipe <- 
+  recipe(
+    wage ~ year + age + education, 
+    data = Wage_other
+  ) %>%
+  # create traditional dummy variables
+  step_dummy(all_nominal()) %>%
+  # zero-variance filter
+  step_zv(all_predictors()) %>% 
+  # B-splines of age
+  step_bs(age, deg_free = 5) %>%
+  # B-splines of year
+  step_bs(year, deg_free = 4) %>%
+  # center and scale numeric data
+  step_normalize(all_predictors()) %>%
+  # estimate the means and standard deviations
+  prep(training = Wage_other, retain = TRUE)
+norm_recipe
+```
+
 #### Python
 
 Pre-processor for one-hot coding of categorical variables and then standardizing all numeric predictors.
@@ -215,30 +241,6 @@ col_tf = ColumnTransformer(transformers = [
 ])
 ```
 
-#### R
-
-```{r}
-#| eval: false
-norm_recipe <- 
-  recipe(
-    wage ~ year + age + education, 
-    data = Wage_other
-  ) %>%
-  # create traditional dummy variables
-  step_dummy(all_nominal()) %>%
-  # zero-variance filter
-  step_zv(all_predictors()) %>% 
-  # B-splines of age
-  step_bs(age, deg_free = 5) %>%
-  # B-splines of year
-  step_bs(year, deg_free = 4) %>%
-  # center and scale numeric data
-  step_normalize(all_predictors()) %>%
-  # estimate the means and standard deviations
-  prep(training = Wage_other, retain = TRUE)
-norm_recipe
-```
-
 :::
 
 ## Model
@@ -251,7 +253,7 @@ Let's skip this step for now, because the model (or classifer) itself is being t
 #### R
 
 ```{r}
-#| eval: false
+##| eval: false
 enet_mod <- 
   # mixture = 0 (ridge), mixture = 1 (lasso)
   linear_reg(penalty = tune(), mixture = tune()) %>% 
@@ -273,7 +275,7 @@ Here we bundle the preprocessing step (Python) or recipe (R) and model. Again re
 #### R
 
 ```{r}
-#| eval: false
+##| eval: false
 lr_wf <- 
   workflow() %>%
   add_model(enet_mod) %>%
@@ -306,7 +308,7 @@ Set up the 2D grid for tuning.
 #### R
 
 ```{r}
-#| eval: false
+##| eval: false
 param_grid <-grid_regular(
   penalty(range = c(-5, 0), trans = log10_trans()), 
   mixture(range = c(0, 1)),
@@ -349,7 +351,7 @@ tuned_parameters
 
 Set cross-validation partitions.
 ```{r}
-#| eval: false
+##| eval: false
 set.seed(250)
 folds <- vfold_cv(Wage_other, v = 10)
 folds
@@ -357,7 +359,7 @@ folds
 
 Fit cross-validation.
 ```{r}
-#| eval: false
+##| eval: false
 enet_fit <- 
   lr_wf %>%
   tune_grid(
@@ -369,7 +371,7 @@ enet_fit
 
 Visualize CV criterion.
 ```{r}
-#| eval: false
+##| eval: false
 enet_fit %>%
   collect_metrics() %>%
   print(width = Inf) %>%
@@ -383,14 +385,14 @@ enet_fit %>%
 
 Show the top 5 models ($\lambda$ values)
 ```{r}
-#| eval: false
+##| eval: false
 enet_fit %>%
   show_best("rmse")
 ```
 
 Let's select the best model
 ```{r}
-#| eval: false
+##| eval: false
 best_enet <- enet_fit %>%
   select_best("rmse")
 best_enet
@@ -463,7 +465,7 @@ Now we are done tuning. Finally, let’s fit this final model to the whole train
 #### R
 
 ```{r}
-#| eval: false
+##| eval: false
 # Final workflow
 final_wf <- lr_wf %>%
   finalize_workflow(best_enet)
