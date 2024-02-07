@@ -2898,7 +2898,7 @@ loaded via a namespace (and not attached):
 <ul>
 <li><p>To estimate the standard deviation of <span class="math inline">\(\hat{\alpha}\)</span>, we repeated the process of simulating 100 paired observations of <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>, and estimating <span class="math inline">\(\alpha\)</span> 1,000 times.</p></li>
 <li><p>We thereby obtained 1,000 estimates for <span class="math inline">\(\alpha\)</span>, which we can call <span class="math inline">\(\hat{\alpha}_1, \hat{\alpha}_2, \ldots, \hat{\alpha}_{1000}\)</span>.</p></li>
-<li><p>For these simulations the parameters were set to <span class="math inline">\(\sigma_{X}^2 = 1\)</span>, <span class="math inline">\(\sigma_Y^2 = 1.25\)</span>, and <span class="math inline">\(\sigma_{XY} = 0.5\)</span>, and so we know that the true value of <span class="math inline">\(\alpha\)</span> is 0.6 (indicated by the red line).</p></li>
+<li><p>For these simulations the parameters were set to <span class="math inline">\(\sigma_{X}^2 = 1\)</span>, <span class="math inline">\(\sigma_Y^2 = 1.25\)</span>, and <span class="math inline">\(\sigma_{XY} = 0.5\)</span>, and so we know that the true value of <span class="math inline">\(\alpha\)</span> is 0.6.</p></li>
 <li><p>The mean over 1,000 estimates for <span class="math inline">\(\alpha\)</span> is <span class="math display">\[
 \bar{\alpha} = \frac{1}{1000} \sum_{r=1}^{1000} \hat{\alpha}_r = 0.5996,
 \]</span> very close to <span class="math inline">\(\alpha = 0.6\)</span>, and the standard deviation of the estimates is <span class="math display">\[
@@ -3040,7 +3040,7 @@ loaded via a namespace (and not attached):
 </div>
 </div>
 <ul>
-<li>The estimated test MSE for the quadratic and cubic regressions are 18.8 and 19.8, respectively.</li>
+<li>The estimated test MSE for the quadratic and cubic regressions are 18.716 and 18.794, respectively.</li>
 <li>These results are not surprising, given that the relationship between <code>mpg</code> and <code>horsepower</code> appears to be fairly linear.</li>
 <li>If we choose a different training set instead, then we will obtain somewhat different errors on the validation set.</li>
 </ul>

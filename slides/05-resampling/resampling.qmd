@@ -255,7 +255,7 @@ and $Y$. From left to right and top to bottom, the resulting estimates for $\alp
     
     - We thereby obtained 1,000 estimates for $\alpha$, which we can call $\hat{\alpha}_1, \hat{\alpha}_2, \ldots, \hat{\alpha}_{1000}$.
     
-    - For these simulations the parameters were set to $\sigma_{X}^2 = 1$, $\sigma_Y^2 = 1.25$, and $\sigma_{XY} = 0.5$, and so we know that the true value of $\alpha$ is 0.6 (indicated by the red line).
+    - For these simulations the parameters were set to $\sigma_{X}^2 = 1$, $\sigma_Y^2 = 1.25$, and $\sigma_{XY} = 0.5$, and so we know that the true value of $\alpha$ is 0.6.
     
     - The mean over 1,000 estimates for $\alpha$ is
 $$
@@ -373,7 +373,7 @@ lm.fit <- lm(mpg ~ horsepower, data = Auto, subset = train)
 
 - Use the `predict()` function Compute the mean squared error of the model on the validation set.
 ```{r}
-mean((Auto$mpg[-train] - predict(lm.fit, Auto[-train,]))^2)
+mean((Auto$mpg[-train] - predict(lm.fit, Auto[-train, ]))^2)
 
 #Auto %>% select(mpg, horsepower) %>% slice(-train) %>% 
 #  mutate(pred = predict(lm.fit, Auto[-train,])) # %>% 
@@ -393,11 +393,13 @@ mean((Auto$mpg - predict(lm.fit2, Auto))[-train]^2)
 #Auto %>% select(mpg, horsepower) %>% slice(-train) %>% 
 #  mutate(pred = predict(lm.fit2, Auto[-train,])) 
 ```
+
 ```{r}
 lm.fit3 <- lm(mpg ~ poly(horsepower, 3), data = Auto, subset = train)
 mean((Auto$mpg - predict(lm.fit3, Auto))[-train]^2)
 ```
-- The estimated test MSE for the quadratic and cubic regressions are 18.8 and 19.8, respectively. 
+
+- The estimated test MSE for the quadratic and cubic regressions are 18.716 and 18.794, respectively. 
 - These results are not surprising, given that the relationship between `mpg` and `horsepower` appears to be fairly linear.
 - If we choose a different training set instead, then we will obtain somewhat different errors on the validation set.
 
@@ -428,6 +430,7 @@ glm.fit <- glm(mpg ~ horsepower, data = Auto)
 cv.err <- cv.glm(Auto, glm.fit)
 cv.err$delta
 ```
+
 - The `cv.glm()` function produces a list with several components. The `delta` component contains LOOCV statistic given in (5.1).
 - We can repeat this procedure for increasingly complex polynomial fits.
 ```{r}
@@ -438,8 +441,8 @@ for (i in 1:10) {
 }
 cv.error
 plot(cv.error, type = "b")
-
 ```
+
 ### k-Fold Cross-Validation
 - The `cv.glm()` function can also be used to perform **k-fold CV**.
 - Below, we use `k=10` to perform 10-fold CV.
@@ -473,6 +476,16 @@ alpha.fn <- function(data, index) {
   return(alpha)
 }
 ```
+
+
+```{r}
+median.fn <- function(data, index) {
+  X <- data$medv[index]
+  medhat = median(X) 
+  return(medhat)
+}
+```
+
 - For instance, the following command tells R to use the `alpha.fn()` function to compute the bootstrap estimate for alpha using all 100 bootstrap samples.
 ```{r}
 alpha.fn(Portfolio, 1:100)
@@ -527,7 +540,7 @@ summary(lm(mpg ~ horsepower, data = Auto))$coef
   + The estimates of $\sigma^2$ rely on the assumption that the true relationship between `mpg` and `horsepower` is linear.
   + Standard formulas assume that the $x_i$ are fixed, and all the variability comes from the variation in the errors $\epsilon_i$
   + The bootstrap approach is more general, and hence is applicable in a wider range of settings.
-- Qudratic example:
+- Quadratic example:
 ```{r}
 boot.fn2 <- function(data, index) {
   return(coef(lm(mpg ~ horsepower + I(horsepower^2), data = data, subset = index)))
