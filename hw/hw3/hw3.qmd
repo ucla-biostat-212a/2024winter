@@ -40,7 +40,7 @@ Show that in the case of linear model with Gaussian errors, maximum likelihood a
 
 ## ISL Exercise 6.6.11 (30pts)
 
-You must follow the [typical machine learning paradigm](https://ucla-econ-425t.github.io/2023winter/slides/06-modelselection/workflow_lasso.html) to compare _at least_ 3 methods: least squares, lasso, and ridge. Report final results as
+You must follow the [typical machine learning paradigm](https://ucla-biostat-212a.github.io/2024winter/slides/06-modelselection/workflow_lasso.html) to compare _at least_ 3 methods: least squares, lasso, and ridge. Report final results as
 
 | Method | CV RMSE | Test RMSE |
 |:------:|:------:|:------:|:------:|
