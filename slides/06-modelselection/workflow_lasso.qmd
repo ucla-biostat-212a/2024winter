@@ -71,7 +71,7 @@ We illustrate the typical machine learning workflow for regression problems usin
 
 2. Pre-processing of data (pipeline in Python, recipe in R).
 
-3. Choose a learner/method. Lasso in this example.
+3. Choose a learner/method Lasso in this example.
 
 4. Tune the hyper-parameter(s) ($\lambda$ in this example) using $K$-fold cross-validation (CV) on the non-test data.
 
@@ -262,9 +262,12 @@ scalar = StandardScaler()
 
 ## Model
 
+- We use the `glmnet` package in R for ridge and lasso regression.
+- `parsnip`: <https://parsnip.tidymodels.org/reference/linear_reg.html> for R.
+
 ::: {.panel-tabset}
 
-We use lasso in this example.
+We use lasso in this example. See tutorial here for `glmnet` in R: <https://glmnet.stanford.edu/articles/glmnet.html>
 
 
 #### R
@@ -329,7 +332,7 @@ Set up the grid for tuning in the range of $10^{-2}-10^3$.
 
 
 #### R
-
+<https://dials.tidymodels.org/reference/dials-package.html>
 ```{r}
 lambda_grid <-
   grid_regular(penalty(range = c(-2, 3), trans = log10_trans()), levels = 100)
@@ -362,7 +365,7 @@ folds
 ```
 
 Fit cross-validation.
-```{r}
+```{r, warning=FALSE, message=F}
 lasso_fit <- 
   lr_wf %>%
   tune_grid(

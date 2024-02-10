@@ -969,3 +969,5 @@ The lasso was performed with $n = 100$ observations and three values of $p$, the
 - Research into methods that give **sparsity**, such as the lasso is an especially hot area.
 
 - Later, we will return to sparsity in more detail, and will describe related approaches such as the **elastic net**.
+
+## Lab
