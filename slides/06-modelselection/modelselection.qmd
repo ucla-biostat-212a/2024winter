@@ -1,0 +1,971 @@
+---
+title: "Linear Model Selection and Regularization  (ISL 6)"
+subtitle: "Biostat 212A"
+author: "Dr. Jin Zhou @ UCLA"
+date: today
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+engine: knitr
+knitr:
+  opts_chunk: 
+    fig.align: 'center'
+    # fig.width: 6
+    # fig.height: 4
+    message: FALSE
+    cache: false
+---
+
+Credit: This note heavily uses material from the books [_An Introduction to Statistical Learning: with Applications in R_](https://www.statlearning.com/) (ISL2) and [_Elements of Statistical Learning: Data Mining, Inference, and Prediction_](https://hastie.su.domains/ElemStatLearn/) (ESL2).
+
+Display system information for reproducibility.
+
+::: {.panel-tabset}
+
+## Python
+
+```{python}
+import IPython
+print(IPython.sys_info())
+```
+
+## R
+
+```{r}
+sessionInfo()
+```
+
+:::
+
+## Overview
+
+- In linear regression (ISL 3), we assume
+$$
+Y = \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p + \epsilon.
+$$
+
+- In this lecture, we discuss some ways in which the simple linear model can be improved, by replacing ordinary least squares fitting with some alternative fitting procedures.
+
+- Why consider alternatives to least squares?
+
+    - **Prediction accuracy**: especially when $p > n$, to control the variance.  
+
+    - **Model interpretability**: By removing irrelevant features -  that is, by setting the corresponding coefficient estimates to zero - we can obtain a model that is more easily interpreted. We will present some approaches for automatically performing **feature selection**.
+    
+- Three classes of methods:
+
+    - **Subset selection**: We identify a subset of the $p$ predictors that we believe to be related to the response. We then fit a model using least squares on the reduced set of variables.  
+    
+    - **Shrinkage**: We fit a model involving all $p$ predictors, but the estimated coefficients are shrunken towards zero relative to the least squares estimates. This shrinkage (also known as **regularization**) has the effect of reducing variance and can also perform variable selection.
+    
+    - **Dimension reduction**: We project the $p$ predictors into an $M$-dimensional subspace, where $M < p$. This is achieved by computing $M$ different **linear combinations**, or **projections**, of the variables. Then these $M$ projections are used as predictors to fit a linear regression model by least squares.
+
+## `Credit` data set
+
+We will use the `Credit` data set as a running example. A documentation of this data set is at [here](https://www.rdocumentation.org/packages/ISLR2/versions/1.3-2/topics/Credit).
+
+::: {.panel-tabset}
+#### R
+
+```{r}
+library(GGally) # ggpairs function
+library(ISLR2)
+library(tidyverse)
+
+# Cast to tibble
+Credit <- as_tibble(Credit) %>% print(width = Inf)
+# Numerical summary
+summary(Credit)
+# Graphical summary
+ggpairs(
+  data = Credit, 
+  mapping = aes(alpha = 0.25), 
+  lower = list(continuous = "smooth")
+  ) + 
+  labs(title = "Credit Data")
+```
+
+#### Python
+
+```{python}
+# Load the pandas library
+import pandas as pd
+# Load numpy for array manipulation
+import numpy as np
+# Load seaborn plotting library
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Set font sizes in plots
+sns.set(font_scale = 2)
+# Display all columns
+pd.set_option('display.max_columns', None)
+
+# Import Advertising data
+Credit = pd.read_csv("../data/Credit.csv")
+Credit
+```
+
+```{python}
+# Numerical summary
+Credit.describe()
+```
+
+```{python}
+# Graphical summary
+sns.pairplot(data = Credit)
+```
+
+
+:::
+
+
+## Subset selection
+
+### Best subset selection
+
+- **Best subset selection** algorithm:
+
+    1. Let $\mathcal{M}_0$ be the **null model**, which contains no predictors besides the intercept. This model simply predicts the sample mean for each observation.
+    
+    2. For $k = 1,2, \ldots, p$:  
+        a. Fit all $\binom{p}{k}$ models that contain exactly $k$ predictors.  
+        b. Pick the best among these $\binom{p}{k}$ models, and call it $\mathcal{M}_k$. Here **best** is defined as having the smallest RSS, or equivalently largest $R^2$.  
+    
+    3. Select a single best model from among $\mathcal{M}_0, \mathcal{M}_1, \ldots, \mathcal{M}_p$ using cross-validated prediction error, $C_p$ (AIC), BIC, or adjusted $R^2$.
+    
+- Best subset selection for the `Credit` data. 
+
+::: {.panel-tabset}
+
+
+#### R
+
+```{r}
+library(leaps)
+
+# Fit best subset regression
+bst_mod <- regsubsets(
+  Balance ~ ., 
+  data = Credit, 
+  method = "exhaustive",
+  nvmax = 11
+  ) %>% summary()
+bst_mod
+
+# Display selection criteria
+bst_result <- tibble(
+  K = 1:11, 
+  R2 = bst_mod$rsq,
+  adjR2 = bst_mod$adjr2,
+  BIC = bst_mod$bic,
+  CP = bst_mod$cp
+) %>% print(width = Inf)
+```
+
+```{r}
+# Visualize
+cols <- names(bst_result)
+for (j in 2:5) {
+  (bst_result %>%
+  select(K, !!sym(cols[j])) %>%
+  ggplot() + 
+    geom_line(mapping = aes(x = K, y = !!sym(cols[j]))) + 
+    labs(x = 'Model Size', y = cols[j])) %>%
+  print()
+}
+```
+
+:::
+
+- Adjusted $R^2$ chooses the best model of size 7: `income`, `limit`, `rating`, `cards`, `age`, `student` and `own`. 
+
+    $C_p$ (and AIC) chooses the best model of size 6: `income`, `limit`, `rating`, `cards`, `age` and `student`.  
+    
+    BIC chooses the best model of size 4: `income`, `limit`, `cards` and `student`.  
+
+- Although we have presented best subset selection here for least squares regression, the same ideas apply to other types of models, such as **logistic regression** (discussed in Chapter 4). The **deviance** (negative two times the maximized log-likelihood) plays the role of RSS for a broader class of models.
+
+- For computational reasons, best subset selection cannot be applied with very large $p$. When $p = 20$, there are $2^p = 1,048,576$ models!
+
+<!-- - Best subset selection may also suffer from statistical problems when $p$ is large: larger the search space, the higher the chance of finding models that look good on the training data, even though they might not have any predictive power on future data. -->
+
+<!-- - Thus an enormous search space can lead to overfitting and -->
+<!-- high variance of the coefficient estimates. -->
+
+- Stepwise methods, which explore a far more restricted set of models, are attractive alternatives to best subset selection.
+
+### Forward stepwise selection
+
+- Forward stepwise selection begins with a model containing no predictors, and then adds predictors to the model, one-at-a-time, until all of the predictors are in the model.
+
+- In particular, at each step the variable that gives the greatest additional improvement to the fit is added to the model.
+
+- - **Forward stepwise selection** algorithm:
+
+    1. Let $\mathcal{M}_0$ be the **null model**, which contains no predictors besides the intercept.
+    
+    2. For $k = 0,1,\ldots, p-1$:  
+        a. Consider all $p-k$ models that augment the predictors in $\mathcal{M}_k$ with one additional predictor.  
+        b. Pick the best among these $p-k$ models, and call it $\mathcal{M}_{k+1}$. Here **best** is defined as having the smallest RSS, or equivalently largest $R^2$.  
+
+    3. Select a single best model from among $\mathcal{M}_0, \mathcal{M}_1, \ldots, \mathcal{M}_p$ using cross-validated prediction error, $C_p$ (AIC), BIC, or adjusted $R^2$.  
+    
+- Forward stepwise selection for the `Credit` data. 
+
+```{r}
+library(leaps)
+
+# Fit best subset regression
+fs_mod <- regsubsets(
+  Balance ~ ., 
+  data = Credit, 
+  method = "forward",
+  nvmax = 11
+  ) %>% summary()
+fs_mod
+
+# Display selection criteria
+tibble(
+  K = 1:11, 
+  R2 = fs_mod$rsq,
+  adjR2 = fs_mod$adjr2,
+  BIC = fs_mod$bic,
+  CP = fs_mod$cp
+) %>% print(width = Inf)
+```
+- Best subset and forward stepwise selections start to differ from $\mathcal{M}_4$. 
+
+- Computational advantage of forward stepwise selection over best subset selection is clear.
+
+- It is not guaranteed to find the best possible model out of all $2^p$ models containing subsets of the $p$ predictors.
+
+### Backward stepwise regression
+
+- **Backward stepwise selection** algorithm:
+
+    1. Let $\mathcal{M}_0$ be the **full model**, which contains all $p$ predictors.
+    
+    2. For $k = p,p-1,\ldots, 1$:  
+        a. Consider all $k$ models that contain all but one of the predictors in $\mathcal{M}_k$, for a total of $k-1$ predictors.  
+        b. Pick the best among these $k$ models, and call it $\mathcal{M}_{k}$. Here **best** is defined as having the smallest RSS, or equivalently largest $R^2$.  
+
+    3. Select a single best model from among $\mathcal{M}_0, \mathcal{M}_1, \ldots, \mathcal{M}_p$ using cross-validated prediction error, $C_p$ (AIC), BIC, or adjusted $R^2$.  
+    
+```{r}
+library(leaps)
+
+# Fit best subset regression
+bs_mod <- regsubsets(
+  Balance ~ ., 
+  data = Credit, 
+  method = "backward",
+  nvmax = 11
+  ) %>% summary()
+bs_mod
+
+# Display selection criteria
+tibble(
+  K = 1:11, 
+  R2 = bs_mod$rsq,
+  adjR2 = bs_mod$adjr2,
+  BIC = bs_mod$bic,
+  CP = bs_mod$cp
+) %>% print(width = Inf)
+```    
+
+- For the `Credit` data, backward stepwise selection matches the best subset selection up to $\mathcal{M}_4$ (backwards). 
+
+- Like forward stepwise selection, the backward selection
+approach searches through only $1 + p(p+1)/2$ models, and so can be applied in settings where $p$ is too large to apply best subset selection. When $p=20$, only $1 + p(p+1)/2 = 211$ models.
+
+- Like forward stepwise selection, backward stepwise selection is not guaranteed to yield the best model containing a subset of the $p$ predictors.
+
+- Backward selection requires that the number of samples $n$ is larger than the number of variables $p$ (so that the full model can be fit). In contrast, forward stepwise can be used even when $n < p$, and so is the only viable subset method when $p$ is very large.
+
+## Criteria for model selection
+
+- The model containing all of the predictors will always have the smallest RSS and the largest $R^2$, since these quantities are related to the **training error**.
+
+- We wish to choose a model with low **test error**, not a model with low training error. Recall that training error is usually a poor estimate of test error.
+
+- Therefore, RSS and $R^2$ are not suitable for selecting the best model among a collection of models with different numbers of predictors.
+
+- Two approaches for estimating test error:
+
+    - We can indirectly estimate test error by making an adjustment to the training error to account for the bias due to overfitting.
+    
+    - We can directly estimate the test error, using either a validation set approach or a cross-validation approach, as discussed in previous lecture.
+    
+### Indirect approaches: $C_p$, AIC, BIC, adjusted $R^2$
+
+- Mallow's $C_p$:
+$$
+C_p = \frac{1}{n} (\text{RSS} + 2d \hat{\sigma}^2),
+$$
+where $d$ is the total number of parameters used and $\hat{\sigma}^2$ is an estimate of the error variance $\text{Var}(\epsilon)$. Smaller $C_p$ means better model.
+    
+- The AIC criterion:
+$$
+\text{AIC} = -  2 \log L + 2d,
+$$
+where $L$ is the maximized value of the likelihood function for the estimated model. Smaller AIC means better model.
+    
+    In the case of the linear model with Gaussian errors, maximum likelihood and least squares are the same thing, and $C_p$ and AIC are equivalent.
+    
+- BIC:
+$$
+\text{BIC} = \frac{1}{n}(\text{RSS} + \log(n) d \hat{\sigma}^2).
+$$
+Smaller BIC means better model.
+    
+    Since $\log n > 2$ for any $n > 7$, the BIC statistic generally places a heavier penalty on models with many variables, and hence results in the selection of smaller models than $C_p$.
+    
+- Adjusted $R^2$:
+$$
+\text{Adjusted } R^2 = 1 - \frac{\text{RSS}/(n - d - 1)}{\text{TSS} / (n - 1)}.
+$$
+    A large value of adjusted $R^2$ indicates a model with a small test error. 
+    
+    Maximizing the adjusted $R^2$ is equivalent to minimizing $\text{RSS} / (n - d - 1)$.
+
+::: {#fig-credit-bestmodel-cp-bic-adjr2}
+
+<p align="center">
+![](ISL_fig_6_2.pdf){width=600px height=350px}
+</p>
+
+$C_p$, BIC, and adjusted $R^2$ are shown for the best models of each size for the `Credit` data set. $C_p$ and BIC are estimates of test MSE. In the middle plot we see that the BIC estimate of test error shows an increase after four variables are selected. The other two plots are rather flat after four variables are included.
+
+:::
+
+- $C_p$, AIC and BIC have theoretical justification. As sample size $n$ is very large, they are guaranteed to find the best model. Adjusted $R^2$ is less motivated in statistical theory.
+
+- Indirect methods hold great computational advantage. They just require a single fit of the training data.
+
+### Direct approaches: validation and cross-validation
+
+We discussed validation and cross-validation (CV) in details in **Chapter 5**. 
+
+- This procedure has an advantage relative to AIC, BIC, $C_p$, and adjusted $R^2$, in that it provides a direct estimate of the test error, and _doesn't require an estimate of the error variance $\sigma^2$_.
+    
+- It can also be used in a wider range of model selection tasks, even in cases where it is hard to pinpoint the model degrees of freedom (e.g. the number of predictors in the model) or hard to estimate the error variance $\sigma^2$. 
+
+::: {#fig-bic-val-cv-credit}
+
+<p align="center">
+![](ISL_fig_6_3.pdf){width=600px height=350px}
+</p>
+
+Square root of BIC, validation set error, and CV error for the `Credit` data.
+
+:::
+
+## Shrinkage methods
+
+- The subset selection methods use least squares to fit a linear model that contains a subset of the predictors.
+
+- As an alternative, we can fit a model containing all $p$ predictors using a technique that **constrains** or **regularizes** the coefficient estimates, or equivalently, that **shrinks** the coefficient estimates towards zero.
+
+- It may not be immediately obvious why such a constraint should improve the fit, but it turns out that shrinking the coefficient estimates can significantly reduce their variance.
+
+### Ridge regression
+
+- Recall that the least squares estimates $\beta_0, \beta_1, \ldots, \beta_p$ using the value that minimizes
+$$
+\text{RSS} = \sum_{i=1}^n \left( y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij} \right)^2.
+$$
+
+- In contrast, the ridge regression coefficient estimates $\hat{\beta}^R$ are the values that minimize
+$$
+\text{RSS} + \lambda \sum_{j=1}^p \beta_j^2,
+$$
+where $\lambda \ge 0$ is a **tuning parameter**, to be determined
+separately.
+
+- Similar to least squares, ridge regression seeks coefficient estimates that fit the data well, by making the RSS small.
+
+- However, the second term, $\lambda \sum_{j} \beta_j^2$, called a **shrinkage penalty**, is small when $\beta_1, \ldots, \beta_p$ are close to zero, and so it has the effect of **shrinking** the estimates of $\beta_j$ towards zero.
+
+::: {.panel-tabset}
+
+
+
+#### R
+Data pre-processing by recipe.
+```{r}
+library(tidymodels)
+
+norm_recipe <- 
+  recipe(
+    Balance ~ ., 
+    data = Credit
+  ) %>%
+  # create traditional dummy variables
+  step_dummy(all_nominal()) %>%
+  # zero-variance filter
+  step_zv(all_predictors()) %>% 
+  # center and scale numeric data
+  step_normalize(all_predictors()) %>%
+  # step_log(Salary, base = 10) %>%
+  # estimate the means and standard deviations
+  prep(training = Credit, retain = TRUE)
+norm_recipe
+```
+
+Set up ridge model.
+```{r}
+lambda_grid <- c(0, 10^seq(-3, 5, length.out = 100))
+ridge_mod <- 
+  # mixture = 0 (ridge), mixture = 1 (lasso)
+  linear_reg(penalty = 1, mixture = 0) %>%
+  set_engine("glmnet", path_values = lambda_grid)
+ridge_mod
+```
+
+Bundle recipe and model into a workfolow.
+```{r}
+ridge_wf <- workflow() %>%
+  add_model(ridge_mod) %>%
+  add_recipe(norm_recipe)
+ridge_wf
+```
+Fit ridge regression.
+```{r}
+fit_ridge <- ridge_wf %>% fit(data = Credit)
+```
+
+Visualize ridge solution path
+```{r}
+broom:::tidy.glmnet(fit_ridge$fit$fit$fit) %>%
+  print(width = Inf) %>%
+  filter(term != "(Intercept)") %>%
+  ggplot() +
+  geom_line(mapping = aes(x = lambda, y = estimate, color = term)) + 
+  scale_x_log10() +
+  labs(
+    x = quote(lambda),
+    y = "Standardized Coefficients",
+    title = "Ridge solution path for Credit data"
+  )
+```
+
+
+
+#### Python
+
+Since scikit-learn only takes arrays $X$ and $y$, we first apply transformers to transform the dataframe `Credit` into arrays. 
+
+There are two ways to treat dummy coding of of categorical variables: standardize or not. For consistency with ISL textbook, we standardize dummy coding here:
+```{python}
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.compose import make_column_transformer
+from sklearn.pipeline import Pipeline
+
+# Response vector
+y = Credit.Balance
+# Dummy encoding for categorical variables
+cattr = make_column_transformer(
+  (OneHotEncoder(drop = 'first'), ['Own', 'Student', 'Married', 'Region']),
+  remainder = 'passthrough'
+)
+# Standardization for ALL variables including dummy coding
+# Note the order of columns changed (dummy coding go first)
+pipe = Pipeline([('cat_tf', cattr), ('std_tf', StandardScaler())])
+X = pipe.fit_transform(Credit.drop('Balance', axis = 1))
+X.shape
+```
+Alternatively (and preferred), we don't standardize dummy coding for categorical variables.
+```{python}
+#| eval: false
+#| code-fold: true
+rom sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.compose import make_column_transformer
+
+# Response vector
+y = Credit.Balance
+# Dummy encoding for categorical variables
+# Standardization for continuous variables
+coltr = make_column_transformer(
+  (StandardScaler(), ['Income', 'Limit', 'Rating', 'Cards', 'Age', 'Education']),
+  (OneHotEncoder(drop = 'first'), ['Own', 'Student', 'Married', 'Region'])
+)
+X = coltr.fit_transform(Credit.drop('Balance', axis = 1))
+X.shape
+```
+
+Fit ridge regression at a grid of tuning/regularization parameter values. Note the regularization parameter in the [ridge regression in scikit-learn](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html) is called $\alpha$. 
+```{python}
+from sklearn.linear_model import Ridge
+
+clf = Ridge()
+# Ridge regularization parameter
+alphas = np.logspace(start = -3, stop = 5, base = 10)
+# Train the model with different regularization strengths
+coefs = []
+for a in alphas:
+  clf.set_params(alpha = a)
+  clf.fit(X, y)
+  coefs.append(clf.coef_)
+```
+
+Visualize Ridge solution path
+```{python}
+# Visualize Ridge solution path
+plt.figure(figsize = (8, 8))
+ax = plt.gca()
+ax.plot(alphas, coefs)
+ax.set_xscale("log")
+ax.legend(
+  labels = ["_", "Student", "_", "_", "_", "Income", "Limit", "Rating", "_", "_", "_"],
+  fontsize = 16
+  )
+plt.xlabel(r"$\alpha$")
+plt.ylabel("Coefficients")
+plt.title("Ridge solution path of Credit data")
+plt.axis("tight")
+plt.show()
+```
+
+:::
+
+::: {#fig-ridge-credit}
+
+<p align="center">
+![](ISL_fig_6_4.pdf){width=600px height=350px}
+</p>
+
+Ridge solution path for the `Credit` data (ISL2 Figure 6.4).
+
+:::
+
+- The standard least squares coefficient estimates are **scale equivariant**: multiplying $X_j$ by a constant $c$ simply leads to a scaling of the least squares coefficient estimates by a factor of $1/c$. In other words, regardless of how the $j$th predictor is scaled, $X_j \hat{\beta}_j$ will remain the same.
+
+- In contrast, the ridge regression coefficient estimates can change **substantially** when multiplying a given predictor by a constant, due to the sum of squared coefficients term in the penalty part of the ridge regression objective function.
+
+- Therefore, it is best to apply ridge regression after **standardizing** the predictors, using the formula
+$$
+\tilde{x}_{ij} = \frac{x_{ij}}{\sqrt{\frac{1}{n} \sum_{i=1}^n (x_{ij} - \bar{x}_j)^2}}.
+$$
+
+- Why does ridge regression improve over Least Squares? Answer: the bias-variance tradeoff.
+
+::: {#fig-ridge-bias-variance-tradeoff}
+
+<p align="center">
+![](ISL_fig_6_5.pdf){width=600px height=350px}
+</p>
+
+Simulated data with $n = 50$ observations, $p = 45$ predictors, all having nonzero coefficients. Squared bias (black), variance (green), and test mean squared error (purple) for the ridge regression predictions on a simulated data set, as a function of $\lambda$ and $\|\hat{\beta}_{\lambda}^R\|_2 / \|\hat{\beta}\|_2$. $\hat\beta$ is the vector of least squares coefficient estimates. And $\|\beta\|_2$ represents $\ell_2$ norm of a vector, i.e., $\|\beta\|_2 = \sqrt{\sum_{j=1}^p \beta_j^2}$. $\|\hat{\beta}_{\lambda}^R\|_2$ always decrease. The horizontal dashed lines indicate the minimum possible MSE. The purple crosses indicate the ridge regression models for which the test MSE is smallest.
+
+:::
+
+- The tuning parameter $\lambda$ serves to control the relative impact of these two terms on the regression coefficient estimates.
+
+- Selecting a good value for $\lambda$ is critical. **Cross-validation** can be used for this. 
+
+### Lasso
+
+- Ridge regression does have one obvious disadvantage: unlike subset selections, which will generally select models that involve just a subset of the variables, ridge regression will include all $p$ predictors in the final model. 
+
+- **Lasso** is a relatively recent alternative to ridge regression that overcomes this disadvantage. The lasso coefficients, $\hat{\beta}_\lambda^L$, minimize the quantity
+$$
+\text{RSS} + \lambda \sum_{j=1}^p |\beta_j|.
+$$
+
+- In statistical parlance, the lasso uses an $\ell_1$ (pronounced "ell 1") penalty instead of an $\ell_2$ penalty. The $\ell_1$ norm of a coefficient vector $\beta$ is given by $\|\beta\|_1 = \sum_j |\beta_j|$. 
+
+- As with ridge regression, the lasso shrinks the coefficient estimates towards zero.
+
+- However, in the case of the lasso, the $\ell_1$ penalty has the effect of forcing some of the coefficient estimates to be exactly equal to zero when the tuning parameter $\lambda$ is sufficiently large.
+
+- Hence, much like best subset selection, the lasso performs
+**variable selection**.
+
+- We say that the lasso yields **sparse** models. The models involve only a subset of the variables.
+
+- As in ridge regression, selecting a good value of $\lambda$ for the lasso is critical. Cross-validation is again the method of choice.
+
+::: {.panel-tabset}
+
+
+
+#### R
+
+Set up lasso model.
+```{r}
+lambda_grid <- c(0, 10^seq(-3, 4, length.out = 100))
+lasso_mod <- 
+  # mixture = 0 (ridge), mixture = 1 (lasso)
+  linear_reg(penalty = 1, mixture = 1) %>%
+  set_engine("glmnet", path_values = lambda_grid)
+lasso_mod
+```
+
+Bundle recipe and model into a workfolow.
+```{r}
+lasso_wf <- workflow() %>%
+  add_model(lasso_mod) %>%
+  add_recipe(norm_recipe)
+lasso_wf
+```
+
+Fit ridge regression.
+```{r}
+fit_lasso <- lasso_wf %>% fit(data = Credit)
+```
+
+Visualize ridge solution path
+```{r}
+broom:::tidy.glmnet(fit_lasso$fit$fit$fit) %>%
+  print(width = Inf) %>%
+  filter(term != "(Intercept)") %>%
+  ggplot() +
+  geom_line(mapping = aes(x = lambda, y = estimate, color = term)) + 
+  scale_x_log10() +
+  labs(
+    x = quote(lambda), 
+    y = "Standardized Coefficients",
+    title = "Lasso solution path for Credit data")
+```
+
+#### Python
+
+```{python}
+from sklearn.linear_model import Lasso
+
+clf = Lasso()
+# Ridge regularization parameter
+alphas = np.logspace(start = -3, stop = 4, base = 10)
+# Train the model with different regularization strengths
+coefs = []
+for a in alphas:
+  clf.set_params(alpha = a)
+  clf.fit(X, y)
+  coefs.append(clf.coef_)
+```
+
+```{python}
+# Visualize Ridge solution path
+plt.figure(figsize = (10, 8))
+ax = plt.gca()
+ax.plot(alphas, coefs)
+ax.set_xscale("log")
+ax.legend(
+  labels = ["_", "Student", "_", "_", "_", "Income", "Limit", "Rating", "_", "_", "_"],
+  fontsize = 16
+  )
+plt.xlabel(r"$\alpha$")
+plt.ylabel("Coefficients")
+plt.title("Lasso solution path of Credit data")
+plt.axis("tight")
+plt.show()
+```
+
+:::
+
+::: {#fig-lasso-credit}
+
+<p align="center">
+![](ISL_fig_6_6.pdf){width=600px height=350px}
+</p>
+
+Lasso solution path for the `Credit` data (ISL Figure 6.6).
+
+:::
+
+- Why is it that the lasso, unlike ridge regression, results in coefficient estimates that are exactly equal to zero?
+
+    One can show that the lasso and ridge regression coefficient estimates solve the problems
+$$
+\text{minimize } \text{RSS} \quad \text{ subject to } \sum_{j=1}^p |\beta_j| \le s
+$$
+and
+$$
+\text{minimize } \text{RSS} \quad \text{ subject to } \sum_{j=1}^p \beta_j^2 \le s
+$$
+respectively.
+
+::: {#fig-ridge-lasso-contour}
+
+<p align="center">
+![](ISL_fig_6_7.pdf){width=600px height=450px}
+</p>
+
+Contours of the RSS and constraint functions for the lasso (left) and ridge regression (right). The solid blue areas are the constraint regions, $|\beta_1| + |\beta_2| \le s$ and $\beta_1^2 + \beta_2^2 \le s$, while the red ellipses are the contours of the RSS.
+
+:::
+
+### Comparing ridge and lasso
+
+- Simulation example with $n=50$ and $p=45$. All 45 predictors are related to response.
+
+::: {#fig-ridge-lasso-compare-1}
+
+<p align="center">
+![](ISL_fig_6_8.pdf){width=600px height=350px}
+</p>
+
+Left: Plots of squared bias (black), variance (green), and test MSE (purple) for the lasso. Right: Comparison of squared bias, variance and test MSE between lasso (solid) and ridge (dashed). Both are plotted against their $R^2$ on the training data, as a common form of indexing. The crosses in both plots indicate the lasso model for which the MSE is smallest.
+
+:::
+
+- Simulation example with $n=50$ and $p=45$. Only 2 predictors are related to response.
+
+::: {#fig-ridge-lasso-compare-2}
+
+<p align="center">
+![](ISL_fig_6_9.pdf){width=600px height=350px}
+</p>
+
+Left: Plots of squared bias (black), variance (green), and test MSE (purple) for the lasso. The simulated data is similar, except that now only two predictors are related to the response. Right: Comparison of squared bias, variance and test MSE between lasso (solid) and ridge (dashed). Both are plotted against their $R^2$ on the training data, as a common form of indexing. The crosses in both plots indicate the lasso model for which the MSE is smallest.
+
+:::
+
+- These two examples illustrate that neither ridge regression nor the lasso will universally dominate the other.
+
+- In general, one might expect the lasso to perform better when the response is a function of only a relatively small number of predictors.
+
+- However, the number of predictors that is related to the
+response is never known _a priori_ for real data sets.
+
+- A technique such as **cross-validation** can be used in order
+to determine which approach is better on a particular data
+set.
+
+### Selecting the tuning parameter for ridge regression and lasso
+
+- Similar to subset selection, for ridge regression and lasso we require a method to determine which of the models under consideration is best.
+
+- That is, we require a method selecting a value for the tuning parameter $\lambda$ or equivalently, the value of the constraint $s$.
+
+- **Cross-validation** provides a simple way to tackle this
+problem. We choose a grid of $\lambda$ values, and compute the
+cross-validation error rate for each value of $\lambda$.
+
+- We then select the tuning parameter value for which the cross-validation error is smallest.
+
+- Finally, the model is re-fit using all of the available observations and the selected value of the tuning parameter.
+
+::: {#fig-ridge-lasso-credit}
+
+<p align="center">
+![](ISL_fig_6_12.pdf){width=600px height=350px}
+</p>
+
+Left: Cross-validation errors that result from applying ridge regression to the `Credit` data set with various values of $\lambda$. Right: The coefficient estimates as a function of $\lambda$. The vertical dashed lines indicate the value of $\lambda$ selected by cross-validation. (ISL Figure 6.12)
+
+:::
+
+## Dimension reduction methods
+
+- The methods that we have discussed so far have involved fitting linear regression models, via least squares or a shrunken approach, **using the original predictors**, $X_1, X_2, \ldots, X_p$.
+
+- We now explore a class of approaches that transform the predictors and then fit a least squares model using the **transformed variables**. We will refer to these techniques as **dimension reduction** methods.
+
+- Let $Z_1, Z_2, \ldots, Z_M$ represent $M < p$ **linear combinations** of our original $p$ predictors. That is
+$$
+Z_m = \sum_{j=1}^p \phi_{mj} X_j
+$$ {#eq-dimred-zs}
+for some constants $\phi_{m1}, \ldots, \phi_{mp}$.
+
+- We can then fit the linear regression model,
+$$
+y_i = \theta_0 + \sum_{m=1}^M \theta_m z_{im} + \epsilon_i, \quad i = 1,\ldots,n,
+$$ {#eq-dimred-model}
+using ordinary least squares. Here $\theta_0, \theta_1, \ldots, \theta_M$ are the regression coefficients. 
+
+- Notice that 
+$$
+\sum_{m=1}^M \theta_m z_{im} = \sum_{m=1}^M \theta_m \sum_{j=1}^p \phi_{mj} x_{ij} = \sum_{j=1}^p \sum_{m=1}^m \theta_m \phi_{mj} x_{ij} = \sum_{j=1}^p \beta_j x_{ij},
+$$
+where
+$$
+\beta_j = \sum_{m=1}^m \theta_m \phi_{mj}.
+$$ {#eq-dimred-constraint}
+
+- Hence model @eq-dimred-model can be thought of as a special case of the original linear regression model. 
+
+- Dimension reduction serves to constrain the estimated $\beta_j$
+coefficients, since now they must take the form @eq-dimred-constraint.
+
+- Can win in the bias-variance tradeoff.
+
+### Principal components regression
+
+- **Principal components regression (PCR)** applies principal components analysis (PCA) to define the linear combinations of the predictors, for use in our regression.
+
+- The first principal component $Z_1$ is the (normalized) linear combination of the variables with the largest variance.
+
+- The second principal component $Z_2$ has largest variance, subject to being uncorrelated with the first.
+
+- And so on.
+
+- Hence with many correlated original variables, we replace them with a small set of principal components that capture their joint variation.
+
+::: {#fig-advertising-pc-1}
+
+<p align="center">
+![](ISL_fig_6_14.pdf){width=500px height=400px}
+</p>
+
+The population size (`pop`) and ad spending (`ad`) for 100 different cities are shown as purple circles. The green solid line indicates the first principal component, and the blue dashed line indicates the second principal component.
+
+:::
+
+- The first principal component 
+$$
+Z_1 = 0.839 \times (\text{pop} - \bar{\text{pop}}) + 0.544 \times (\text{ad} - \bar{\text{ad}}).
+$$
+    - Out of all possible linear combination of `pop` and `ad` such that $\phi_{11}^2 + \phi_{21}^2 = 1$ (why do we need this constraint?), this particular combination yields the highest variance. 
+    
+    - There is also another interpretation for PCA: the first principal component vector defines the line that is as close as possible to the data.
+    
+    
+
+::: {#fig-advertising-pc-2}
+
+<p align="center">
+![](ISL_fig_6_15.pdf){width=800px height=350px}
+</p>
+
+A subset of the advertising data. Left: The first principal component, chosen to minimize the sum of the squared perpendicular distances to each point, is shown in green. These distances are represented using the black dashed line segments. Right: The left-hand panel has been rotated so that the first principal component lies on the $x$-axis.
+
+:::
+
+- The first principal component appears to capture most of the information contained in the `pop` and `ad` predictors.
+
+::: {#fig-advertising-pc-3}
+
+<p align="center">
+![](ISL_fig_6_16.pdf){width=800px height=350px}
+</p>
+
+Plots of the first principal component scores $z_{i1}$ versus `pop` and `ad`. The relationships are strong.
+
+:::
+
+- The second principal component
+$$
+Z_2 = 0.544 \times (\text{pop} - \bar{\text{pop}}) - 0.839 \times (\text{ad} - \bar{\text{ad}}). 
+$$
+
+::: {#fig-advertising-pc-3}
+
+<p align="center">
+![](ISL_fig_6_17.pdf){width=800px height=350px}
+</p>
+
+Plots of the second principal component scores $z_{i2}$ versus `pop` and `ad`. The relationships are weak.
+
+:::
+
+- PCR applied to two simulation data sets with $n=50$ and $p=45$:
+
+::: {#fig-sim-pcr}
+
+<p align="center">
+![](ISL_fig_6_18.pdf){width=800px height=350px}
+</p>
+
+PCR was applied to two simulated data sets. The black, green, and purple lines correspond to squared bias, variance, and test mean squared error, respectively. Left: all 45 predictors are related to response. Right: Only 2 out of 45 predictors are related to response.
+
+:::
+
+- PCR applied to a data set where the first 5 principal components are related to response.
+
+::: {#fig-sim-pcr}
+
+<p align="center">
+![](ISL_fig_6_19.pdf){width=800px height=350px}
+</p>
+
+PCR, ridge regression, and the lasso were applied to a simulated
+data set in which the first five principal components of $X$ contain all the information about the response $Y$. In each panel, the irreducible error $\operatorname{Var}(\epsilon)$ is shown as a horizontal dashed line. Left: Results for PCR. Right: Results for lasso (solid) and ridge regression (dotted). The $x$-axis displays the shrinkage factor of the coefficient estimates, defined as the $\ell_2$ norm of the shrunken coefficient estimates divided by the $\ell_2$ norm of the least squares estimate.
+
+:::
+
+- PCR applied to the `Credit` data:
+
+::: {#fig-credit-pcr}
+
+<p align="center">
+![](ISL_fig_6_20.pdf){width=800px height=400px}
+</p>
+
+PCR was applied to the `Credit` data. 
+
+:::
+
+- Note:
+  + Even though PCR provides a simple way to perform regression using $M < p$ predictors, it is not a feature selection method.
+  + When performing PCR, we generally recommend standardizing each predictor (below), prior to generating the principal components.
+$$
+\tilde{x}_{ij} = \frac{x_{ij}}{\sqrt{\frac{1}{n} \sum_{i=1}^n (x_{ij} - \bar{x}_j)^2}}.
+$$
+
+### Partial least squares (PLS)
+
+- PCR identifies linear combinations, or **directions**, that best represent the predictors $X_1, \ldots, X_p$.
+
+- These directions are identified in an **unsupervised way**, since the response $Y$ is not used to help determine the principal component directions.
+
+- That is, the response does not **supervise** the identification of the principal components.
+
+- Consequently, PCR suffers from a potentially serious drawback: there is no guarantee that the directions that best explain the predictors will also be the best directions to use for predicting the response.
+
+- Like PCR, partial least squares (PLS) is a dimension reduction method, which first identifies a new set of features $Z_1, \ldots, Z_M$ that are linear combinations of the original features, and then fits a linear model via OLS using these $M$ new features.
+
+- But unlike PCR, PLS identifies these new features in a supervised way. That is it makes use of the response $Y$ in
+order to identify new features that not only approximate the old features well, but also that **are related to the response**.
+
+- Roughly speaking, the PLS approach attempts to find directions that help explain both the response and the predictors.
+
+- PLS algorithm:
+
+    - After standardizing the $p$ predictors, PLS computes the first direction $Z_1$ by setting each $\phi_{1j}$ in @eq-dimred-zs equal to the coefficient from the simple linear regression of $Y$ onto $X_j$.
+    
+    - One can show that this coefficient is proportional to the correlation between $Y$ and $X_j$.
+    
+    - Hence, in computing $Z_1 = \sum_{j=1}^p \phi_{1j} X_j$, PLS places the highest weight on the variables that are most strongly related to the response.
+    
+    - Subsequent directions are found by taking residuals and then repeating the above procedure.
+
+## Considerations in High Dimensions
+
+- By dimension here we are referring to the size of $p$.
+- Data sets containing more features $p$ than observations $n$ are often referred to as high-dimensional, i.e., $n<p$. 
+- Regression in High Dimensions
+  + In high dimensions, the least squares estimates are highly variable, and exhibit high variance.
+  
+::: {#fig-high-dim-1}
+
+<p align="center">
+![](ISL_fig_6_24.pdf){width=800px height=350px}
+</p>
+
+The lasso was performed with $n = 100$ observations and three values of $p$, the number of features. Of the $p$ features, $20$ were associated with the response. The boxplots show the test MSEs that result using three different values of the tuning parameter $\lambda$. For ease of interpretation, rather than reporting $\lambda$, the degrees of freedom are reported; for the lasso this turns out to be simply the number of estimated non-zero coefficients. When $p = 20$, the lowest test MSE was obtained with the smallest amount of regularization. When $p = 50$, the lowest test MSE was achieved when there is a substantial amount of regularization. When $p = 2,000$ the lasso performed poorly regardless of the amount of regularization, due to the fact that only 20 of the 2,000 features truly are associated with the outcome.
+:::
+  
+- Three important points: 
+  + regularization or shrinkage plays a key role in high-dimensional problems;
+  + appropriate tuning parameter selection is crucial for good predictive performance, and 
+  + the test error tends to increase as the dimensionality of the problem (i.e. the number of features or predictors) increases, unless the additional features are truly associated with the response - "curse of dimensionality"
+  
+- In general, adding additional signal features that are truly associated with the response will improve the fitted model, i.e., a reduction in test set error. 
+- However, adding noise features that are not truly associated with the response will lead to a deterioration in the fitted model, and consequently an increased test set error.
+  
+  
+## Summary
+
+- Model selection methods are an essential tool for data analysis, especially for big datasets involving many predictors.
+
+- Research into methods that give **sparsity**, such as the lasso is an especially hot area.
+
+- Later, we will return to sparsity in more detail, and will describe related approaches such as the **elastic net**.
