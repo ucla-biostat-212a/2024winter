@@ -1,0 +1,691 @@
+---
+title: "Nonlinear Models (ISL 7)"
+subtitle: "Biostat 212A"
+author: "Dr. Jin Zhou @ UCLA"
+date: today
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+engine: knitr
+knitr:
+  opts_chunk: 
+    fig.align: 'center'
+    # fig.width: 6
+    # fig.height: 4
+    message: FALSE
+    cache: false
+---
+
+
+Credit: This note heavily uses material from the books [_An Introduction to Statistical Learning: with Applications in R_](https://www.statlearning.com/) (ISL2) and [_Elements of Statistical Learning: Data Mining, Inference, and Prediction_](https://hastie.su.domains/ElemStatLearn/) (ESL2).
+
+Display system information for reproducibility.
+
+::: {.panel-tabset}
+
+## R
+
+
+```{r}
+sessionInfo()
+```
+
+
+## Python
+
+
+```{python}
+import IPython
+print(IPython.sys_info())
+```
+
+
+:::
+
+## Overview
+
+- The truth is never linear! Or almost never! 
+
+    But often the linearity assumption is good enough.  
+    
+- When it's not ...
+
+    - polynomials  
+    - step functions  
+    - spline  
+    - local regression, and
+    - generalized additive models  
+    
+    offer a lot of flexibility, without losing the ease and interpretability of linear models. 
+
+- `wage` vs `age`:
+
+::: {.panel-tabset}
+#### R
+
+
+```{r}
+#| message: false
+library(gtsummary)
+library(ISLR2)
+library(tidyverse)
+
+# Convert to tibble
+Wage <- as_tibble(Wage) %>% print(width = Inf)
+
+# Summary statistics
+Wage %>% tbl_summary()
+
+# Plot wage ~ age, GAM fit is display when n >1000
+Wage %>%
+  ggplot(mapping = aes(x = age, y = wage)) + 
+  geom_point() + 
+  geom_smooth() +
+  labs(title = "Wage changes nonlinearly with age",
+       x = "Age",
+       y = "Wage (k$)")
+```
+
+
+#### Python
+
+
+```{python}
+# Load the pandas library
+import pandas as pd
+# Load numpy for array manipulation
+import numpy as np
+# Load seaborn plotting library
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Set font size in plots
+sns.set(font_scale = 1.2)
+# Display all columns
+pd.set_option('display.max_columns', None)
+
+# Import Wage data
+Wage = pd.read_csv("../data/Wage.csv")
+Wage.info()
+```
+
+```{python}
+# Visualize wage ~ age, display lowess curve
+plt.figure()
+sns.lmplot(
+  data = Wage, 
+  x = "age", 
+  y = "wage", 
+  lowess = True,
+  scatter_kws = {'alpha' : 0.1},
+  height = 8
+  ).set(
+    title = "Wage changes nonlinearly with age",
+    xlabel = 'Age', 
+    ylabel = 'Wage (k$)'
+  );
+plt.show()
+```
+
+
+:::
+    
+## Polynomial regression
+
+$$
+y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \cdots + \beta_d x_i^d + \epsilon_i.
+$$
+
+::: {.panel-tabset}
+
+
+
+#### R
+
+
+```{r}
+# Plot wage ~ age, display order-4 polynomial fit
+Wage %>%
+  ggplot(mapping = aes(x = age, y = wage)) + 
+  geom_point() + 
+  geom_smooth(
+    method = "lm",
+    formula = y ~ poly(x, degree = 4)
+    ) +
+  labs(
+    title = "Degree-4 Polynomial",
+    x = "Age",
+    y = "Wage (k$)"
+    )
+```
+
+
+#### Python
+
+
+```{python}
+# Visualize wage ~ age, display order-4 polynomial fit
+plt.figure()
+sns.lmplot(
+  data = Wage, 
+  x = "age", 
+  y = "wage", 
+  # Order-4 polynomial regression
+  order = 4,
+  scatter_kws = {'alpha' : 0.1},
+  height = 8
+  ).set(
+  xlabel = 'Age', 
+  ylabel = 'Wage (k$)',
+  title = 'Degree-4 Polynomial'
+  );
+plt.show()
+```
+
+
+:::
+
+- Create new variables $X_1 = X$, $X_2 = X^2$, ..., and then treat as multiple linear regression.
+
+- Not really interested in the coefficients; more interested in
+the fitted function values at any value $x_0$:
+$$
+\hat f(x_0) = \hat{\beta}_0 + \hat{\beta}_1 x_0 + \hat{\beta}_2 x_0^2 + \hat{\beta}_3 x_0^3 + \hat{\beta}_4 x_0^4.
+$$
+
+::: {.panel-tabset}
+
+
+
+#### R
+
+
+```{r}
+# poly(age, 4) constructs orthogonal polynomial of degree 1 to degree, all orthogonal to the constant
+lmod <- lm(wage ~ poly(age, degree = 4), data = Wage)
+summary(lmod)
+
+# poly(age, 4, raw = TRUE) procudes raw othogonal polynomial, which match Python
+lmod <- lm(wage ~ poly(age, degree = 4, raw = TRUE), data = Wage)
+summary(lmod)
+```
+
+
+:::
+
+- Since $\hat f(x_0)$ is a linear function of the $\hat{\beta}_j$, we can get a simple expression for **pointwise-variances** $\operatorname{Var}[\hat f(x_0)]$ at any value $x_0$. 
+
+- We either fix the degree $d$ at some reasonably low value, or use cross-validation to choose $d$. 
+
+- Can do separately on several variables. Just stack the variables into one matrix, and separate out the pieces afterwards (see GAMs later).
+
+- Polynomial modeling can be done for generalized linear models (logistic regression, Poisson regression, etc) as well. 
+
+- **Caveat**: polynomials have notorious tail behavior. Very bad for extrapolation.
+
+::: {.panel-tabset}
+
+#### R
+
+
+```{r}
+#| code-fold: true
+library(splines)
+
+# Plot wage ~ age
+Wage %>%
+  ggplot(mapping = aes(x = age, y = wage)) + 
+  geom_point(alpha = 0.25) + 
+  # Polynomial regression with degree 14
+  geom_smooth(
+    method = "lm",
+    formula = y ~ poly(x, degree = 14),
+    color = "blue"
+    ) +
+  # Natural cubic spline
+  geom_smooth(
+    method = "lm",
+    formula = y ~ ns(x, df = 14),
+    color = "red"
+    ) +  
+  labs(
+    title = "Natural cubic spline (red) vs polynomial regression (blue)",
+    subtitle = "Both have df=15",
+    x = "Age",
+    y = "Wage (k$)"
+    )
+```
+
+
+
+#### Python (sklearn)
+
+
+```{python}
+from sklearn.compose import make_column_transformer
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import PolynomialFeatures
+
+# Create polynomial features of age predictor
+poly_tf = make_column_transformer(
+  (PolynomialFeatures(degree = 4, include_bias = False), ['age']),
+  remainder = 'drop'
+)
+
+# Define pipeline and fit to Wage data
+pipe = Pipeline(steps = [
+  ("poly_tf", poly_tf),
+  ("model", LinearRegression())
+])
+
+# Fit pipeline
+X = Wage.drop('wage', axis = 1)
+y = Wage.wage
+pipe.fit(X, y)
+# R^2
+pipe.score(X, y)
+```
+
+```{python}
+# Plot
+plt.figure()
+ax = sns.scatterplot(
+  data = Wage,
+  x = 'age',
+  y = 'wage',
+  alpha = 0.1
+);
+sns.lineplot(
+  x = Wage['age'],
+  y = pipe.predict(X),
+  ax = ax
+).set(
+  title = "Polynomial regression (order = 4)",
+  xlabel = 'Age', 
+  ylabel = 'Wage (k$)'
+);
+plt.show()
+```
+
+
+#### Python (statsmodels)
+
+
+```{python}
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
+# Fit linear regression
+lmod = smf.ols(formula = 'wage ~ np.vander(age, 5, increasing = True) - 1', data = Wage).fit()
+lmod.summary()
+```
+
+
+#### Python (numpy.polyfit)
+
+
+```{python}
+np.polyfit(Wage.age, Wage.wage, deg = 4)
+```
+
+:::
+
+## Piecewise polynomials (regression splines)
+
+- Instead of a single polynomial in $X$ over its whole domain, we can rather use different polynomials in regions defined by **knots**. E.g., a piecewise cubic polynomial with a single knot at $c$ takes the form
+$$
+y_i = \begin{cases}
+\beta_{01} + \beta_{11} x_i + \beta_{21} x_i^2 + \beta_{31} x_i^3 + \epsilon_i & \text{if } x_i < c \\
+\beta_{02} + \beta_{12} x_i + \beta_{22} x_i^2 + \beta_{32} x_i^3 + \epsilon_i & \text{if } x_i \ge c
+\end{cases}.
+$$
+
+- Better to add constraints to the polynomials, e.g., continuity.
+
+- Splines have the "maximum" amount of continuity.
+
+<p align="center">
+![](ISL_fig_7_3.pdf){width=600px height=600px}
+</p>
+
+### Linear spline
+
+- A **linear spline** with knots at $\xi_k$, $k = 1,\ldots,K$, is a piecewise linear polynomial continuous at each knot.
+
+- We can represent this model as
+$$
+y_i = \beta_0 + \beta_1 b_1(x_i) + \beta_2 b_2(x_i) + \cdots + \beta_{K+1} b_{K+1}(x_i) + \epsilon_i,
+$$
+where $b_k$ are **basis functions**:  
+\begin{eqnarray*}
+b_1(x_i) &=& x_i \\
+b_{k+1}(x_i) &=& (x_i - \xi_k)_+, \quad k=1,\ldots,K.
+\end{eqnarray*}
+Here $(\cdot)_k$ means positive part
+$$
+(x_i - \xi_i)_+ = \begin{cases}
+x_i - \xi_k & \text{if } x_i > \xi_k \\
+0 & \text{otherwise}
+\end{cases}.
+$$
+
+### Cubic splines
+
+- A **cubic spline** with knots at $\xi_k$, $k = 1,\ldots,K$, is a piecewise cubic polynomial with continuous derivatives up to order 2 at each knot.
+
+- Again we can represent this model with **truncated power basis functions**
+$$
+y_i = \beta_0 + \beta_1 b_1(x_i) + \beta_2 b_2(x_i) + \cdots + \beta_{K+3} b_{K+3}(x_i) + \epsilon_i,
+$$
+with
+\begin{eqnarray*}
+b_1(x_i) &=& x_i \\
+b_2(x_i) &=& x_i^2 \\
+b_3(x_i) &=& x_i^3 \\
+b_{k+3}(x_i) &=& (x_i - \xi_k)_+^3, \quad k = 1,\ldots,K,
+\end{eqnarray*}
+where
+$$
+(x_i - \xi_i)_+^3 = \begin{cases}
+(x_i - \xi_k)^3 & \text{if } x_i > \xi_k \\
+0 & \text{otherwise}
+\end{cases}.
+$$
+
+- A cubic spline with $K$ knots costs $K+4$ parameters or degrees of freedom. That is $4(K+1)$ polynomial coefficients minus $3K$ constraints.
+
+- While the truncated power basis is conceptually simple, it is not too attractive numerically: powers of large numbers can lead to severe rounding problems. In practice, **B-spline basis functions** are preferred for their computational efficiency. See ESL Chapter 5 Appendix.
+
+
+```{python}
+#| code-fold: true
+from sklearn.preprocessing import SplineTransformer
+
+# Cubic spline for age
+X_age = np.array(X['age']).reshape(3000, 1)
+x_plot = np.linspace(start = 15, stop = 85, num = 70)
+X_plot = x_plot[:, np.newaxis]
+bs_plot = SplineTransformer(
+    degree = 3,
+    # knots = np.array([25, 40, 60]).reshape(3, 1),
+    n_knots = 5,
+    extrapolation = 'continue',
+    # include_bias = False
+    ).fit(X_age).transform(X_plot)
+    
+ns_plot = SplineTransformer(
+    degree = 3,
+    # knots = np.array([25, 40, 60]).reshape(3, 1),
+    n_knots = 5,
+    extrapolation = 'linear',
+    # include_bias = False
+    ).fit(X_age).transform(X_plot)    
+    
+# Plot
+fig, axes = plt.subplots(ncols = 2, figsize = (20, 6))
+axes[0].plot(x_plot, bs_plot)
+# axes[0].legend(axes[0].lines, [f"spline {n}" for n in range(4)])
+axes[0].set_title("B-splines")
+
+axes[1].plot(x_plot, ns_plot)
+# axes[1].legend(axes[0].lines, [f"spline {n}" for n in range(8)])
+axes[1].set_title("B-splines with linearity at boundary")
+plt.show()
+```
+
+
+### Natural cubic splines
+
+- Splines can have high variance at the outer range of the
+predictors.
+
+- A **natural cubic spline** extrapolates linearly beyond the boundary knots. This adds $4 = 2 \times 2$ extra constraints, and allows us to put more internal knots for the same degrees of freedom as a regular cubic spline.
+
+- A natural spline with $K$ knots has $K$ degrees of freedom.
+
+::: {.panel-tabset}
+
+#### R
+
+
+```{r}
+#| code-fold: true
+library(splines)
+
+# Plot wage ~ age
+Wage %>%
+  ggplot(mapping = aes(x = age, y = wage)) + 
+  geom_point(alpha = 0.25) + 
+  # Cubic spline
+  geom_smooth(
+    method = "lm",
+    formula = y ~ bs(x, knots = c(25, 40, 60)),
+    color = "blue"
+    ) +
+  # Natural cubic spline
+  geom_smooth(
+    method = "lm",
+    formula = y ~ ns(x, knots = c(25, 40, 60)),
+    color = "red"
+    ) +  
+  labs(
+    title = "Natural cubic spline fit (red) vs cubic spline fit (blue)",
+    x = "Age",
+    y = "Wage (k$)"
+    )
+```
+
+
+:::
+
+### Knot placement
+
+- One strategy is to decide $K$, the number of knots, and then place them at appropriate quantiles of the observed $X$.
+
+- In practice users often specify the degree of freedom and let software choose the number of knots and locations.
+
+## Smoothing splines
+
+- Consider this criterion for fitting a smooth function $g(x)$ to some data:
+$$
+\text{minimize} \quad \sum_{i=1}^n (y_i - g(x_i))^2 + \lambda \int g''(t)^2 \, dt.
+$$
+    - The first term is RSS, and tries to make $g(x)$ match the data at each $x_i$.  
+    - The second term is a **roughness penalty** and controls how wiggly $g(x)$ is. It is modulated by the tuning parameters $\lambda \ge 0$. 
+        * The smaller $\lambda$, the more wiggly the function, eventually interpolating $y_i$ when $\lambda = 0$.  
+        * As $\lambda \to \infty$, the function $g(x)$ becomes linear. 
+        
+- The solution is a (shrunken) natural cubic spline, with a knot at every unique value of $x_i$. The roughness penalty still controls the roughness via $\lambda$. 
+
+- Smoothing splines avoid the knot-selection issue, leaving a single $\lambda$ to be chosen.  
+
+- The vector of $n$ fitted values can be written as $\hat{g}_\lambda = S_\lambda y$, where $S_{\lambda}$ is an $n \times n$ matrix (determined by the $x_i$ and $\lambda$). 
+
+- The **effective degrees of freedom** are given by
+$$
+\text{df}_{\lambda} = \sum_{i=1}^n S_{\lambda,ii}.
+$$
+Thus we can specify `df` rather than $\lambda$.
+
+- The leave-one-out (LOO) cross-validated error is given by
+$$
+\text{RSS}_{\text{CV}}(\lambda) = \sum_{i=1}^n \left[ \frac{y_i - \hat{g}_\lambda(x_i)}{1 - S_{\lambda,ii}} \right]^2.
+$$
+
+::: {.panel-tabset}
+
+#### R
+
+`ggformula` package supplies `geom_spline` function for displaying smoothing spline fits.
+
+```{r} 
+#| code-fold: true
+
+library(ggformula)
+library(splines)
+
+# Plot wage ~ age
+Wage %>%
+  ggplot(mapping = aes(x = age, y = wage)) + 
+  geom_point(alpha = 0.25) + 
+  # Smoothing spline with df = 16
+  geom_spline(
+      df = 16,
+      color = "red"
+    ) +
+  # Smoothing spline with GCV tuned df
+  geom_spline(
+    # df = 6.8,
+    cv = TRUE,
+    color = "blue"
+    ) +
+  labs(
+    title = "Smoothing spline with df=16 (red) vs LOOCV tuned df=6.8 (blue)",
+    x = "Age",
+    y = "Wage (k$)"
+    )
+```
+
+
+:::
+
+## Local regression
+
+<p align="center">
+![](ISL_fig_7_9.pdf){width=600px height=600px}
+</p>
+
+- With a sliding weight function, we fit separate linear fits over the range of $X$ by weighted least squares. 
+
+- At $X=x_0$,
+$$
+\text{minimize} \quad \sum_{i=1}^n K(x_i, x_0) (y_i - \beta_0 - \beta_1 x_i)^2,
+$$
+where $K$ is a weighting function that assigns heavier weight for $x_i$ close to $x_0$ and zero weight for points furthest from $x_0$.
+
+- **Locally weighted linear regression**: `loess` function in R and `lowess` in Python.
+
+- Anecdotally, loess gives better appearance, but is $O(N^2)$ in memory, so does not work for larger data sets.
+
+## Generalized additive model (GAM)
+
+- Generalized additive models (GAMs) allows for flexible nonlinearities in several variables, but retains the additive structure of linear models.
+$$
+y_i = \beta_0 + f_1(x_{i1}) + f_2(x_{i2}) + \cdots + f_p (x_{ip}) + \epsilon_i.
+$$
+
+- We can fit GAM simply using, e.g. natural splines.
+
+- Coefficients not that interesting; fitted functions are.
+
+- Can mix terms: some linear, some nonlinear, and use ANOVA to compare models.
+
+- Can use smoothing splines or local regression as well. In R:
+`gam(wage ~ s(year; df = 5) + lo(age; span = :5) + education)`.
+
+- GAMs are additive, although low-order interactions can be included in a natural way using, e.g. bivariate smoothers or interactions of the form (in R) `ns(age, df = 5):ns(year, df = 5)`.
+
+::: {.panel-tabset}
+
+#### R
+
+Natural splines for `year` and `age`.
+
+```{r}
+gam_mod <- lm(
+  wage ~ ns(year, df = 4) + ns(age, df = 5) + education,
+  data = Wage
+  )
+summary(gam_mod)
+```
+
+
+Smoothing splines for `year` and `age`.
+
+```{r}
+library(gam)
+
+gam_mod <- gam(
+  wage ~ s(year, 4) + s(age, 5) + education,
+  data = Wage
+  )
+summary(gam_mod)
+plot(gam_mod, se = TRUE, col = "red")
+```
+
+
+#### Python (sklearn)
+
+
+```{python}
+from sklearn.preprocessing import OneHotEncoder, SplineTransformer
+
+# Natural cubic spline features of year predictor
+ns_tf = make_column_transformer(
+  (SplineTransformer(
+    n_knots = 4,
+    # knots = 'quantile',
+    degree = 3, 
+    extrapolation = 'linear', # natural cubic spline
+    # include_bias = False
+    ), ['year']),
+  (SplineTransformer(
+    n_knots = 5,
+    # knots = 'quantile',
+    degree = 3, 
+    extrapolation = 'linear', # natural cubic spline
+    # include_bias = False
+    ), ['age']),
+  (OneHotEncoder(drop = 'first'), ['education']),
+  remainder = 'drop'
+)
+
+# Define pipeline and fit to Wage data
+pipe = Pipeline(steps = [
+  ("ns_tf", ns_tf),
+  ("model", LinearRegression())
+])
+
+# Fit pipeline
+X = Wage.drop('wage', axis = 1)
+y = Wage.wage
+pipe.fit(X, y)
+# R^2
+pipe.score(X, y)
+```
+
+
+#### Python (statsmodels)
+
+
+```{python}
+from statsmodels.gam.api import GLMGam, BSplines
+
+# Create spline basis for year and age
+x_spline = Wage[['year', 'age']]
+bs = BSplines(x_spline, df = [4, 5], degree = [3, 3])
+
+# Fit GAM
+gam_mod = GLMGam.from_formula('wage ~ education', data = Wage, smoother = bs).fit()
+gam_mod.summary()
+```
+
+```{python}
+# Plot smooth components
+for i in [0, 1]:
+  plt.figure()
+  gam_mod.plot_partial(i, cpr = True)
+  plt.show()
+```
+
+
+
+
+:::
