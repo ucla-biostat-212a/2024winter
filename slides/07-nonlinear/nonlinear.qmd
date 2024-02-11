@@ -59,6 +59,25 @@ print(IPython.sys_info())
     
     offer a lot of flexibility, without losing the ease and interpretability of linear models. 
 
+- Main idea 
+
+    - To augment/replace the vector of inputs $X$ with additional variables, which are transformations of $X$, and then use linear models in this new space of derived input features.
+    - For example, in regression problems, $f(X) = \mbox{E}(Y\mid X)$ is modeled as a linear function of $X$, but now to model is by transformation of $X$, i.e., $h_m(X)$. 
+    
+$$
+f(X) =\sum_{m=1}^M  \beta_m h_m(X)
+$$
+      
+- The beauty of this approach is that once the basis functions $h_m$ have been determined, the models are linear in these new variables, and the fitting proceeds as for linear models.
+
+### Popular choices for basis functions $h_m(X)$
+
+- $h_m(X) = X_m, m = 1,\ldots,p$ recovers the original linear model
+
+- $h_m(X) = X_j^2$ or $h_m(X) = X_jX_k$ allows us to augment the inputs with polynomial terms. Note, however, that the number of variables grows exponentially in the degree of the polynomial. A full quadratic model in $p$ variables requires $O(p^2)$ square and cross-product terms, or more generally $O(p^d)$ for a degree-d polynomial.
+
+- $h_m(X) = \mathbf{I}(L_m \leq X_k < U_m)$, an indicator for a region of $X_k$. By breaking the range of $X_k$ up into $M_k$ such nonoverlapping regions results in a model with a piecewise constant contribution for $X_k$.
+
 - `wage` vs `age`:
 
 ::: {.panel-tabset}
@@ -129,6 +148,7 @@ plt.show()
     
 ## Polynomial regression
 
+In most of this lecture, consider $p=1$ in the following examples. 
 $$
 y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \cdots + \beta_d x_i^d + \epsilon_i.
 $$
@@ -345,7 +365,7 @@ where $b_k$ are **basis functions**:
 b_1(x_i) &=& x_i \\
 b_{k+1}(x_i) &=& (x_i - \xi_k)_+, \quad k=1,\ldots,K.
 \end{eqnarray*}
-Here $(\cdot)_k$ means positive part
+Here $(\cdot)_+$ means positive part
 $$
 (x_i - \xi_i)_+ = \begin{cases}
 x_i - \xi_k & \text{if } x_i > \xi_k \\
@@ -474,8 +494,10 @@ $$
     - The second term is a **roughness penalty** and controls how wiggly $g(x)$ is. It is modulated by the tuning parameters $\lambda \ge 0$. 
         * The smaller $\lambda$, the more wiggly the function, eventually interpolating $y_i$ when $\lambda = 0$.  
         * As $\lambda \to \infty$, the function $g(x)$ becomes linear. 
-        
-- The solution is a (shrunken) natural cubic spline, with a knot at every unique value of $x_i$. The roughness penalty still controls the roughness via $\lambda$. 
+
+-  It can be shown that this problem has an explicit, finite-dimensional, unique minimizer which is a natural cubic spline with knots at the unique values of the $x_i$. 
+     
+- The roughness penalty controls the roughness via $\lambda$. 
 
 - Smoothing splines avoid the knot-selection issue, leaving a single $\lambda$ to be chosen.  
 
@@ -527,6 +549,21 @@ Wage %>%
 
 :::
 
+- Application to logistic regression
+$$
+\log\frac{\mathbf{P}(Y=1|X)}{\mathbf{P}(Y=0|X)} =  f(X),
+$$
+therefore
+$$
+\mathbf{P}(Y=1|X) = \frac{\exp(f(X))}{1 + \exp(f(X))} = p(x).
+$$
+- The penalized The log-likelihood criterion
+$$
+\ell(f,\lambda) = \sum_{i=1}^n \left[ y_i \log p(x_i) + (1-y_i) \log (1-p(x_i)) \right] - \lambda \int f''(t)^2 \, dt.
+$$
+
+- The solution is a natural cubic spline with knots at the unique values of the $x_i$.
+
 ## Local regression
 
 <p align="center">
@@ -544,6 +581,15 @@ where $K$ is a weighting function that assigns heavier weight for $x_i$ close to
 - **Locally weighted linear regression**: `loess` function in R and `lowess` in Python.
 
 - Anecdotally, loess gives better appearance, but is $O(N^2)$ in memory, so does not work for larger data sets.
+
+- While all of these choices make some difference, the most important choice is the span $s$, which is the proportion of points used to compute the local regression at $x_0$. 
+
+- The span plays a role like that of the tuning parameter $\lambda$ in smoothing splines: it controls the flexibility of the non-linear fit.
+  
+    + The smaller the value of $s$, the more local and wiggly will be our fit; alternatively, a very large value of s will lead to a global fit to the data using all of the training observations.
+    + Cross-validation to choose s, or just specify it directly.
+    
+  
 
 ## Generalized additive model (GAM)
 
@@ -652,3 +698,110 @@ for i in [0, 1]:
 
 
 :::
+
+## Lab 
+
+### Polynomial Regression and Step Functions
+
+- To predict wage using a fourth-degree polynomial in age: `poly(age, 4)` in `lm`
+- `poly` function creates orthogonal polynomials, which are uncorrelated and have mean zero. Essentially it means that each column is a linear combination of the variables age, age^2, age^3 and age^4.
+- Or we can also use `poly()` to obtain age, age^2, age^3 and age^4 directly, if we prefer. We can do this by using the `raw = TRUE` argument to the poly() function. 
+
+```{r}
+fit <- lm(wage ~ poly(age, 4), data = Wage)
+coef(summary(fit))
+
+fit2 <- lm(wage ~ poly(age, 4, raw = T), data = Wage)
+coef(summary(fit2))
+
+# Equilvalent to
+fit3 <- lm(wage ~ age + I(age^2) + I(age^3) + I(age^4), data = Wage)
+```
+
+- In performing a polynomial regression we must decide on the degree of the polynomial to use. One way to do this is by using hypothesis tests.
+```{r}
+fit.1 <- lm(wage ~ age, data = Wage)
+fit.2 <- lm(wage ~ poly(age, 2), data = Wage) 
+fit.3 <- lm(wage ~ poly(age, 3), data = Wage)
+fit.4 <- lm(wage ~ poly(age, 4), data = Wage) 
+fit.5 <- lm(wage ~ poly(age, 5), data = Wage) 
+anova(fit.1, fit.2, fit.3, fit.4, fit.5)
+```
+- As an alternative to using hypothesis tests and ANOVA, we could choose the polynomial degree using cross-validation, as discussed in Chapter 5.
+
+- We can also use step functions to fit a piecewise-constant function. The `cut` function is used to create a qualitative variable that represents the age range. The `lm` function can then be used to fit a step function to the `age` variable.
+
+```{r}
+fit <- glm(I(wage > 250) ~ poly(age, 4), data = Wage, family = binomial)
+```
+
+- Once again, we make predictions using the predict() function.
+```{r}
+agelims <- range(age)
+age.grid <- seq(from = agelims[1], to = agelims[2])
+preds <- predict(fit, newdata = list(age = age.grid), se = T)
+preds <- predict(fit, newdata = list(age = age.grid), type = "response", se = T)
+```    
+
+- In order to fit a step function, as discussed in Section 7.2, we use the `cut()` function.
+```{r}
+fit <- lm(wage ~ cut(age, 4), data = Wage)
+summary(fit)
+```
+
+### Splines
+- In order to fit regression splines in R, we use the `splines` library. 
+-  The `bs()` function generates the entire matrix of `bs()` basis functions for splines with the specified set of knots.
+```{r}
+library(splines)
+fit <- lm(wage ~ bs(age, knots = c(25, 40, 60)), data = Wage)
+```
+
+- The `df` option to `bs()` can be used in order to produce a spline with a specified degrees of freedom. 
+```{r}
+dim(bs(age, knots = c(25, 40, 60))) 
+dim(bs(age, df = 6))
+attr(bs(age, df = 6), "knots") 
+```
+
+- In order to instead fit a natural spline, we use the  `ns()` function. Here `ns()` we fit a natural spline with four degrees of freedom.
+```{r}
+fit <- lm(wage ~ ns(age, df = 4), data = Wage)
+summary(fit)
+```
+
+- In order to fit a smoothing spline, we use the `smooth.spline()` function. 
+```{r}
+fit <- smooth.spline(age, wage, df = 16)
+fit2 <- smooth.spline(age, wage, cv = TRUE)
+```
+
+- local regression
+```{r}
+attach(Wage)
+plot(age, wage, xlim = agelims, cex = .5, col = "darkgrey") > title("Local Regression")
+fit <- loess(wage ~ age, span = .2, data = Wage)
+fit2 <- loess(wage ~ age, span = .5, data = Wage)
+lines(age.grid, predict(fit, data.frame(age = age.grid)), col = "red", lwd = 2)
+lines(age.grid, predict(fit2, data.frame(age = age.grid)), col = "blue", lwd = 2)
+legend("topright", legend = c("Span = 0.2", "Span = 0.5"), col = c("red", "blue"), lty = 1, lwd = 2, cex = .8)
+```
+### GAMs
+- In order to fit a GAM in R, we use the `gam` function, which is part of the `gam` library. 
+- The `s()` function, which is part of the gam library, is used to indicate that s() we would like to use a smoothing spline.
+```{r}
+library(gam) 
+gam.m3 <- gam(wage ~ s(year, 4) + s(age, 5) + education, data = Wage)
+```
+
+```{r}
+gam.m1 <- gam(wage ~ s(age, 5) + education, data = Wage) 
+gam.m2 <- gam(wage ~ year + s(age, 5) + education, data = Wage)
+anova(gam.m1, gam.m2, gam.m3, test = "F")
+```
+
+- We can also use local regression fits as building blocks in a GAM, using the `lo()` function.
+```{r}
+gam.lo <- gam(wage ~ lo(year, age, span = 0.5) + education, data = Wage)
+plot(gam.lo, se = TRUE, col = "green")
+```
