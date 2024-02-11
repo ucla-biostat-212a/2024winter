@@ -708,6 +708,7 @@ for i in [0, 1]:
 - Or we can also use `poly()` to obtain age, age^2, age^3 and age^4 directly, if we prefer. We can do this by using the `raw = TRUE` argument to the poly() function. 
 
 ```{r}
+attach(Wage)
 fit <- lm(wage ~ poly(age, 4), data = Wage)
 coef(summary(fit))
 
