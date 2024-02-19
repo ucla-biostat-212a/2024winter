@@ -1,0 +1,480 @@
+---
+title: "Machine Learning Workflow: Regression Trees"
+subtitle: "Biostat 212A"
+author: "Dr. Jin Zhou @ UCLA"
+date: today
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+engine: knitr
+knitr:
+  opts_chunk: 
+    fig.align: 'center'
+    # fig.width: 6
+    # fig.height: 4
+    message: FALSE
+    cache: false
+---
+
+Display system information for reproducibility.
+
+::: {.panel-tabset}
+#### R
+
+```{r}
+sessionInfo()
+```
+
+#### Python
+
+```{python}
+import IPython
+print(IPython.sys_info())
+```
+
+:::
+
+## Overview
+
+![](https://www.tidymodels.org/start/resampling/img/resampling.svg)
+
+
+We illustrate the typical machine learning workflow for regression trees using the `Hitters` data set from R `ISLR2` package. 
+
+1. Initial splitting to test and non-test sets.
+
+2. Pre-processing of data: not much is needed for regression trees.
+
+3. Tune the cost complexity pruning hyper-parameter(s) using 10-fold cross-validation (CV) on the non-test data.
+
+4. Choose the best model by CV and refit it on the whole non-test data.
+
+5. Final prediction on the test data.
+
+## Hitters data
+
+A documentation of the `Hitters` data is [here](https://www.rdocumentation.org/packages/ISLR2/versions/1.3-2/topics/Hitters). The goal is to predict the log(Salary) (at opening of 1987 season) of MLB players from their performance metrics in the 1986-7 season.
+
+::: {.panel-tabset}
+#### R
+```{r}
+library(GGally)
+library(gtsummary)
+library(ranger)
+library(tidyverse)
+library(tidymodels)
+library(ISLR2)
+
+# Numerical summaries stratified by the outcome `AHD`.
+Hitters %>% tbl_summary()
+```
+
+```{r}
+Hitters <- Hitters %>% filter(!is.na(Salary))
+```
+
+#### Python
+
+```{python}
+# Load the pandas library
+import pandas as pd
+# Load numpy for array manipulation
+import numpy as np
+# Load seaborn plotting library
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Set font sizes in plots
+sns.set(font_scale = 1.2)
+# Display all columns
+pd.set_option('display.max_columns', None)
+
+Hitters = pd.read_csv("../data/Hitters.csv")
+Hitters
+```
+
+```{python}
+# Numerical summaries
+Hitters.describe()
+```
+Graphical summary:
+```{python}
+#| eval: false
+# Graphical summaries
+plt.figure()
+sns.pairplot(data = Hitters);
+plt.show()
+```
+
+There are 59 `NA`s for the salary. Let’s drop those cases. We are left with 263 data points.
+
+```{python}
+Hitters.dropna(inplace = True)
+Hitters.shape
+```
+
+:::
+
+
+## Initial split into test and non-test sets
+
+We randomly split the data in half of test data and another half of non-test data.
+
+::: {.panel-tabset}
+
+#### R
+
+```{r}
+# For reproducibility
+set.seed(203)
+
+data_split <- initial_split(
+  Hitters, 
+  prop = 0.5
+  )
+data_split
+
+Hitters_other <- training(data_split)
+dim(Hitters_other)
+
+Hitters_test <- testing(data_split)
+dim(Hitters_test)
+```
+
+#### Python
+
+```{python}
+from sklearn.model_selection import train_test_split
+
+Hitters_other, Hitters_test = train_test_split(
+  Hitters, 
+  train_size = 0.5,
+  random_state = 425, # seed
+  )
+Hitters_test.shape
+Hitters_other.shape
+```
+
+Separate $X$ and $y$. We will use 9 of the features.
+```{python}
+features = ['Assists', 'AtBat', 'Hits', 'HmRun', 'PutOuts', 'RBI', 'Runs', 'Walks', 'Years']
+# Non-test X and y
+X_other = Hitters_other[features]
+y_other = np.log(Hitters_other.Salary)
+# Test X and y
+X_test = Hitters_test[features]
+y_test = np.log(Hitters_test.Salary)
+```
+
+
+:::
+
+## Preprocessing (Python) or recipe (R)
+
+::: {.panel-tabset}
+
+#### R
+```{r}
+tree_recipe <- 
+  recipe(
+    Salary ~ ., 
+    data = Hitters_other
+  ) %>%
+  # # create traditional dummy variables (not necessary for random forest in R)
+  # step_dummy(all_nominal()) %>%
+  step_naomit(Salary) %>%
+  # zero-variance filter
+  step_zv(all_numeric_predictors()) %>% 
+  # # center and scale numeric data (not necessary for random forest)
+  # step_normalize(all_numeric_predictors()) %>%
+  # estimate the means and standard deviations
+  prep(training = Hitters_other, retain = TRUE)
+tree_recipe
+```
+
+#### Python
+
+Not much preprocessing is needed here since all predictors are quantitative.
+
+:::
+
+## Model
+
+::: {.panel-tabset}
+#### R
+
+```{r}
+regtree_mod <- decision_tree(
+  cost_complexity = tune(),
+  tree_depth = tune(),
+  min_n = 5,
+  mode = "regression",
+  engine = "rpart"
+  ) 
+
+```
+
+
+#### Python
+
+```{python}
+from sklearn.tree import DecisionTreeRegressor, plot_tree
+
+regtree_mod = DecisionTreeRegressor(random_state = 425)
+```
+
+:::
+
+## Pipeline (Python) or workflow (R)
+
+Here we bundle the preprocessing step (Python) or recipe (R) and model.
+
+::: {.panel-tabset}
+
+#### R
+
+```{r}
+tree_wf <- workflow() %>%
+  add_recipe(tree_recipe) %>%
+  add_model(regtree_mod)
+tree_wf
+```
+
+#### Python
+
+```{python}
+from sklearn.pipeline import Pipeline
+
+pipe = Pipeline(steps = [
+  ("model", regtree_mod)
+  ])
+pipe
+```
+
+:::
+
+## Tuning grid
+
+`ccp_alpha` is the Minimal Cost-Complexity Pruning parameter. Greater values of `ccp_alpha` increase the number of nodes pruned.
+
+::: {.panel-tabset}
+
+#### R
+```{r}
+tree_grid <- grid_regular(cost_complexity(),
+                          tree_depth(),
+                          levels = c(100, 5))
+```
+
+#### Python
+
+```{python}
+# Tune hyper-parameter(s)
+ccp_alpha_grid = np.linspace(start = 0.0, stop = 0.1, num = 100)
+tuned_parameters = {
+  "model__ccp_alpha": ccp_alpha_grid
+  }
+tuned_parameters  
+```
+
+:::
+
+## Cross-validation (CV)
+
+::: {.panel-tabset}
+#### R
+Set cross-validation partitions.
+```{r}
+set.seed(203)
+
+folds <- vfold_cv(Hitters_other, v = 5)
+folds
+```
+Fit cross-validation.
+```{r}
+tree_fit <- tree_wf %>%
+  tune_grid(
+    resamples = folds,
+    grid = tree_grid,
+    metrics = metric_set(rmse, rsq)
+    )
+tree_fit
+```
+Visualize CV results:
+```{r}
+tree_fit %>%
+  collect_metrics() %>%
+  print(width = Inf) %>%
+  filter(.metric == "rmse") %>%
+  mutate(tree_depth = as.factor(tree_depth)) %>%
+  ggplot(mapping = aes(x = cost_complexity, y = mean, color = tree_depth)) +
+  geom_point() + 
+  geom_line() + 
+  labs(x = "cost_complexity", y = "CV mse")
+```
+
+#### Python
+
+Set up CV partitions and CV criterion.
+
+```{python}
+from sklearn.model_selection import GridSearchCV
+
+# Set up CV
+n_folds = 6
+search = GridSearchCV(
+  pipe,
+  tuned_parameters,
+  cv = n_folds, 
+  scoring = "neg_root_mean_squared_error",
+  # Refit the best model on the whole data set
+  refit = True
+  )
+```
+
+Fit CV. This is typically the most time-consuming step.
+```{python}
+# Fit CV
+search.fit(X_other, y_other)
+```
+
+Visualize CV results.
+```{python}
+#| eval: true
+#| code-fold: true
+cv_res = pd.DataFrame({
+  "ccp_alpha": np.array(search.cv_results_["param_model__ccp_alpha"]),
+  "rmse": -search.cv_results_["mean_test_score"]
+  })
+
+plt.figure()
+sns.relplot(
+  # kind = "line",
+  data = cv_res,
+  x = "ccp_alpha",
+  y = "rmse"
+  ).set(
+    xlabel = "CCP Alpha",
+    ylabel = "CV RMSE"
+);
+plt.show()
+```
+
+Best CV RMSE:
+```{python}
+-search.best_score_
+```
+
+
+
+:::
+
+## Finalize our model
+
+Now we are done tuning. Finally, let’s fit this final model to the whole training data and use our test data to estimate the model performance we expect to see with new data.
+
+::: {.panel-tabset}
+#### R
+```{r}
+tree_fit %>%
+  show_best("rmse")
+```
+Let's select the best model.
+```{r}
+best_tree <- tree_fit %>%
+  select_best("rmse")
+best_tree
+```
+```{r}
+# Final workflow
+final_wf <- tree_wf %>%
+  finalize_workflow(best_tree)
+final_wf
+```
+```{r}
+# Fit the whole training set, then predict the test cases
+final_fit <- 
+  final_wf %>%
+  last_fit(data_split)
+final_fit
+```
+
+```{r}
+# Test metrics
+final_fit %>% 
+  collect_metrics()
+```
+
+#### Python
+
+Since we called `GridSearchCV` with `refit = True`, the best model fit on the whole non-test data is readily available.
+```{python}
+search.best_estimator_
+```
+
+Visualize the best regression tree.
+```{python}
+plt.figure()
+plot_tree(
+  search.best_estimator_['model'],
+  feature_names = features
+  );
+plt.show()
+```
+
+Feature importances:
+```{python}
+vi_df = pd.DataFrame({
+  "feature": features,
+  "vi": search.best_estimator_['model'].feature_importances_
+  })
+
+plt.figure()
+sns.barplot(
+  data = vi_df,
+  x = "feature",
+  y = "vi"
+  ).set(
+    xlabel = "Feature",
+    ylabel = "VI"
+);
+plt.xticks(rotation = 90);
+plt.show()
+```
+
+The final prediction RMSE on the test set is
+```{python}
+from sklearn.metrics import mean_squared_error
+
+mean_squared_error(
+  y_test, 
+  search.best_estimator_.predict(X_test), 
+  squared = False
+  )
+```
+
+:::
+
+## Visualize the final model
+```{r}
+final_tree <- extract_workflow(final_fit)
+final_tree
+
+final_tree %>%
+  extract_fit_engine() %>%
+  rpart.plot(roundint = FALSE)
+```
+
+```{r}
+library(vip)
+
+final_tree %>% 
+  extract_fit_parsnip() %>% 
+  vip()
+```
