@@ -70,6 +70,18 @@ print(IPython.sys_info())
 
 ::: {.panel-tabset}
 
+#### R 
+```{r}
+library(tidyverse)
+library(ISLR2)
+
+ggplot(Hitters, aes(x = Years, y = Hits, color = Salary)) +
+  geom_point() +
+  theme_minimal()
+
+Hitters %>% filter(Hits < 10)
+```
+
 #### Python
 
 Load `Hitters` data:
