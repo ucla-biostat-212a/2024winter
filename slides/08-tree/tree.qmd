@@ -257,7 +257,7 @@ $k = 1,\ldots,K$:
 
 ## `Baseball` example (regression tree)
 
-[Workflow: pruning a regression tree](https://ucla-econ-425t.github.io/2023winter/slides/08-tree/workflow_regtree.html).
+[Workflow: pruning a regression tree](https://ucla-biostat-212a.github.io/2024winter/slides/08-tree/workflow_regtree.html).
 
 ## Classification trees
 
@@ -290,7 +290,7 @@ It turns out that the Gini index and the cross-entropy are very similar numerica
 
 ## `Heart` data example (classification tree)
 
-[Workflow: pruning a classification tree](https://ucla-econ-425t.github.io/2023winter/slides/08-tree/workflow_classtree.html).
+[Workflow: pruning a classification tree](https://ucla-biostat-212a.github.io/2024winter/slides/08-tree/workflow_classtree.html).
 
 ## Tree versus linear models
 
@@ -391,11 +391,11 @@ Results from random forests for the fifteen-class gene expression data set with 
 
 ## `Baseball` example (random forest for prediction)
 
-[Workflow: random forest for regression](https://ucla-econ-425t.github.io/2023winter/slides/08-tree/workflow_rf_reg.html).
+[Workflow: random forest for regression](https://ucla-biostat-212a.github.io/2024winter/slides/08-tree/workflow_rf_reg.html).
 
 ## `Heart` example (random forest for classification)
 
-[Workflow: random forest for classification](https://ucla-econ-425t.github.io/2023winter/slides/08-tree/workflow_rf_class.html).
+[Workflow: random forest for classification](https://ucla-biostat-212a.github.io/2024winter/slides/08-tree/workflow_rf_class.html).
 
 ## Boosting
 
@@ -481,11 +481,11 @@ Variable importance plot for the `Heart` data.
 
 ## Baseball example (boosting for regression)
 
-[Workflow: boosting for regression](https://ucla-econ-425t.github.io/2023winter/slides/08-tree/workflow_boosting_reg.html).
+[Workflow: boosting for regression](https://ucla-biostat-212a.github.io/2024winter/slides/08-tree/workflow_boosting_reg.html).
 
 ## Heart example (boosting for classification)
 
-[Workflow: boosting for classification](https://ucla-econ-425t.github.io/2023winter/slides/08-tree/workflow_boosting_class.html).
+[Workflow: boosting for classification](https://ucla-biostat-212a.github.io/2024winter/slides/08-tree/workflow_boosting_class.html).
 
 ## Summary
 
