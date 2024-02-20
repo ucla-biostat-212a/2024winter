@@ -1,11 +1,12 @@
 ---
 title: "Machine Learning Workflow: Boosting for Prediction"
-subtitle: "Econ 425T"
-author: "Dr. Hua Zhou @ UCLA"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+subtitle: "Biostat 212A"
+author: "Dr. Jin Zhou @ UCLA"
+date: today
 format:
   html:
     theme: cosmo
+    embed-resources: true
     number-sections: true
     toc: true
     toc-depth: 4
