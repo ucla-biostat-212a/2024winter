@@ -25,6 +25,11 @@ knitr:
 Display system information for reproducibility.
 
 ::: {.panel-tabset}
+#### R
+
+```{r}
+sessionInfo()
+```
 
 #### Python
 
@@ -57,6 +62,32 @@ We illustrate the typical machine learning workflow for regression trees using t
 The goal is to predict the binary outcome `AHD` (`Yes` or `No`) of patients.
 
 ::: {.panel-tabset}
+
+#### R
+
+```{r}
+# Load libraries
+library(GGally)
+library(gtsummary)
+library(ranger)
+library(tidyverse)
+library(tidymodels)
+library(xgboost)
+
+# Load the `Heart.csv` data.
+Heart <- read_csv("../data/Heart.csv") %>% 
+  # first column is patient ID, which we don't need
+  select(-1) %>%
+  # RestECG is categorical with value 0, 1, 2
+  mutate(RestECG = as.character(RestECG)) %>%
+  print(width = Inf)
+
+# Numerical summaries stratified by the outcome `AHD`.
+Heart %>% tbl_summary(by = AHD)
+
+# Graphical summary:
+# Heart %>% ggpairs()
+```
 
 #### Python
 
@@ -100,6 +131,26 @@ plt.show()
 We randomly split the data in half of test data and another half of non-test data. Stratify on `AHD`.
 
 ::: {.panel-tabset}
+#### R
+
+```{r}
+# For reproducibility
+set.seed(212)
+
+data_split <- initial_split(
+  Heart, 
+  # stratify by AHD
+  strata = "AHD", 
+  prop = 0.75
+  )
+data_split
+
+Heart_other <- training(data_split)
+dim(Heart_other)
+
+Heart_test <- testing(data_split)
+dim(Heart_test)
+```
 
 #### Python
 
@@ -132,8 +183,40 @@ y_test = Heart_test.AHD
 :::
 
 ## Preprocessing (Python) or recipe (R)
+- A data dictionary (roughly) is at <https://keras.io/examples/structured_data/structured_data_classification_with_feature_space/>.
+
+- We have following features: 
+
+    - Numerical features: `Age`, `RestBP`, `Chol`, `Slope` (1, 2 or 3), `MaxHR`, `ExAng`, `Oldpeak`, `Ca` (0, 1, 2 or 3).
+
+    - Categorical features coded as integer: `Sex` (0 or 1), `Fbs` (0 or 1), `RestECG` (0, 1 or 2).
+
+    - Categorical features coded as string: `ChestPain`, `Thal`.
+
+- There are missing values in `Ca` and `Thal`. Since missing proportion is not high, we will use simple mean (for numerical feature `Ca`) and mode (for categorical feature `Thal`) imputation.
 
 ::: {.panel-tabset}
+#### R
+
+```{r}
+gb_recipe <- 
+  recipe(
+    AHD ~ ., 
+    data = Heart_other
+  ) %>%
+  # mean imputation for Ca
+  step_impute_mean(Ca) %>%
+  # mode imputation for Thal
+  step_impute_mode(Thal) %>%
+  # create traditional dummy variables (necessary for xgboost)
+  step_dummy(all_nominal_predictors()) %>%
+  # zero-variance filter
+  step_zv(all_numeric_predictors()) %>% 
+  # estimate the means and standard deviations
+  prep(training = Heart_other, retain = TRUE)
+gb_recipe
+```
+
 
 #### Python
 
@@ -175,6 +258,21 @@ col_tf = ColumnTransformer(transformers = [
 
 ::: {.panel-tabset}
 
+#### R
+
+```{r}
+gb_mod <- 
+  boost_tree(
+    mode = "classification",
+    trees = 1000, 
+    tree_depth = tune(),
+    learn_rate = tune()
+  ) %>% 
+  set_engine("xgboost")
+gb_mod
+```
+
+
 #### Python
 
 ```{python}
@@ -198,6 +296,14 @@ bst_mod = AdaBoostClassifier(
 Here we bundle the preprocessing step (Python) or recipe (R) and model.
 
 ::: {.panel-tabset}
+#### R
+
+```{r}
+gb_wf <- workflow() %>%
+  add_recipe(gb_recipe) %>%
+  add_model(gb_mod)
+gb_wf
+```
 
 #### Python
 
@@ -219,6 +325,18 @@ pipe
 Here we tune the number of trees `n_estimators` and the learning rate `learning_rate`.
 
 ::: {.panel-tabset}
+#### R
+
+Here we tune the number of trees `trees` and the number of features to use in each split `mtry`.
+
+```{r}
+param_grid <- grid_regular(
+  tree_depth(range = c(1L, 3L)),
+  learn_rate(range = c(-5, 2), trans = log10_trans()),
+  levels = c(3, 10)
+  )
+param_grid
+```
 
 #### Python
 
@@ -245,6 +363,53 @@ tuned_parameters
 ## Cross-validation (CV)
 
 ::: {.panel-tabset}
+#### R
+
+Set cross-validation partitions.
+```{r}
+set.seed(203)
+
+folds <- vfold_cv(Heart_other, v = 5)
+folds
+```
+
+Fit cross-validation.
+```{r}
+gb_fit <- gb_wf %>%
+  tune_grid(
+    resamples = folds,
+    grid = param_grid,
+    metrics = metric_set(roc_auc, accuracy)
+    )
+gb_fit
+```
+
+Visualize CV results:
+```{r}
+gb_fit %>%
+  collect_metrics() %>%
+  print(width = Inf) %>%
+  filter(.metric == "roc_auc") %>%
+  mutate(tree_depth = as.factor(tree_depth)) %>%
+  ggplot(mapping = aes(x = learn_rate, y = mean, color = tree_depth)) +
+  geom_point() +
+  geom_line() +
+  labs(x = "Learning Rate", y = "CV AUC") +
+  scale_x_log10()
+```
+
+Show the top 5 models.
+```{r}
+gb_fit %>%
+  show_best("roc_auc")
+```
+Let's select the best model.
+```{r}
+best_gb <- gb_fit %>%
+  select_best("roc_auc")
+best_gb
+```
+
 
 #### Python
 
@@ -319,6 +484,29 @@ accuracy_score(
 Now we are done tuning. Finally, let’s fit this final model to the whole training data and use our test data to estimate the model performance we expect to see with new data.
 
 ::: {.panel-tabset}
+
+#### R
+
+```{r}
+# Final workflow
+final_wf <- gb_wf %>%
+  finalize_workflow(best_gb)
+final_wf
+```
+
+```{r}
+# Fit the whole training set, then predict the test cases
+final_fit <- 
+  final_wf %>%
+  last_fit(data_split)
+final_fit
+```
+
+```{r}
+# Test metrics
+final_fit %>% 
+  collect_metrics()
+```
 
 #### Python
 

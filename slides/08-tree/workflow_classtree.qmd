@@ -71,8 +71,12 @@ library(tidymodels)
 library(ISLR2)
 
 Heart <- read_csv("../data/Heart.csv") 
-Heart <- Heart[, -1]
-Heart <- na.omit(Heart)
+Heart <-  Heart %>% 
+  # first column is patient ID, which we don't need
+  select(-1) %>%
+  # RestECG is categorical with value 0, 1, 2
+  mutate(RestECG = as.character(RestECG)) %>%
+  print(width = Inf)
 ```
 
 ```{r}
@@ -174,6 +178,17 @@ y_test = Heart_test.AHD
 :::
 
 ## Preprocessing (Python) or recipe (R)
+- A data dictionary (roughly) is at <https://keras.io/examples/structured_data/structured_data_classification_with_feature_space/>.
+
+- We have following features: 
+
+    - Numerical features: `Age`, `RestBP`, `Chol`, `Slope` (1, 2 or 3), `MaxHR`, `ExAng`, `Oldpeak`, `Ca` (0, 1, 2 or 3).
+
+    - Categorical features coded as integer: `Sex` (0 or 1), `Fbs` (0 or 1), `RestECG` (0, 1 or 2).
+
+    - Categorical features coded as string: `ChestPain`, `Thal`.
+
+- There are missing values in `Ca` and `Thal`. Since missing proportion is not high, we will use simple mean (for numerical feature `Ca`) and mode (for categorical feature `Thal`) imputation.
 
 ::: {.panel-tabset}
 #### R
