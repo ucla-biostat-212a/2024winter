@@ -1,11 +1,12 @@
 ---
 title: "Machine Learning Workflow: Classification Trees"
-subtitle: "Econ 425T"
-author: "Dr. Hua Zhou @ UCLA"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+subtitle: "Biostat 212A"
+author: "Dr. Jin Zhou @ UCLA"
+date: today
 format:
   html:
     theme: cosmo
+    embed-resources: true
     number-sections: true
     toc: true
     toc-depth: 4
@@ -56,6 +57,29 @@ We illustrate the typical machine learning workflow for regression trees using t
 The goal is to predict the binary outcome `AHD` (`Yes` or `No`) of patients.
 
 ::: {.panel-tabset}
+#### R
+```{r}
+sessionInfo()
+```
+
+```{r}
+library(GGally)
+library(gtsummary)
+library(ranger)
+library(tidyverse)
+library(tidymodels)
+library(ISLR2)
+
+Heart <- read_csv("../data/Heart.csv") 
+Heart <- Heart[, -1]
+Heart <- na.omit(Heart)
+```
+
+```{r}
+
+Heart %>% tbl_summary()
+```
+
 
 #### Python
 
@@ -100,6 +124,25 @@ We randomly split the data in half of test data and another half of non-test dat
 
 ::: {.panel-tabset}
 
+#### R
+```{r}
+# For reproducibility
+set.seed(212)
+
+data_split <- initial_split(
+  Heart, 
+  prop = 0.5,
+  strata = AHD
+  )
+data_split
+
+Heart_other <- training(data_split)
+dim(Heart_other)
+
+Heart_test <- testing(data_split)
+dim(Heart_test)
+```
+
 #### Python
 
 ```{python}
@@ -133,6 +176,24 @@ y_test = Heart_test.AHD
 ## Preprocessing (Python) or recipe (R)
 
 ::: {.panel-tabset}
+#### R
+```{r}
+tree_recipe <- 
+  recipe(
+    AHD ~ ., 
+    data = Heart_other
+  ) %>%
+  step_naomit(all_predictors()) %>%
+  # # create traditional dummy variables (not necessary for random forest in R)
+  step_dummy(all_nominal_predictors()) %>%
+  # zero-variance filter
+  step_zv(all_numeric_predictors()) %>% 
+  # # center and scale numeric data (not necessary for random forest)
+  step_normalize(all_numeric_predictors()) %>%
+  # estimate the means and standard deviations
+  prep(training = Heart_other, retain = TRUE)
+tree_recipe
+```
 
 #### Python
 
@@ -174,6 +235,19 @@ col_tf = ColumnTransformer(transformers = [
 
 ::: {.panel-tabset}
 
+#### R
+
+```{r}
+classtree_mod <- decision_tree(
+  cost_complexity = tune(),
+  tree_depth = tune(),
+  min_n = 5,
+  mode = "classification",
+  engine = "rpart"
+  ) 
+
+```
+
 #### Python
 
 ```{python}
@@ -192,6 +266,16 @@ classtree_mod = DecisionTreeClassifier(
 Here we bundle the preprocessing step (Python) or recipe (R) and model.
 
 ::: {.panel-tabset}
+
+
+#### R
+
+```{r}
+tree_wf <- workflow() %>%
+  add_recipe(tree_recipe) %>%
+  add_model(classtree_mod) 
+tree_wf
+```
 
 #### Python
 
@@ -214,6 +298,16 @@ pipe
 
 ::: {.panel-tabset}
 
+#### R
+```{r}
+tree_grid <- grid_regular(cost_complexity(),
+                          tree_depth(),
+                          levels = c(100,5))
+```
+
+
+
+
 #### Python
 
 ```{python}
@@ -231,6 +325,39 @@ tuned_parameters
 
 ::: {.panel-tabset}
 
+#### R
+Set cross-validation partitions.
+```{r}
+set.seed(212)
+
+folds <- vfold_cv(Heart_other, v = 5)
+folds
+```
+
+
+Fit cross-validation.
+```{r}
+tree_fit <- tree_wf %>%
+  tune_grid(
+    resamples = folds,
+    grid = tree_grid,
+    metrics = metric_set(accuracy, roc_auc)
+    )
+tree_fit
+```
+
+Visualize CV results:
+```{r}
+tree_fit %>%
+  collect_metrics() %>%
+  print(width = Inf) %>%
+  filter(.metric == "roc_auc") %>%
+  mutate(tree_depth = as.factor(tree_depth)) %>%
+  ggplot(mapping = aes(x = cost_complexity, y = mean, color = tree_depth)) +
+  geom_point() + 
+  geom_line() + 
+  labs(x = "cost_complexity", y = "CV ROC AUC", color = "tree_depth") 
+```
 #### Python
 
 Set up CV partitions and CV criterion.
@@ -300,6 +427,38 @@ accuracy_score(
 Now we are done tuning. Finally, let’s fit this final model to the whole training data and use our test data to estimate the model performance we expect to see with new data.
 
 ::: {.panel-tabset}
+#### R
+```{r}
+tree_fit %>%
+  show_best("roc_auc")
+```
+Let's select the best model.
+```{r}
+best_tree <- tree_fit %>%
+  select_best("roc_auc")
+best_tree
+```
+
+```{r}
+# Final workflow
+final_wf <- tree_wf %>%
+  finalize_workflow(best_tree)
+final_wf
+```
+
+```{r}
+# Fit the whole training set, then predict the test cases
+final_fit <- 
+  final_wf %>%
+  last_fit(data_split)
+final_fit
+```
+
+```{r}
+# Test metrics
+final_fit %>% 
+  collect_metrics()
+```
 
 #### Python
 
@@ -362,3 +521,22 @@ accuracy_score(
 ```
 
 :::
+
+## Visualize the final model
+```{r}
+library(rpart.plot)
+final_tree <- extract_workflow(final_fit)
+final_tree
+
+final_tree %>%
+  extract_fit_engine() %>%
+  rpart.plot(roundint = FALSE)
+```
+
+```{r}
+library(vip)
+
+final_tree %>% 
+  extract_fit_parsnip() %>% 
+  vip()
+```
