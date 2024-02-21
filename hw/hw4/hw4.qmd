@@ -1,5 +1,5 @@
 ---
-title: "Econ 425T Homework 4"
+title: "Biostat 212a Homework 4"
 subtitle: "Due Mar. 5, 2024 @ 11:59PM"
 author: "YOUR NAME and UID"
 date: today
