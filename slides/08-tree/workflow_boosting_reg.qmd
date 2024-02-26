@@ -57,6 +57,26 @@ We illustrate the typical machine learning workflow for random forests using the
 A documentation of the `Hitters` data is [here](https://www.rdocumentation.org/packages/ISLR2/versions/1.3-2/topics/Hitters). The goal is to predict the log(Salary) (at opening of 1987 season) of MLB players from their performance metrics in the 1986-7 season.
 
 ::: {.panel-tabset}
+#### R
+
+- There are 59 `NA`s for the salary. Let’s drop those cases. We are left with 263 data points.
+
+```{r}
+library(GGally)
+library(gtsummary)
+library(ranger)
+library(tidyverse)
+library(tidymodels)
+library(ISLR2)
+
+# Numerical summaries stratified by the outcome `AHD`.
+Hitters %>% tbl_summary()
+Hitters <- Hitters %>% filter(!is.na(Salary)) %>%
+  select(Salary, Assists, 
+         AtBat, Hits, HmRun, 
+         PutOuts, RBI, Runs, Walks, Years)
+```
+
 
 #### Python
 
@@ -107,6 +127,23 @@ We randomly split the data in half of test data and another half of non-test dat
 
 ::: {.panel-tabset}
 
+```{r}
+# For reproducibility
+set.seed(203)
+
+data_split <- initial_split(
+  Hitters, 
+  prop = 0.5
+  )
+data_split
+
+Hitters_other <- training(data_split)
+dim(Hitters_other)
+
+Hitters_test <- testing(data_split)
+dim(Hitters_test)
+```
+
 #### Python
 
 ```{python}
@@ -139,18 +176,49 @@ y_test = np.log(Hitters_test.Salary)
 ## Preprocessing (Python) or recipe (R)
 
 ::: {.panel-tabset}
+#### R
+```{r}
+gb_recipe <- 
+  recipe(
+    Salary ~ ., 
+    data = Hitters_other
+  ) %>%
+  # # create traditional dummy variables (not necessary for random forest in R)
+  # step_dummy(all_nominal()) %>%
+  step_naomit(Salary) %>%
+  # zero-variance filter
+  step_zv(all_numeric_predictors()) %>% 
+  # # center and scale numeric data (not necessary for random forest)
+  # step_normalize(all_numeric_predictors()) %>%
+  # estimate the means and standard deviations
+  prep(training = Hitters_other, retain = TRUE)
+gb_recipe
+```
 
 #### Python
 
 Not much preprocessing is needed here since all predictors are quantitative.
 
-#### R
 
 :::
 
 ## Model
 
 ::: {.panel-tabset}
+
+#### R
+
+```{r}
+gb_mod <- 
+  boost_tree(
+    mode = "regression",
+    trees = 1000, 
+    tree_depth = tune(),
+    learn_rate = tune()
+  ) %>% 
+  set_engine("xgboost")
+gb_mod
+```
 
 #### Python
 
@@ -169,8 +237,6 @@ bst_mod =  AdaBoostRegressor(
   )
 ```
 
-#### R
-
 :::
 
 ## Pipeline (Python) or workflow (R)
@@ -178,6 +244,13 @@ bst_mod =  AdaBoostRegressor(
 Here we bundle the preprocessing step (Python) or recipe (R) and model.
 
 ::: {.panel-tabset}
+#### R
+```{r}
+gb_wf <- workflow() %>%
+  add_recipe(gb_recipe) %>%
+  add_model(gb_mod)
+gb_wf
+```
 
 #### Python
 
@@ -190,8 +263,6 @@ pipe = Pipeline(steps = [
 pipe
 ```
 
-#### R
-
 :::
 
 ## Tuning grid
@@ -199,6 +270,19 @@ pipe
 Here we tune the number of trees `n_estimators` and the learning rate `learning_rate`.
 
 ::: {.panel-tabset}
+
+#### R
+
+Here we tune the number of trees `trees` and the number of features to use in each split `mtry`.
+
+```{r}
+param_grid <- grid_regular(
+  tree_depth(range = c(1L, 4L)),
+  learn_rate(range = c(-3, -0.5), trans = log10_trans()),
+  levels = c(4, 10)
+  )
+param_grid
+```
 
 #### Python
 
@@ -220,13 +304,56 @@ tuned_parameters = {
 tuned_parameters  
 ```
 
-#### R
-
 :::
 
 ## Cross-validation (CV)
 
 ::: {.panel-tabset}
+
+#### R
+Set cross-validation partitions.
+```{r}
+set.seed(203)
+
+folds <- vfold_cv(Hitters_other, v = 5)
+folds
+```
+
+Fit cross-validation.
+```{r}
+gb_fit <- gb_wf %>%
+  tune_grid(
+    resamples = folds,
+    grid = param_grid,
+    metrics = metric_set(rmse, rsq)
+    )
+gb_fit
+```
+
+Visualize CV results:
+```{r}
+gb_fit %>%
+  collect_metrics() %>%
+  print(width = Inf) %>%
+  filter(.metric == "rmse") %>%
+  ggplot(mapping = aes(x = learn_rate, y = mean, color = factor(tree_depth))) +
+  geom_point() +
+  geom_line() +
+  labs(x = "Learning Rate", y = "CV AUC") +
+  scale_x_log10()
+```
+
+Show the top 5 models.
+```{r}
+gb_fit %>%
+  show_best("rmse")
+```
+Let's select the best model.
+```{r}
+best_gb <- gb_fit %>%
+  select_best("rmse")
+best_gb
+```
 
 #### Python
 
@@ -284,7 +411,7 @@ Best CV RMSE:
 -search.best_score_
 ```
 
-#### R
+
 
 :::
 
@@ -293,6 +420,28 @@ Best CV RMSE:
 Now we are done tuning. Finally, let’s fit this final model to the whole training data and use our test data to estimate the model performance we expect to see with new data.
 
 ::: {.panel-tabset}
+
+#### R
+```{r}
+# Final workflow
+final_wf <- gb_wf %>%
+  finalize_workflow(best_gb)
+final_wf
+```
+
+```{r}
+# Fit the whole training set, then predict the test cases
+final_fit <- 
+  final_wf %>%
+  last_fit(data_split)
+final_fit
+```
+
+```{r}
+# Test metrics
+final_fit %>% 
+  collect_metrics()
+```
 
 #### Python
 
@@ -313,7 +462,22 @@ mean_squared_error(
   )
 ```
 
-
-#### R
-
 :::
+
+
+## Visualize the final model
+```{r}
+#library(rpart.plot)
+final_tree <- extract_workflow(final_fit)
+final_tree
+
+
+```
+
+```{r}
+library(vip)
+
+final_tree %>% 
+  extract_fit_parsnip() %>% 
+  vip()
+```
