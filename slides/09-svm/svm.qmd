@@ -182,7 +182,7 @@ Hence the solution $\beta$ only depends on the support vectors with $\alpha_i > 
 
 - Non-separable data. Sometimes the data are not separable by a linear boundary. This if often the case, unless $N < p$.
 
-::: {#fig-noisy-data}
+::: {#fig-non-separable-data}
 
 <p align="center">
 ![](ISL_fig_9_4.pdf){width=400px height=450px}
@@ -190,14 +190,25 @@ Hence the solution $\beta$ only depends on the support vectors with $\alpha_i > 
 
 The two classes are not separable by a hyperplane, and so the
 maximal margin classifier cannot be used.
-
-:::
+::: 
 
 - Noisy data. Sometimes the data are separable, but noisy. This can lead to a poor solution for the maximal margin classifier.
+
+::: {#fig-nosiy-data}
 
 <p align="center">
 ![](ISL_fig_9_5.pdf){width=600px height=350px}
 </p>
+
+Left: Two classes of observations are shown in blue and in purple, along with the maximal margin hyperplane. Right: An additional blue observation has been added, leading to a dramatic shift in the maximal margin hyperplane shown as a solid line. The dashed line indicates the maximal margin hyperplane that was obtained in the absence of this additional point.
+
+:::
+
+- Therefore, we might be willing to consider a classifier based on a hyperplane that does not perfectly separate the two classes, in the interest of
+  + Greater robustness to individual observations, and
+  + Better classification of most of the training observations.
+
+  That is, it could be worthwhile to misclassify a few training observations in order to do a better job in classifying the remaining observations. This is called the **soft margin classifier**.
 
 - The **support vector classifier** maximizes a **soft** margin.
 \begin{eqnarray*}
@@ -251,6 +262,10 @@ The largest value of $C$ was used in the top left panel, and smaller values were
 \text{subject to} & & 0 \le \alpha_i \le C, \sum_{i=1}^n \alpha_i y_i = 0.
 \end{eqnarray*}
 
+- The above optimization has an interesting property: it turns out that only observations that either lie on the margin or that violate the margin will affect the hyperplane, and hence the classifier obtained. 
+  + An observation that lies strictly on the correct side of the margin **does not** affect the support vector classifier! Changing the position of that observation would not change the classifier at all, provided that its position remains on the correct side of the margin. 
+  + Observations that lie directly on the margin, or on the wrong side of the margin for their class, are known as **support vectors**. These observations do affect the support vector classifier.
+
 
 ## Nonlinearity: support vector machines (SVM)
 
@@ -270,6 +285,7 @@ Left: The observations fall into two classes, with a non-linear boundary between
 $$
 \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_1^2 + \beta_4 X_2^2 + \beta_5 X_1 X_2 + \beta_6 X_1^3 + \beta_7 X_2^3 + \beta_8 X_1 X_2^2 + \beta_9 X_1^2 X_2 = 0.
 $$
+Alternatively, other functions of the predictors could be considered rather than polynomials. In the original feature space, the decision boundary is generally non-linear. 
 
 ## Kernels
 
@@ -336,9 +352,9 @@ Left: An SVM with a polynomial kernel of degree 3. Right: An SVM with a radial k
 
 ## `Heart` data example
 
-[Workflow: SVM with polynomial kernel](https://ucla-econ-425t.github.io/2023winter/slides/09-svm/workflow_svm_poly.html)
+[Workflow: SVM with polynomial kernel](./workflow_svm_poly.html)
 
-[Workflow: SVM with radial kernel](https://ucla-econ-425t.github.io/2023winter/slides/09-svm/workflow_svm_rbf.html)
+[Workflow: SVM with radial kernel](./workflow_svm_rbf.html)
 
 ## SVM for more than 2 classes
 
