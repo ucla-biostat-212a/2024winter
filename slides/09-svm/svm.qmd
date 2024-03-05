@@ -352,7 +352,7 @@ Left: An SVM with a polynomial kernel of degree 3. Right: An SVM with a radial k
 
 ## `Heart` data example
 
-[Workflow: SVM with polynomial kernel](./workflow_svm_poly.html)
+[Workflow: SVM with polynomial kernel](./workflow_svmpoly_heart.html)
 
 [Workflow: SVM with radial kernel](./workflow_svmrbf_heart.html)
 
