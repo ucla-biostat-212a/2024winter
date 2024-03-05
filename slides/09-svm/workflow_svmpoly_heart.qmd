@@ -84,41 +84,6 @@ Heart %>% tbl_summary(by = AHD)
 # Graphical summary:
 # Heart %>% ggpairs()
 ```
-
-#### Python
-
-```{python}
-# Load the pandas library
-import pandas as pd
-# Load numpy for array manipulation
-import numpy as np
-# Load seaborn plotting library
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-# Set font sizes in plots
-sns.set(font_scale = 1.2)
-# Display all columns
-pd.set_option('display.max_columns', None)
-
-Heart = pd.read_csv("../data/Heart.csv")
-Heart
-```
-
-```{python}
-# Numerical summaries
-Heart.describe(include = 'all')
-```
-
-Graphical summary:
-
-```{python}
-#| eval: false
-# Graphical summaries
-plt.figure()
-sns.pairplot(data = Heart);
-plt.show()
-```
 :::
 
 ## Initial split into test and non-test sets
@@ -201,7 +166,7 @@ svm_mod <-
   svm_poly(
     mode = "classification",
     cost = tune(),
-    # degree = tune(),
+    degree = tune(),
     # scale_factor = tune()
   ) %>% 
   set_engine("kernlab")
@@ -233,10 +198,10 @@ Here we tune the `cost` and radial scale `rbf_sigma`.
 
 ```{r}
 param_grid <- grid_regular(
-  cost(range = c(-3, 5)),
-  #degree(range = c(1, 5)),
+  cost(range = c(-3, 2)),
+  degree(range = c(1, 5)),
   #scale_factor(range = c(-1, 1)),
-  levels = c( 10)
+  levels = c(5)
   )
 param_grid
 ```
@@ -275,10 +240,10 @@ svm_fit %>%
   collect_metrics() %>%
   print(width = Inf) %>%
   filter(.metric == "roc_auc" ) %>%
-  ggplot(mapping = aes(x = cost, y = mean)) +
+  ggplot(mapping = aes(x = degree, y = mean)) +
   geom_point() +
   geom_line() +
-  labs(x = "scale_factor", y = "CV AUC") +
+  labs(x = "Cost", y = "CV AUC") +
   scale_x_log10()
 ```
 
@@ -330,10 +295,59 @@ final_fit %>%
 :::
 
 ```{r, eval = F}
+library(doParallel)
+set.seed(101)
+split_obj <- initial_split(data = Heart, prop = 0.7, strata = AHD)
+train <- training(split_obj)
+test <- testing(split_obj)
+
+
+# Create the recipe
+recipe(AHD ~ ., data = train) %>%
+  # mean imputation for Ca
+  step_impute_mean(Ca) %>%
+  # mode imputation for Thal
+  step_impute_mode(Thal) %>%
+  # create traditional dummy variables (necessary for svm)
+  step_dummy(all_nominal_predictors()) %>%
+  # zero-variance filter
+  step_zv(all_numeric_predictors()) %>% 
+  # center and scale numeric data
+  step_normalize(all_numeric_predictors()) %>%
+  # estimate the means and standard deviations
+  prep() -> recipe_obj
+
+# Bake
+train <- bake(recipe_obj, new_data=train)
+test <- bake(recipe_obj, new_data=test)
+```
+
+```{r, eval = F}
 library(vip)
-final_wf %>%
-  last_fit(data = data_split) %>% 
+final_fit %>% 
   pluck(".workflow", 1) %>%   
   pull_workflow_fit() %>% 
-  vip(method = "permute", train= Heart)
+  # vip(method = "permute", train= Heart)
+  vip(method = "permute", 
+      target = "AHD", metric = "accuracy",
+      pred_wrapper = kernlab::predict, train = train)
 ```
+
+
+
+
+```{r}
+
+svm_rbf_spec <- svm_rbf() %>%
+  set_mode("classification") %>%
+  set_engine("kernlab")
+
+svm_rbf_fit <- svm_rbf_spec %>%
+  fit(AHD ~ ., data = train[, c('Ca', 'ExAng', 'AHD')])
+
+svm_rbf_fit %>%
+  extract_fit_engine() %>%
+  plot()
+```
+
+

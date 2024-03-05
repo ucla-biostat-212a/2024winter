@@ -500,6 +500,7 @@ final_fit %>%
   collect_metrics()
 ```
 
+
 #### Python
 
 Since we called `GridSearchCV` with `refit = True`, the best model fit on the whole non-test data is readily available.
