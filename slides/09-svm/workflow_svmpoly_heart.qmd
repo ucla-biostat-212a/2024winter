@@ -31,12 +31,7 @@ Display system information for reproducibility.
 sessionInfo()
 ```
 
-#### Python
 
-```{python}
-import IPython
-print(IPython.sys_info())
-```
 :::
 
 ## Overview
@@ -294,7 +289,7 @@ final_fit %>%
 
 :::
 
-```{r, eval = F}
+```{r, eval = T}
 library(doParallel)
 set.seed(101)
 split_obj <- initial_split(data = Heart, prop = 0.7, strata = AHD)
@@ -322,7 +317,7 @@ train <- bake(recipe_obj, new_data=train)
 test <- bake(recipe_obj, new_data=test)
 ```
 
-```{r, eval = F}
+```{r}
 library(vip)
 final_fit %>% 
   pluck(".workflow", 1) %>%   
