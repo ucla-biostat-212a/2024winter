@@ -1,0 +1,338 @@
+---
+title: "Machine Learning Workflow: Support Vector Machines (Polynomial Kernel)"
+subtitle: "Biostat 212A"
+author: "Dr. Jin Zhou @ UCLA"
+date: today
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+engine: knitr
+knitr:
+  opts_chunk: 
+    fig.align: 'center'
+    # fig.width: 6
+    # fig.height: 4
+    message: FALSE
+    cache: false
+---
+
+Display system information for reproducibility.
+
+::: {.panel-tabset}
+
+#### Python
+
+```{python}
+import IPython
+print(IPython.sys_info())
+```
+
+:::
+
+## Overview
+
+![](https://www.tidymodels.org/start/resampling/img/resampling.svg)
+
+
+We illustrate the typical machine learning workflow for regression trees using the `Heart` data set from R `ISLR2` package. 
+
+1. Initial splitting to test and non-test sets.
+
+2. Pre-processing of data: not much is needed for regression trees.
+
+3. Tune the cost complexity pruning hyper-parameter(s) using 10-fold cross-validation (CV) on the non-test data.
+
+4. Choose the best model by CV and refit it on the whole non-test data.
+
+5. Final prediction on the test data.
+
+## Heart data
+
+The goal is to predict the binary outcome `AHD` (`Yes` or `No`) of patients.
+
+::: {.panel-tabset}
+
+#### Python
+
+```{python}
+# Load the pandas library
+import pandas as pd
+# Load numpy for array manipulation
+import numpy as np
+# Load seaborn plotting library
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Set font sizes in plots
+sns.set(font_scale = 1.2)
+# Display all columns
+pd.set_option('display.max_columns', None)
+
+Heart = pd.read_csv("../data/Heart.csv")
+Heart
+```
+
+```{python}
+# Numerical summaries
+Heart.describe(include = 'all')
+```
+
+Graphical summary:
+```{python}
+#| eval: false
+# Graphical summaries
+plt.figure()
+sns.pairplot(data = Heart);
+plt.show()
+```
+
+:::
+
+
+## Initial split into test and non-test sets
+
+We randomly split the data in half of test data and another half of non-test data. Stratify on `AHD`.
+
+::: {.panel-tabset}
+
+#### Python
+
+```{python}
+from sklearn.model_selection import train_test_split
+
+Heart_other, Heart_test = train_test_split(
+  Heart, 
+  train_size = 0.75,
+  random_state = 425, # seed
+  stratify = Heart.AHD
+  )
+Heart_test.shape
+Heart_other.shape
+```
+
+Separate $X$ and $y$. We will use 13 features.
+```{python}
+num_features = ['Age', 'Sex', 'RestBP', 'Chol', 'Fbs', 'RestECG', 'MaxHR', 'ExAng', 'Oldpeak', 'Slope', 'Ca']
+cat_features = ['ChestPain', 'Thal']
+features = np.concatenate([num_features, cat_features])
+# Non-test X and y
+X_other = Heart_other[features]
+y_other = Heart_other.AHD
+# Test X and y
+X_test = Heart_test[features]
+y_test = Heart_test.AHD
+```
+
+:::
+
+## Preprocessing (Python) or recipe (R)
+
+::: {.panel-tabset}
+
+#### Python
+
+There are missing values in `Ca` (quantitative) and `Thal` (qualitative) variables. We are going to use simple `mean` imputation for `Ca` and `most_frequent` imputation for `Thal`. This is suboptimal. Better strategy is to use multiple imputation.
+```{python}
+# How many NaNs
+Heart.isna().sum()
+```
+
+We use dummy coding for categorical variables, and standardize all predictors. 
+
+```{python}
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.impute import SimpleImputer
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+
+# Transformer for categorical variables
+categorical_tf = Pipeline(steps = [
+  ("cat_impute", SimpleImputer(strategy = 'most_frequent')),
+  ("encoder", OneHotEncoder(drop = 'first')),
+  ("std", StandardScaler(with_mean = False))
+])
+
+# Transformer for continuous variables
+numeric_tf = Pipeline(steps = [
+  ("num_impute", SimpleImputer(strategy = 'mean')),
+  ("std", StandardScaler())
+])
+
+# Column transformer
+col_tf = ColumnTransformer(transformers = [
+  ('num', numeric_tf, num_features),
+  ('cat', categorical_tf, cat_features)
+])
+```
+
+:::
+
+## Model
+
+::: {.panel-tabset}
+
+#### Python
+
+```{python}
+from sklearn.svm import SVC
+
+svm_mod = SVC(
+  C = 1.0,
+  kernel = 'poly',
+  degree = 3,
+  gamma = 'scale', # 1 / (n_features * X.var())
+  probability = True,
+  random_state = 425
+  )
+```
+
+:::
+
+## Pipeline
+
+Here we bundle the preprocessing step and model.
+
+::: {.panel-tabset}
+
+#### Python
+
+```{python}
+from sklearn.pipeline import Pipeline
+
+pipe = Pipeline(steps = [
+  ("col_tf", col_tf),
+  ("model", svm_mod)
+  ])
+pipe
+```
+
+
+:::
+
+## Tuning grid
+
+Here we tune the regularization parameter $C$, and $\gamma$ in the radial basis kernel.
+
+::: {.panel-tabset}
+
+#### Python
+
+```{python}
+# Tune hyper-parameter(s)
+C_grid = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
+d_grid = [2, 3, 4, 5]
+tuned_parameters = {
+  "model__C": C_grid,
+  "model__degree": d_grid
+  }
+tuned_parameters 
+```
+
+:::
+
+## Cross-validation (CV)
+
+::: {.panel-tabset}
+
+#### Python
+
+Set up CV partitions and CV criterion.
+
+```{python}
+from sklearn.model_selection import GridSearchCV
+
+# Set up CV
+n_folds = 5
+search = GridSearchCV(
+  pipe,
+  tuned_parameters,
+  cv = n_folds, 
+  scoring = "roc_auc",
+  # Refit the best model on the whole data set
+  refit = True
+  )
+```
+
+Fit CV. This is typically the most time-consuming step.
+```{python}
+# Fit CV
+search.fit(X_other, y_other)
+```
+
+Visualize CV results.
+```{python}
+#| eval: true
+#| code-fold: true
+cv_res = pd.DataFrame({
+  "C": np.array(search.cv_results_["param_model__C"]),
+  "auc": search.cv_results_["mean_test_score"],
+  "d": search.cv_results_["param_model__degree"]
+  })
+
+plt.figure()
+sns.relplot(
+  # kind = "line",
+  data = cv_res,
+  x = "d",
+  y = "auc",
+  hue = "C"
+  ).set(
+    xlabel = "d",
+    ylabel = "CV AUC"
+    );
+plt.show()
+```
+
+Best CV AUC:
+```{python}
+search.best_score_
+```
+
+The training accuracy is
+```{python}
+from sklearn.metrics import accuracy_score, roc_auc_score
+
+accuracy_score(
+  y_other,
+  search.best_estimator_.predict(X_other)
+  )
+```
+
+:::
+
+## Finalize our model
+
+Now we are done tuning. Finally, let’s fit this final model to the whole training data and use our test data to estimate the model performance we expect to see with new data.
+
+::: {.panel-tabset}
+
+#### Python
+
+Since we called `GridSearchCV` with `refit = True`, the best model fit on the whole non-test data is readily available.
+```{python}
+search.best_estimator_
+```
+
+The final AUC on the test set is
+```{python}
+roc_auc_score(
+  y_test,
+  search.best_estimator_.predict_proba(X_test)[:, 1]
+  )
+```
+
+The final classification accuracy on the test set is
+```{python}
+accuracy_score(
+  y_test,
+  search.best_estimator_.predict(X_test)
+  )
+```
+
+:::
