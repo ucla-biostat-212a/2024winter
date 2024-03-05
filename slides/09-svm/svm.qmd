@@ -354,7 +354,7 @@ Left: An SVM with a polynomial kernel of degree 3. Right: An SVM with a radial k
 
 [Workflow: SVM with polynomial kernel](./workflow_svm_poly.html)
 
-[Workflow: SVM with radial kernel](./workflow_svm_rbf.html)
+[Workflow: SVM with radial kernel](./workflow_svmrbf_heart.html)
 
 ## SVM for more than 2 classes
 
