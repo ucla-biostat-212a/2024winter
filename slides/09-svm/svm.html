@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Dr. Jin Zhou @ UCLA">
-<meta name="dcterms.date" content="2024-02-26">
+<meta name="dcterms.date" content="2024-03-04">
 
 <title>Support Vector Machines (ISL 9)</title>
 <style>
@@ -2655,7 +2655,7 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 26, 2024</p>
+      <p class="date">March 4, 2024</p>
     </div>
   </div>
   
@@ -2764,7 +2764,7 @@ f(X) = \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p = \beta_0 + \beta^T X,
 \frac{1}{\|\beta\|} (\beta^T x - \beta^T x_0) = \frac{1}{\|\beta\|} (\beta^T x + \beta_0) = \frac{1}{\|\beta\|} f(x),
 \]</span> where <span class="math display">\[
 \|\beta\|=\sqrt{\sum_{j=1}^p \beta_j^2}.
-\]</span> Thus <span class="math inline">\(f(x)\)</span> is proportional to the signed distance from <span class="math inline">\(x\)</span> to the hyperplane defined by <span class="math inline">\(f(x) = 0\)</span>.</p></li>
+\]</span> Thus <span class="math inline">\(f(x)\)</span> is proportional to the signed distance from <span class="math inline">\(x\)</span> to the hyperplane defined by <span class="math inline">\(f(x) = 0\)</span>. (Note: <a href="https://mathworld.wolfram.com/Point-PlaneDistance.html">Point-Plane Distance</a>)</p></li>
 <li><p>If we code the colored points as <span class="math inline">\(y_i = +1\)</span> for blue, say and <span class="math inline">\(y_i = -1\)</span> for mauve, then if <span class="math inline">\(y_i \cdot f(X_i) &gt; 0\)</span> for all <span class="math inline">\(i\)</span>, <span class="math inline">\(f(X) = 0\)</span> defines a <strong>separating hyperplane</strong>.</p></li>
 </ul>
 <div id="fig-separating-hyperplane" class="quarto-figure quarto-figure-center anchored">

@@ -97,7 +97,7 @@ where
 $$
 \|\beta\|=\sqrt{\sum_{j=1}^p \beta_j^2}.
 $$
-Thus $f(x)$ is proportional to the signed distance from $x$ to the hyperplane defined by $f(x) = 0$.
+Thus $f(x)$ is proportional to the signed distance from $x$ to the hyperplane defined by $f(x) = 0$. (Note: [Point-Plane Distance](https://mathworld.wolfram.com/Point-PlaneDistance.html))
 
 - If we code the colored points as $y_i = +1$ for blue, say and $y_i = -1$ for mauve, then if $y_i \cdot f(X_i) > 0$ for all $i$, $f(X) = 0$ defines a **separating hyperplane**.
 

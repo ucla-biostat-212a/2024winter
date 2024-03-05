@@ -476,3 +476,12 @@ mean_squared_error(
 ```
 
 :::
+
+## Visualize the varible importance
+```{r, eval =F}
+library(vip)
+final_tree <- extract_workflow(final_fit)
+final_tree %>% 
+  extract_fit_parsnip() %>% 
+  vip()
+```
