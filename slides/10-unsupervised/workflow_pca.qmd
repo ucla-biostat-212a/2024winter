@@ -1,0 +1,108 @@
+---
+title: "PCA Analysis Workflow"
+subtitle: "Biostat 212A"
+author: "Dr. Jin Zhou @ UCLA"
+date: today
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+engine: knitr
+knitr:
+  opts_chunk: 
+    fig.align: 'center'
+    # fig.width: 6
+    # fig.height: 4
+    message: FALSE
+    cache: false
+---
+
+Display system information for reproducibility.
+
+::: {.panel-tabset}
+#### R
+
+```{r}
+sessionInfo()
+library(tidyverse)
+library(tidymodels)
+```
+
+
+:::
+
+
+
+## Gene expression data 
+
+The goal is to evaluate whether gene expression can separate three disease types.
+
+```{r}
+expression <- read_csv("expression.csv")
+```
+
+
+## PCA
+```{r}
+
+pca_rec <- recipe(~., data = expression) %>%
+  update_role(ID, disease, new_role = "id") %>%
+  step_normalize(all_predictors()) %>%
+  step_pca(all_predictors())
+pca_prep <- prep(pca_rec)
+pca_prep
+```
+
+```{r}
+library(tidytext)
+tidied_pca <- tidy(pca_prep, 2)
+
+
+tidied_pca %>%
+  filter(component %in% paste0("PC", 1:4)) %>%
+  group_by(component) %>%
+  top_n(8, abs(value)) %>%
+  ungroup() %>%
+  mutate(terms = reorder_within(terms, abs(value), component)) %>%
+  ggplot(aes(abs(value), terms, fill = value > 0)) +
+  geom_col() +
+  facet_wrap(~component, scales = "free_y") +
+  scale_y_reordered() +
+  labs(
+    x = "Absolute value of contribution",
+    y = NULL, fill = "Positive?"
+  )
+```
+
+```{r}
+juice(pca_prep) %>%
+  ggplot(aes(PC1, PC2, label = ID)) +
+  geom_point(aes(color = disease), alpha = 0.7, size = 2) +
+  #geom_text(check_overlap = TRUE, hjust = "inward") +
+  labs(color = NULL)
+
+```
+
+## UMAP
+```{r}
+library(embed)
+umap_rec <- recipe(~., data = expression) %>%
+  update_role(ID, disease, new_role = "id") %>%
+  step_normalize(all_predictors()) %>%
+  step_umap(all_predictors())
+umap_prep <- prep(umap_rec)
+umap_prep
+```
+
+```{r}
+juice(umap_prep) %>%
+  ggplot(aes(UMAP1, UMAP2, label = ID)) +
+  geom_point(aes(color = disease), alpha = 0.7, size = 2) +
+#  geom_text(check_overlap = TRUE, hjust = "inward") +
+  labs(color = NULL)
+```
