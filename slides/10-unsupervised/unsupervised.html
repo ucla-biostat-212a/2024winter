@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Dr. Jin Zhou @ UCLA">
-<meta name="dcterms.date" content="2024-03-11">
+<meta name="dcterms.date" content="2024-03-12">
 
 <title>Unsupervised Learning (ISL 12)</title>
 <style>
@@ -2628,11 +2628,12 @@ vertical-align: -.125em;
   <li><a href="#principal-components-analysis-pca" id="toc-principal-components-analysis-pca" class="nav-link" data-scroll-target="#principal-components-analysis-pca"><span class="toc-section-number">2</span>  Principal Components Analysis (PCA)</a>
   <ul>
   <li><a href="#computation-of-pcs" id="toc-computation-of-pcs" class="nav-link" data-scroll-target="#computation-of-pcs"><span class="toc-section-number">2.1</span>  Computation of PCs</a></li>
-  <li><a href="#futher-pcs" id="toc-futher-pcs" class="nav-link" data-scroll-target="#futher-pcs"><span class="toc-section-number">2.2</span>  Futher PCs</a></li>
-  <li><a href="#usaarrests-data" id="toc-usaarrests-data" class="nav-link" data-scroll-target="#usaarrests-data"><span class="toc-section-number">2.3</span>  <code>USAarrests</code> data</a></li>
-  <li><a href="#pca-find-the-hyperplane-closest-to-the-observations" id="toc-pca-find-the-hyperplane-closest-to-the-observations" class="nav-link" data-scroll-target="#pca-find-the-hyperplane-closest-to-the-observations"><span class="toc-section-number">2.4</span>  PCA find the hyperplane closest to the observations</a></li>
-  <li><a href="#scaling" id="toc-scaling" class="nav-link" data-scroll-target="#scaling"><span class="toc-section-number">2.5</span>  Scaling</a></li>
-  <li><a href="#proportion-variance-explained-pve" id="toc-proportion-variance-explained-pve" class="nav-link" data-scroll-target="#proportion-variance-explained-pve"><span class="toc-section-number">2.6</span>  Proportion variance explained (PVE)</a></li>
+  <li><a href="#geometry-of-pca" id="toc-geometry-of-pca" class="nav-link" data-scroll-target="#geometry-of-pca"><span class="toc-section-number">2.2</span>  Geometry of PCA</a></li>
+  <li><a href="#futher-pcs" id="toc-futher-pcs" class="nav-link" data-scroll-target="#futher-pcs"><span class="toc-section-number">2.3</span>  Futher PCs</a></li>
+  <li><a href="#usaarrests-data" id="toc-usaarrests-data" class="nav-link" data-scroll-target="#usaarrests-data"><span class="toc-section-number">2.4</span>  <code>USAarrests</code> data</a></li>
+  <li><a href="#pca-find-the-hyperplane-closest-to-the-observations" id="toc-pca-find-the-hyperplane-closest-to-the-observations" class="nav-link" data-scroll-target="#pca-find-the-hyperplane-closest-to-the-observations"><span class="toc-section-number">2.5</span>  PCA find the hyperplane closest to the observations</a></li>
+  <li><a href="#scaling" id="toc-scaling" class="nav-link" data-scroll-target="#scaling"><span class="toc-section-number">2.6</span>  Scaling</a></li>
+  <li><a href="#proportion-variance-explained-pve" id="toc-proportion-variance-explained-pve" class="nav-link" data-scroll-target="#proportion-variance-explained-pve"><span class="toc-section-number">2.7</span>  Proportion variance explained (PVE)</a></li>
   </ul></li>
   <li><a href="#clustering" id="toc-clustering" class="nav-link" data-scroll-target="#clustering"><span class="toc-section-number">3</span>  Clustering</a>
   <ul>
@@ -2668,7 +2669,7 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 11, 2024</p>
+      <p class="date">March 12, 2024</p>
     </div>
   </div>
   
@@ -2747,7 +2748,7 @@ loaded via a namespace (and not attached):
 <ul>
 <li><strong>principal components analysis</strong>, a tool used for data visualization or data pre-processing before supervised techniques are applied, and<br>
 </li>
-<li><strong>clusterng</strong>, a broad class of methods for discovering unknown subgroups in data.</li>
+<li><strong>clustering</strong>, a broad class of methods for discovering unknown subgroups in data.</li>
 </ul></li>
 </ul>
 </section>
@@ -2801,14 +2802,19 @@ z_{i1} = \phi_{11} x_{i1} + \phi_{21} x_{i2} + \cdots + \phi_{p1} x_{ip}
 <li><p>Plugging in (<a href="#eq-pc-1">Equation 1</a>) the first principal component loading vector solves the optimization problem <span class="math display">\[
 \max_{\phi_{11},\ldots,\phi_{p1}} \frac{1}{n} \sum_{i=1}^n \left( \sum_{j=1}^p \phi_{j1} x_{ij} \right)^2 \text{ subject to } \sum_{j=1}^p \phi_{j1}^2 = 1.
 \]</span></p></li>
-<li><p>This problem can be solved via a singular-value decomposition (SVD) of the matrix <span class="math inline">\(\boldsymbol{X}\)</span>, a standard technique in linear algebra.</p></li>
-<li><p>We refer to <span class="math inline">\(Z_1\)</span> as the first principal component, with realized values <span class="math inline">\(z_{11}, \ldots, z_{n1}\)</span>. ### Geometry of PCA</p></li>
+<li><p>This problem can be solved via a <a href="https://en.wikipedia.org/wiki/Singular_value_decomposition#:~:text=In%20linear%20algebra%2C%20the%20singular,matrix.">singular-value decomposition (SVD)</a> of the matrix <span class="math inline">\(\boldsymbol{X}\)</span>, a standard technique in linear algebra.</p></li>
+<li><p>We refer to <span class="math inline">\(Z_1\)</span> as the first principal component, with realized values <span class="math inline">\(z_{11}, \ldots, z_{n1}\)</span>.</p></li>
+</ul>
+</section>
+<section id="geometry-of-pca" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="geometry-of-pca"><span class="header-section-number">2.2</span> Geometry of PCA</h3>
+<ul>
 <li><p>The loading vector <span class="math inline">\(\phi_1\)</span> with elements <span class="math inline">\(\phi_{11}, \phi_{21}\)</span>, , <span class="math inline">\(\phi_{p1}\)</span> defines a direction in feature space along which the data vary the most.</p></li>
 <li><p>If we project the <span class="math inline">\(n\)</span> data points <span class="math inline">\(x_1, \ldots, x_n\)</span> onto this direction, the projected values are the principal component scores <span class="math inline">\(z_{11},\ldots,z_{n1}\)</span> themselves.</p></li>
 </ul>
 </section>
-<section id="futher-pcs" class="level3" data-number="2.2">
-<h3 data-number="2.2" class="anchored" data-anchor-id="futher-pcs"><span class="header-section-number">2.2</span> Futher PCs</h3>
+<section id="futher-pcs" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="futher-pcs"><span class="header-section-number">2.3</span> Futher PCs</h3>
 <ul>
 <li><p>The second principal component is the linear combination of <span class="math inline">\(X_1, \ldots, X_p\)</span> that has maximal variance among all linear combinations that are <strong>uncorrelated</strong> with <span class="math inline">\(Z_1\)</span>.</p></li>
 <li><p>The second principal component scores <span class="math inline">\(z_{12}, z_{22}, \ldots, z_{n2}\)</span> take the form <span class="math display">\[
@@ -2818,8 +2824,8 @@ z_{i2} = \phi_{12} x_{i1} + \phi_{22} x_{i2} + \cdots + \phi_{p2} x_{ip},
 <li><p>The principal component directions <span class="math inline">\(\phi_1, \phi_2, \phi_3, \ldots\)</span> are the ordered sequence of right singular vectors of the matrix <span class="math inline">\(\boldsymbol{X}\)</span>, and the variances of the components are <span class="math inline">\(\frac{1}{n}\)</span> times the squares of the singular values. There are at most <span class="math inline">\(\min(n − 1, p)\)</span> principal components.</p></li>
 </ul>
 </section>
-<section id="usaarrests-data" class="level3" data-number="2.3">
-<h3 data-number="2.3" class="anchored" data-anchor-id="usaarrests-data"><span class="header-section-number">2.3</span> <code>USAarrests</code> data</h3>
+<section id="usaarrests-data" class="level3" data-number="2.4">
+<h3 data-number="2.4" class="anchored" data-anchor-id="usaarrests-data"><span class="header-section-number">2.4</span> <code>USAarrests</code> data</h3>
 <ul>
 <li><p>For each of the fifty states in the United States, the data set contains the number of arrests per 100,000 residents for each of three crimes: <code>Assault</code>, <code>Murder</code>, and <code>Rape</code>. We also record <code>UrbanPop</code> (the percent of the population in each state living in urban areas).</p></li>
 <li><p>The principal component score vectors have length <span class="math inline">\(n = 50\)</span>, and the principal component loading vectors have length <span class="math inline">\(p = 4\)</span>.</p></li>
@@ -2868,8 +2874,8 @@ z_{i2} = \phi_{12} x_{i1} + \phi_{22} x_{i2} + \cdots + \phi_{p2} x_{ip},
 </tbody>
 </table>
 </section>
-<section id="pca-find-the-hyperplane-closest-to-the-observations" class="level3" data-number="2.4">
-<h3 data-number="2.4" class="anchored" data-anchor-id="pca-find-the-hyperplane-closest-to-the-observations"><span class="header-section-number">2.4</span> PCA find the hyperplane closest to the observations</h3>
+<section id="pca-find-the-hyperplane-closest-to-the-observations" class="level3" data-number="2.5">
+<h3 data-number="2.5" class="anchored" data-anchor-id="pca-find-the-hyperplane-closest-to-the-observations"><span class="header-section-number">2.5</span> PCA find the hyperplane closest to the observations</h3>
 <div id="fig-advertising-pc-1" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p align="center">
@@ -2884,8 +2890,8 @@ z_{i2} = \phi_{12} x_{i1} + \phi_{22} x_{i2} + \cdots + \phi_{p2} x_{ip},
 <li><p>For instance, the first two principal components of a data set span the plane that is closest to the <span class="math inline">\(n\)</span> observations, in terms of average squared Euclidean distance.</p></li>
 </ul>
 </section>
-<section id="scaling" class="level3" data-number="2.5">
-<h3 data-number="2.5" class="anchored" data-anchor-id="scaling"><span class="header-section-number">2.5</span> Scaling</h3>
+<section id="scaling" class="level3" data-number="2.6">
+<h3 data-number="2.6" class="anchored" data-anchor-id="scaling"><span class="header-section-number">2.6</span> Scaling</h3>
 <ul>
 <li><p>If the variables are in different units, scaling each to have standard deviation equal to one is recommended.</p></li>
 <li><p>If they are in the same units, you might or might not scale the variables.</p></li>
@@ -2899,8 +2905,8 @@ z_{i2} = \phi_{12} x_{i1} + \phi_{22} x_{i2} + \cdots + \phi_{p2} x_{ip},
 </figure>
 </div>
 </section>
-<section id="proportion-variance-explained-pve" class="level3" data-number="2.6">
-<h3 data-number="2.6" class="anchored" data-anchor-id="proportion-variance-explained-pve"><span class="header-section-number">2.6</span> Proportion variance explained (PVE)</h3>
+<section id="proportion-variance-explained-pve" class="level3" data-number="2.7">
+<h3 data-number="2.7" class="anchored" data-anchor-id="proportion-variance-explained-pve"><span class="header-section-number">2.7</span> Proportion variance explained (PVE)</h3>
 <ul>
 <li><p>To understand the strength of each component, we are interested in knowing the proportion of variance explained (PVE) by each one.</p></li>
 <li><p>The <strong>total variance</strong> present in a data set (assuming that the variables have been centered to have mean zero) is defined as <span class="math display">\[

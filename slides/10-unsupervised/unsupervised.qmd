@@ -58,7 +58,7 @@ print(IPython.sys_info())
 - We discuss two methods:
 
     - **principal components analysis**, a tool used for data visualization or data pre-processing before supervised techniques are applied, and  
-    - **clusterng**, a broad class of methods for discovering unknown subgroups in data.
+    - **clustering**, a broad class of methods for discovering unknown subgroups in data.
     
 ### Challenge of unsupervised learning
 
@@ -121,9 +121,10 @@ $$
 \max_{\phi_{11},\ldots,\phi_{p1}} \frac{1}{n} \sum_{i=1}^n \left( \sum_{j=1}^p \phi_{j1} x_{ij} \right)^2 \text{ subject to } \sum_{j=1}^p \phi_{j1}^2 = 1.
 $$
 
-- This problem can be solved via a singular-value decomposition (SVD) of the matrix $\boldsymbol{X}$, a standard technique in linear algebra.
+- This problem can be solved via a [singular-value decomposition (SVD)](https://en.wikipedia.org/wiki/Singular_value_decomposition#:~:text=In%20linear%20algebra%2C%20the%20singular,matrix.) of the matrix $\boldsymbol{X}$, a standard technique in linear algebra.
 
 - We refer to $Z_1$ as the first principal component, with realized values $z_{11}, \ldots, z_{n1}$. 
+
 ### Geometry of PCA
 
 - The loading vector $\phi_1$ with elements $\phi_{11}, \phi_{21}$, \ldots, $\phi_{p1}$ defines a direction in feature space along which the data vary the most.
