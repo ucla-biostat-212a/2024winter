@@ -1,0 +1,159 @@
+---
+title: "Biostat 212a Homework 6"
+subtitle: "Due Mar 22, 2024 @ 11:59PM"
+author: "YOUR NAME and UID"
+date: today
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+engine: knitr
+knitr:
+  opts_chunk: 
+    fig.align: 'center'
+    # fig.width: 6
+    # fig.height: 4
+    message: FALSE
+    cache: false
+---
+
+Load R libraries.
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(readr)
+library(tswge)
+library(ggplot2)
+acfdf <- function(vec) {
+    vacf <- acf(vec, plot = F)
+    with(vacf, data.frame(lag, acf))
+}
+ggacf <- function(vec) {
+    ac <- acfdf(vec)
+    ggplot(data = ac, aes(x = lag, y = acf)) + geom_hline(aes(yintercept = 0)) + 
+        geom_segment(mapping = aes(xend = lag, yend = 0))
+}
+
+tplot <- function(vec) {
+    df <- data.frame(X = vec, t = seq_along(vec))
+    ggplot(data = df, aes(x = t, y = X)) + geom_line()
+}
+```
+
+## New York Stock Exchange (NYSE) data (1962-1986) (140 pts)
+
+::: {#fig-nyse}
+
+<p align="center">
+![](ISL_fig_10_14.pdf){width=600px height=600px}
+</p>
+
+Historical trading statistics from the New York Stock Exchange. Daily values of the normalized log trading volume, DJIA return, and log volatility are shown for a 24-year period from 1962-1986. We wish to predict trading volume on any day, given the history on all earlier days. To the left of the red bar (January 2, 1980) is training data, and to the right test data.
+
+:::
+
+The [`NYSE.csv`](https://raw.githubusercontent.com/ucla-econ-425t/2023winter/master/slides/data/NYSE.csv) file contains three daily time series from the New York Stock Exchange (NYSE) for the period Dec 3, 1962-Dec 31, 1986 (6,051 trading days).
+
+- `Log trading volume` ($v_t$): This is the fraction of all outstanding shares that are traded on that day, relative to a 100-day moving average of past turnover, on the log scale.
+    
+- `Dow Jones return` ($r_t$): This is the difference between the log of the Dow Jones Industrial Index on consecutive trading days.
+    
+- `Log volatility` ($z_t$): This is based on the absolute values of daily price movements.
+
+```{r}
+# Read in NYSE data from url
+
+url = "https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/data/NYSE.csv"
+NYSE <- read_csv(url)
+
+NYSE
+```
+The **autocorrelation** at lag $\ell$ is the correlation of all pairs $(v_t, v_{t-\ell})$ that are $\ell$ trading days apart. These sizable correlations give us confidence that past values will be helpful in predicting the future.
+
+```{r}
+#| code-fold: true
+#| label: fig-nyse-autocor
+#| fig-cap: "The autocorrelation function for log volume. We see that nearby values are fairly strongly correlated, with correlations above 0.2 as far as 20 days apart."
+
+ggacf(NYSE$log_volume) + ggthemes::theme_few()
+
+```
+
+Do a similar plot for (1) the correlation between $v_t$ and lag $\ell$ `Dow Jones return` $r_{t-\ell}$ and (2) correlation between $v_t$ and lag $\ell$ `Log volatility` $z_{t-\ell}$.
+
+### Project goal
+
+Our goal is to forecast daily `Log trading volume`, using various machine learning algorithms we learnt in this class. 
+
+The data set is already split into train (before Jan 1st, 1980, $n_{\text{train}} = 4,281$) and test (after Jan 1st, 1980, $n_{\text{test}} = 1,770$) sets.
+
+<!-- Include `day_of_week` as a predictor in the models. -->
+
+In general, we will tune the lag $L$ to acheive best forecasting performance. In this project, we would fix $L=5$. That is we always use the previous five trading days' data to forecast today's `log trading volume`.
+
+Pay attention to the nuance of splitting time series data for cross validation. Study and use the [`time-series`](https://www.tidymodels.org/learn/models/time-series/) functionality in tidymodels. Make sure to use the same splits when tuning different machine learning algorithms.
+
+Use the $R^2$ between forecast and actual values as the cross validation and test evaluation criterion.
+
+### Baseline method (20 pts)
+
+We use the straw man (use yesterday’s value of `log trading volume` to predict that of today) as the baseline method. Evaluate the $R^2$ of this method on the test data.
+
+### Autoregression (AR) forecaster (30 pts)
+
+- Let
+$$
+y = \begin{pmatrix} v_{L+1} \\ v_{L+2} \\ v_{L+3} \\ \vdots \\ v_T \end{pmatrix}, \quad M = \begin{pmatrix}
+1 & v_L & v_{L-1} & \cdots & v_1 \\
+1 & v_{L+1} & v_{L} & \cdots & v_2 \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & v_{T-1} & v_{T-2} & \cdots & v_{T-L}
+\end{pmatrix}.
+$$
+
+- Fit an ordinary least squares (OLS) regression of $y$ on $M$, giving
+$$
+\hat v_t = \hat \beta_0 + \hat \beta_1 v_{t-1} + \hat \beta_2 v_{t-2} + \cdots + \hat \beta_L v_{t-L},
+$$
+known as an **order-$L$ autoregression** model or **AR($L$)**.
+
+- Tune AR(5) with elastic net (lasso + ridge) regularization using all 3 features on the training data, and evaluate the test performance. 
+
+- Hint: [Workflow: Lasso](https://ucla-biostat-212a.github.io/2024winter/slides/06-modelselection/workflow_lasso.html) is a good starting point.
+
+### Random forest forecaster (30pts)
+
+- Use the same features as in AR($L$) for the random forest. Tune the random forest and evaluate the test performance.
+
+- Hint: [Workflow: Random Forest for Prediction](https://ucla-biostat-212a.github.io/2024winter/slides/08-tree/workflow_rf_reg.html) is a good starting point.
+
+### Boosting forecaster (30pts)
+
+- Use the same features as in AR($L$) for the boosting. Tune the boosting algorithm and evaluate the test performance.
+
+- Hint: [Workflow: Boosting tree for Prediction](https://ucla-biostat-212a.github.io/2024winter/slides/08-tree/workflow_boosting_reg.html) is a good starting point.
+
+
+### Summary (30pts)
+
+Your score for this question is largely determined by your final test performance.
+
+Summarize the performance of different machine learning forecasters in the following format. 
+
+| Method | CV $R^2$ | Test $R^2$ |
+|:------:|:------:|:------:|:------:|
+| Baseline | | | |
+| AR(5) | | | |
+| Random Forest | | | |
+| Boosting | | | |
+
+## ISL Exercise 12.6.13 (90 pts)
+### 12.6.13 (b) (30 pts)
+### PCA and UMAP (30 pts)
+### 12.6.13 (c) (30 pts)
+
