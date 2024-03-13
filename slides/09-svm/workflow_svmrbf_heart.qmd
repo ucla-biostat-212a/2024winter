@@ -389,7 +389,7 @@ svm_fit %>%
   geom_point() +
   geom_line(aes(group = rbf_sigma)) +
   labs(x = "Cost", y = "CV AUC") +
-  scale_x_log10()
+  scale_x_log10() 
 ```
 
 Show the top 5 models.
