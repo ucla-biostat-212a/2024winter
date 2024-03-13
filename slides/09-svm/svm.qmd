@@ -316,7 +316,7 @@ $\mathcal{S}$ is the **support set** of indices $i$ such that $\alpha_i > 0$.
 $$
 K(x_i, x_{i'}) = \left(1 + \sum_{j=1}^p x_{ij} x_{i'j} \right)^d
 $$
-computes the inner products needed for $d$-dimensional polynomials.
+computes the inner products needed for $d$-dimensional polynomials. **Note** Kernel Functions in `kernlab`: <https://rdrr.io/cran/kernlab/man/dots.html> and The `scale_factor` is the `scale` parameter in Polynomial kernel $k(x,x') = (scale <x, x'> + offset)^{degree}$: The scaling parameter of the polynomial and tangent kernel is a convenient way of normalizing patterns without the need to modify the data itself.  
 
     For example, for degree $d=2$ and $p=2$ features, 
 \begin{eqnarray*}
