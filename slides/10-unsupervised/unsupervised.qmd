@@ -422,8 +422,8 @@ juice(umap_prep) %>%
 ![](embedding.gif)
 
 
-- First, UMAP constructs a high dimensional graph representation of the data using fuzzy simplicial complex
-  + : a representation of a weighted graph, with edge weights representing the likelihood that two points are connected 
+- First, UMAP constructs a high dimensional graph representation of the data using fuzzy simplicial complex:
+  + a representation of a weighted graph, with edge weights representing the likelihood that two points are connected 
   
 ::: {#fig-simplex}
 
