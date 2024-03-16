@@ -32,7 +32,32 @@ Display system information for reproducibility.
 ## R
 
 ```{r}
+rm(list = ls())
 sessionInfo()
+library(recipes)
+library(ggplot2)
+library(embed)
+library(tidymodels)
+library(ISLR2)
+
+## In order to use MNIST datasets, I installed the keras package and its dependencies
+## It depends on python and tensorflow, so I installed them first
+## I didn't use conda to set up the environment to do it - it doesn't work for me; 
+## So I first uninstalled all the conda packages
+## One first need to set up python environment in R correctly by using reticulate
+## I used the following commands in R
+## devtools::install_github("rstudio/tensorflow")
+## devtools::install_github("rstudio/keras")
+## library(reticulate)
+## library(keras3)
+## library(tensorflow)
+## I also had to go to the (https://github.com/rstudio/keras/issues/649)
+## `Tools` -> `Global Options` -> `Python` -> I selected '~/.virtualenvs/r-reticulate/bin/python`(interpreter) and `~/.virtualenvs/r-reticulate/bin/python3.9` for virtual environment 
+## with this setup I can install and find correct tensorflow
+## tensorflow::install_tensorflow()
+## tensorflow::tf_config()
+
+library(keras)
 ```
 
 ## Python
@@ -245,6 +270,210 @@ Left: a scree plot depicting the proportion of variance explained by each of the
 :::
 
 - The **scree plot** on the previous slide can be used as a guide: we look for an **elbow**.
+
+## UMAP 
+
+### Rescourses
+
+- [UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction](https://arxiv.org/abs/1802.03426)
+- [Understanding UMAP](https://pair-code.github.io/understanding-umap/)
+- [Nature NEWS 23 February 2024: ‘All of Us’ genetics chart stirs unease over controversial depiction of race](https://www.nature.com/articles/d41586-024-00568-w)
+- [How UMAP Works](https://umap-learn.readthedocs.io/en/latest/how_umap_works.html)
+
+### Goal of UMAP
+
+- PCA works the best if the first 2 PC explain the most variance.
+- UMAP is a general purpose manifold learning and **dimension reduction** algorithm, usually high-dimensional. 
+- UMAP is flexible in various data types, not just numerical data but also categorical or mixed datasets.
+- Efficiency and Scalability: UMAP is designed to be efficient with both time and memory usage, making it capable of handling large datasets more feasibly than some other dimensionality reduction methods.
+- Easy to use and easy to be integrated into data analysis workflows.
+
+### Examples
+- `USArrests` data
+
+```{r}
+(USArrests <- rownames_to_column(USArrests, var = "State")   %>% as_tibble())
+```
+
+```{r}
+set.seed(211)
+umap_rec <- recipe(~., data = USArrests) %>%
+  update_role(State, new_role = "id") %>%
+  step_normalize(all_predictors()) %>%
+  step_umap(all_predictors(),
+            neighbors = 10,
+            num_comp = 2,
+            min_dist = 0.01)
+
+umap_prep <- prep(umap_rec)
+
+Assault = umap_prep$template %>% merge(USArrests, by = "State") %>% pull(Assault)
+juice(umap_prep) %>%
+  ggplot(aes(UMAP1, UMAP2, label = State, color = Assault)) +
+  geom_point( alpha = 0.7, size = 2) +
+  geom_text(check_overlap = TRUE, hjust = "inward") +
+  labs(color = "Assualt") 
+```
+- MNIST and Fashion MNIST
+
+```{r}
+# may take sometime
+fashion_mnist <- dataset_fashion_mnist()
+mnist <- dataset_mnist()
+```
+
+```{r}
+# c(train_images, train_labels) %<-% fashion_mnist$train
+# c(test_images, test_labels) %<-% fashion_mnist$test
+
+c(train_images, train_labels) %<-% mnist$train
+c(test_images, test_labels) %<-% mnist$test
+```
+
+
+```{r}
+
+
+
+sample_image <- tibble()
+for(i in 1:20){
+  image <- as.data.frame(train_images[i, , ])
+  colnames(image) <- seq_len(ncol(image))
+  image <- image  %>%
+    mutate(y = seq_len(nrow(image)))
+  image <- gather(image, "x", "value", -y) 
+  image <- image %>%
+    as_tibble() %>%
+    mutate(x = as.integer(x),
+           l = paste(i, ": ", as.character(train_labels[i]), sep = ""))
+  sample_image <- bind_rows(sample_image, image)
+} 
+
+
+p <- ggplot(sample_image, aes(x = x, y = y, fill = value)) +
+    geom_tile() + scale_fill_gradient(low = "white", high = "black", na.value = NA) +
+    scale_y_reverse() + theme_minimal() + theme(panel.grid = element_blank()) +
+    theme(aspect.ratio = 1) + xlab("") + ylab("")  + 
+    facet_wrap(~l, ncol = 5)
+print(p)
+
+```
+
+
+
+#### PCA 
+```{r}
+train_images <- array_reshape(train_images, c(nrow(train_images), 784))
+train_images <- train_images / 255
+
+set.seed(211)
+n = 1000
+labels = as.factor(train_labels[1:n])
+```
+
+
+```{r}
+pca_rec <- recipe(~., data = train_images[1:n, ]) %>%
+  step_zv(all_numeric_predictors()) %>% 
+  step_normalize(all_predictors()) %>%
+  step_pca(all_predictors())
+pca_prep <- prep(pca_rec)
+pca_prep
+```
+
+
+
+```{r}
+juice(pca_prep) %>%
+  ggplot(aes(PC1, PC2, label = labels)) +
+  geom_point(aes(color = labels), alpha = 0.7, size = 2) +
+  #geom_text(check_overlap = TRUE, hjust = "inward") +
+  labs(color = NULL)
+
+```
+
+#### UMAP
+
+```{r}
+umap_rec <- recipe(~., data = train_images[1:n, ]) %>%
+  # update_role(State, new_role = "id") %>%
+  step_zv(all_numeric_predictors()) %>% 
+  step_normalize(all_predictors()) %>%
+
+  step_umap(all_predictors(),
+            neighbors = 20,
+            num_comp = 3,
+            min_dist = 0.02)
+
+umap_prep <- prep(umap_rec)
+
+juice(umap_prep) %>%
+  ggplot(aes(UMAP1, UMAP2, label = labels, color = labels)) +
+  geom_point( alpha = 0.7, size = 2) +
+  geom_text(check_overlap = TRUE, hjust = "inward") 
+
+```
+
+
+
+### A brief introduction to UMAP theory
+
+[Fashion-MNIST](https://github.com/zalandoresearch/fashion-mnist)
+![](embedding.gif)
+
+
+- First, UMAP constructs a high dimensional graph representation of the data using fuzzy simplicial complex
+  + : a representation of a weighted graph, with edge weights representing the likelihood that two points are connected 
+  
+::: {#fig-simplex}
+
+![](simplices.png)
+
+[Low dimensional simplices](https://umap-learn.readthedocs.io/en/latest/how_umap_works.html#id2)
+:::
+
+- To determine connectedness, UMAP extends a radius outwards from each point, connecting points when those radii overlap. For example, consider a test dataset like this
+
+::: {#fig-sine-wave}
+
+![](how_umap_works_raw_data.png)
+
+[Test data set of a noisy sine wave](https://umap-learn.readthedocs.io/en/latest/how_umap_works.html#id3)
+:::
+
+- Then the result is something like this 
+
+
+::: {#fig-open-cover}
+
+![](how_umap_works_open_cover.png)
+
+[A basic open cover of the test data](https://umap-learn.readthedocs.io/en/latest/how_umap_works.html#id4)
+::: 
+
+- We can then depict the the simplicial complex of 0-, 1-, and 2-simplices as points, lines, and triangles.
+
+::: {#fig-open-cover}
+
+![](how_umap_works_basic_graph.png)
+
+[A simplicial complex built from the test data](https://umap-learn.readthedocs.io/en/latest/how_umap_works.html#id5)
+:::
+
+- Choosing this radius is critical - too small a choice will lead to small, isolated clusters, while too large a choice will connect everything together. 
+
+- UMAP overcomes this challenge by choosing a radius locally, based on the distance to each point's nth nearest neighbor, i.e., `n_neighbors`. 
+
+- UMAP then makes the graph "fuzzy" by decreasing the likelihood of connection as the radius grows. 
+
+- By stipulating that each point must be connected to at least its closest neighbor, UMAP ensures that local structure is preserved in balance with global structure.
+
+- Then, UMAP optimizes a low-dimensional graph to be as structurally similar as possible by controlling the number of edges and their weights.
+
+- The second parameter we’ll investigate is `min_dist`, or the minimum distance between points in low-dimensional space. This parameter controls how tightly UMAP clumps points together, with low values leading to more tightly packed embeddings. Larger values of min_dist will make UMAP pack points together more loosely, focusing instead on the preservation of the broad topological structure.
+
+#### Try UMAP with different `n_neighbors` and `min_dist`
+- Let's try: <https://pair-code.github.io/understanding-umap/>
 
 ## Clustering
 
