@@ -1,5 +1,5 @@
 ---
-title: "PCA Analysis Workflow"
+title: "PCA and UMAP Analysis Workflow"
 subtitle: "Biostat 212A"
 author: "Dr. Jin Zhou @ UCLA"
 date: today
