@@ -2621,15 +2621,16 @@ vertical-align: -.125em;
   <ul>
   <li><a href="#k-means-clustering" id="toc-k-means-clustering" class="nav-link active" data-scroll-target="#k-means-clustering"><span class="toc-section-number">1</span>  K-means clustering</a>
   <ul>
-  <li><a href="#load-and-clean-a-dataset" id="toc-load-and-clean-a-dataset" class="nav-link" data-scroll-target="#load-and-clean-a-dataset"><span class="toc-section-number">1.1</span>  Load and clean a dataset:</a></li>
-  <li><a href="#k-means-specification-in-tidyclust" id="toc-k-means-specification-in-tidyclust" class="nav-link" data-scroll-target="#k-means-specification-in-tidyclust"><span class="toc-section-number">1.2</span>  k-means specification in {tidyclust}</a></li>
-  <li><a href="#fit-the-k-means-model" id="toc-fit-the-k-means-model" class="nav-link" data-scroll-target="#fit-the-k-means-model"><span class="toc-section-number">1.3</span>  Fit the k-means model</a></li>
-  <li><a href="#cluster-assignments-and-centers" id="toc-cluster-assignments-and-centers" class="nav-link" data-scroll-target="#cluster-assignments-and-centers"><span class="toc-section-number">1.4</span>  Cluster assignments and centers</a></li>
-  <li><a href="#centroids" id="toc-centroids" class="nav-link" data-scroll-target="#centroids"><span class="toc-section-number">1.5</span>  Centroids</a></li>
-  <li><a href="#sum-of-squared-error" id="toc-sum-of-squared-error" class="nav-link" data-scroll-target="#sum-of-squared-error"><span class="toc-section-number">1.6</span>  Sum of squared error</a></li>
-  <li><a href="#silhouette" id="toc-silhouette" class="nav-link" data-scroll-target="#silhouette"><span class="toc-section-number">1.7</span>  Silhouette</a></li>
-  <li><a href="#changing-distance-measures" id="toc-changing-distance-measures" class="nav-link" data-scroll-target="#changing-distance-measures"><span class="toc-section-number">1.8</span>  Changing distance measures</a></li>
-  <li><a href="#workflows" id="toc-workflows" class="nav-link" data-scroll-target="#workflows"><span class="toc-section-number">1.9</span>  Workflows</a></li>
+  <li><a href="#acknoledgement" id="toc-acknoledgement" class="nav-link" data-scroll-target="#acknoledgement"><span class="toc-section-number">1.1</span>  Acknoledgement</a></li>
+  <li><a href="#load-and-clean-a-dataset-penguins" id="toc-load-and-clean-a-dataset-penguins" class="nav-link" data-scroll-target="#load-and-clean-a-dataset-penguins"><span class="toc-section-number">1.2</span>  Load and clean a dataset: penguins</a></li>
+  <li><a href="#k-means-specification-in-tidyclust" id="toc-k-means-specification-in-tidyclust" class="nav-link" data-scroll-target="#k-means-specification-in-tidyclust"><span class="toc-section-number">1.3</span>  k-means specification in {tidyclust}</a></li>
+  <li><a href="#fit-the-k-means-model" id="toc-fit-the-k-means-model" class="nav-link" data-scroll-target="#fit-the-k-means-model"><span class="toc-section-number">1.4</span>  Fit the k-means model</a></li>
+  <li><a href="#cluster-assignments-and-centers" id="toc-cluster-assignments-and-centers" class="nav-link" data-scroll-target="#cluster-assignments-and-centers"><span class="toc-section-number">1.5</span>  Cluster assignments and centers</a></li>
+  <li><a href="#centroids" id="toc-centroids" class="nav-link" data-scroll-target="#centroids"><span class="toc-section-number">1.6</span>  Centroids</a></li>
+  <li><a href="#sum-of-squared-error" id="toc-sum-of-squared-error" class="nav-link" data-scroll-target="#sum-of-squared-error"><span class="toc-section-number">1.7</span>  Sum of squared error</a></li>
+  <li><a href="#silhouette" id="toc-silhouette" class="nav-link" data-scroll-target="#silhouette"><span class="toc-section-number">1.8</span>  Silhouette</a></li>
+  <li><a href="#changing-distance-measures" id="toc-changing-distance-measures" class="nav-link" data-scroll-target="#changing-distance-measures"><span class="toc-section-number">1.9</span>  Changing distance measures</a></li>
+  <li><a href="#workflows" id="toc-workflows" class="nav-link" data-scroll-target="#workflows"><span class="toc-section-number">1.10</span>  Workflows</a></li>
   </ul></li>
   <li><a href="#hierarchical-clustering" id="toc-hierarchical-clustering" class="nav-link" data-scroll-target="#hierarchical-clustering"><span class="toc-section-number">2</span>  Hierarchical clustering</a>
   <ul>
@@ -2724,8 +2725,12 @@ loaded via a namespace (and not attached):
 </div>
 <section id="k-means-clustering" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> K-means clustering</h1>
-<section id="load-and-clean-a-dataset" class="level2" data-number="1.1">
-<h2 data-number="1.1" class="anchored" data-anchor-id="load-and-clean-a-dataset"><span class="header-section-number">1.1</span> Load and clean a dataset:</h2>
+<section id="acknoledgement" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="acknoledgement"><span class="header-section-number">1.1</span> Acknoledgement</h2>
+<p>This document is adapted from the <a href="https://tidyclust.tidymodels.org/articles/k_means.html">tidyclust k_means</a> package vignette.</p>
+</section>
+<section id="load-and-clean-a-dataset-penguins" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="load-and-clean-a-dataset-penguins"><span class="header-section-number">1.2</span> Load and clean a dataset: penguins</h2>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;penguins&quot;</span>, <span class="at">package =</span> <span class="st">&quot;modeldata&quot;</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -2739,8 +2744,8 @@ loaded via a namespace (and not attached):
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample_n</span>(<span class="fu">nrow</span>(penguins))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="k-means-specification-in-tidyclust" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="k-means-specification-in-tidyclust"><span class="header-section-number">1.2</span> k-means specification in {tidyclust}</h2>
+<section id="k-means-specification-in-tidyclust" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="k-means-specification-in-tidyclust"><span class="header-section-number">1.3</span> k-means specification in {tidyclust}</h2>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>kmeans_spec <span class="ot">&lt;-</span> <span class="fu">k_means</span>(<span class="at">num_clusters =</span> <span class="dv">3</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -2765,8 +2770,8 @@ Computational engine: stats </code></pre>
 </div>
 <p>Note that the <code>stats::kmeans</code> and the <code>ClusterR::KMeans_rcpp</code> implementations have very different default settings for the algorithmic details, so it is recommended to be deliberate and explicit in choosing these options, check <a href="https://tidyclust.tidymodels.org/articles/k_means.html#a-brief-introduction-to-the-k-means-algorithm">here</a>.</p>
 </section>
-<section id="fit-the-k-means-model" class="level2" data-number="1.3">
-<h2 data-number="1.3" class="anchored" data-anchor-id="fit-the-k-means-model"><span class="header-section-number">1.3</span> Fit the k-means model</h2>
+<section id="fit-the-k-means-model" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="fit-the-k-means-model"><span class="header-section-number">1.4</span> Fit the k-means model</h2>
 <p>Once specified, a model may be “fit” to a dataset by providing a formula and data frame in the same manner as a tidymodels model fit. Note that unlike in supervised modeling, the formula should not include a response variable.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>kmeans_fit <span class="ot">&lt;-</span> kmeans_spec <span class="sc">%&gt;%</span></span>
@@ -2804,8 +2809,8 @@ preproc 4      -none-  list</code></pre>
 </div>
 </div>
 </section>
-<section id="cluster-assignments-and-centers" class="level2" data-number="1.4">
-<h2 data-number="1.4" class="anchored" data-anchor-id="cluster-assignments-and-centers"><span class="header-section-number">1.4</span> Cluster assignments and centers</h2>
+<section id="cluster-assignments-and-centers" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="cluster-assignments-and-centers"><span class="header-section-number">1.5</span> Cluster assignments and centers</h2>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>kmeans_fit <span class="sc">%&gt;%</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract_cluster_assignment</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -2828,8 +2833,8 @@ preproc 4      -none-  list</code></pre>
 </div>
 <p>Note that this function renames clusters in accordance with the standard tidyclust naming convention and ordering: clusters are named “Cluster_1”, “Cluster_2”, etc. and are numbered by the order they appear in the rows of the training dataset.</p>
 </section>
-<section id="centroids" class="level2" data-number="1.5">
-<h2 data-number="1.5" class="anchored" data-anchor-id="centroids"><span class="header-section-number">1.5</span> Centroids</h2>
+<section id="centroids" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="centroids"><span class="header-section-number">1.6</span> Centroids</h2>
 <p>A secondary output of interest is often the characterization of the clusters; i.e., what data feature trends does each cluster seem to represent? Most commonly, clusters are characterized by their mean values in the predictor space, a.k.a. the centroids.</p>
 <p>These can be accessed from the full summary:</p>
 <div class="cell" data-layout-align="center">
@@ -2858,8 +2863,8 @@ preproc 4      -none-  list</code></pre>
 </div>
 <p>Based on the above output, we might say that Cluster_1 is penguins with smaller bill lengths, Cluster_2 has smaller bill depths, and Cluster_3 is penguins with large bills in both dimensions.</p>
 </section>
-<section id="sum-of-squared-error" class="level2" data-number="1.6">
-<h2 data-number="1.6" class="anchored" data-anchor-id="sum-of-squared-error"><span class="header-section-number">1.6</span> Sum of squared error</h2>
+<section id="sum-of-squared-error" class="level2" data-number="1.7">
+<h2 data-number="1.7" class="anchored" data-anchor-id="sum-of-squared-error"><span class="header-section-number">1.7</span> Sum of squared error</h2>
 <p>One simple metric is the within cluster sum-of-squared error (WSS), which measures the sum of all distances from observations to their cluster center. This is sometimes scaled with the total sum-of-squared error (TSS), the distance from all observations to the global centroid; in particular, the ratio WSS/TSS is often computed. In principle, small values of WSS or of the WSS/TSS ratio suggest that the observations within clusters are closer (more similar) to each other than they are to the other clusters.</p>
 <p>The WSS and TSS come “for free” with the model fit summary, or they can be accessed directly from the model fit:</p>
 <div class="cell" data-layout-align="center">
@@ -2907,8 +2912,8 @@ preproc 4      -none-  list</code></pre>
 </div>
 </div>
 </section>
-<section id="silhouette" class="level2" data-number="1.7">
-<h2 data-number="1.7" class="anchored" data-anchor-id="silhouette"><span class="header-section-number">1.7</span> Silhouette</h2>
+<section id="silhouette" class="level2" data-number="1.8">
+<h2 data-number="1.8" class="anchored" data-anchor-id="silhouette"><span class="header-section-number">1.8</span> Silhouette</h2>
 <p>Another common measure of cluster structure is called the <strong>silhouette</strong>. The silhouette of a single observation is proportional to the average distance from that observation to within-cluster observations minus the average distance to outside-cluster observations; normalized by the greater of these two average. In principle, a large silhouette (close to 1) suggests that an observation is more similar to those within its cluster than those outside its cluster.</p>
 <p>We can average all silhouettes to get a metric for the full clustering fit. Because the computation of the silhouette depends on the original observation values, a dataset must also be supplied to the function</p>
 <div class="cell" data-layout-align="center">
@@ -2922,8 +2927,8 @@ preproc 4      -none-  list</code></pre>
 </div>
 </div>
 </section>
-<section id="changing-distance-measures" class="level2" data-number="1.8">
-<h2 data-number="1.8" class="anchored" data-anchor-id="changing-distance-measures"><span class="header-section-number">1.8</span> Changing distance measures</h2>
+<section id="changing-distance-measures" class="level2" data-number="1.9">
+<h2 data-number="1.9" class="anchored" data-anchor-id="changing-distance-measures"><span class="header-section-number">1.9</span> Changing distance measures</h2>
 <p>These metrics all depend on measuring the distance between points and/or centroids. By default, ordinary Euclidean distance is used. However, it is possible to select a different distance function.</p>
 <p>For sum of squares metrics, the distance function supplied must take two arguments (i.e., the observation locations and the centroid locations). For the sihouette metric, the distance function must find pairwise distances from a single matrix (i.e., all pairwise distances between observations).</p>
 <div class="cell" data-layout-align="center">
@@ -2951,8 +2956,8 @@ preproc 4      -none-  list</code></pre>
 </div>
 </div>
 </section>
-<section id="workflows" class="level2" data-number="1.9">
-<h2 data-number="1.9" class="anchored" data-anchor-id="workflows"><span class="header-section-number">1.9</span> Workflows</h2>
+<section id="workflows" class="level2" data-number="1.10">
+<h2 data-number="1.10" class="anchored" data-anchor-id="workflows"><span class="header-section-number">1.10</span> Workflows</h2>
 <p>The workflow structure of tidymodels is also usable with tidyclust objects. In the following example, we try two recipes for clustering penguins by bill dimensions. In the second recipe, we log-scale both predictors before clustering.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>penguins_recipe_1 <span class="ot">&lt;-</span> <span class="fu">recipe</span>(<span class="sc">~</span> bill_length_mm <span class="sc">+</span> bill_depth_mm,</span>

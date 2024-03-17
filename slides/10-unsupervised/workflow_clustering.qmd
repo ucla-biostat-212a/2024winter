@@ -43,8 +43,11 @@ set.seed(838383)
 
 
 # K-means clustering
-## Load and clean a dataset:
 
+## Acknoledgement 
+This document is adapted from the [tidyclust k_means](https://tidyclust.tidymodels.org/articles/k_means.html) package vignette.
+
+## Load and clean a dataset: penguins
 ```{r}
 data("penguins", package = "modeldata")
 
