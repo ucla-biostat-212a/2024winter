@@ -59,7 +59,7 @@ Historical trading statistics from the New York Stock Exchange. Daily values of 
 
 :::
 
-The [`NYSE.csv`](https://raw.githubusercontent.com/ucla-econ-425t/2023winter/master/slides/data/NYSE.csv) file contains three daily time series from the New York Stock Exchange (NYSE) for the period Dec 3, 1962-Dec 31, 1986 (6,051 trading days).
+The [`NYSE.csv`](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/data/NYSE.csv) file contains three daily time series from the New York Stock Exchange (NYSE) for the period Dec 3, 1962-Dec 31, 1986 (6,051 trading days).
 
 - `Log trading volume` ($v_t$): This is the fraction of all outstanding shares that are traded on that day, relative to a 100-day moving average of past turnover, on the log scale.
     
