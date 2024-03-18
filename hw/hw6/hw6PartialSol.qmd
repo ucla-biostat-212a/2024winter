@@ -1,0 +1,367 @@
+---
+title: "Biostat 212a Homework 6"
+subtitle: "Due Mar 22, 2024 @ 11:59PM"
+author: "YOUR NAME and UID"
+date: today
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+engine: knitr
+knitr:
+  opts_chunk: 
+    fig.align: 'center'
+    # fig.width: 6
+    # fig.height: 4
+    message: FALSE
+    cache: false
+---
+
+Load R libraries.
+```{r}
+rm(list = ls())
+library(tidyverse)
+library(tidymodels)
+library(readr)
+library(tswge)
+library(ggplot2)
+library(yardstick)
+
+acfdf <- function(vec) {
+    vacf <- acf(vec, plot = F)
+    with(vacf, data.frame(lag, acf))
+}
+
+ggacf <- function(vec) {
+    ac <- acfdf(vec)
+    ggplot(data = ac, aes(x = lag, y = acf)) + geom_hline(aes(yintercept = 0)) + 
+        geom_segment(mapping = aes(xend = lag, yend = 0))
+}
+
+tplot <- function(vec) {
+    df <- data.frame(X = vec, t = seq_along(vec))
+    ggplot(data = df, aes(x = t, y = X)) + geom_line()
+}
+```
+
+## New York Stock Exchange (NYSE) data (1962-1986) (140 pts)
+
+::: {#fig-nyse}
+
+<p align="center">
+![](ISL_fig_10_14.pdf){width=600px height=600px}
+</p>
+
+Historical trading statistics from the New York Stock Exchange. Daily values of the normalized log trading volume, DJIA return, and log volatility are shown for a 24-year period from 1962-1986. We wish to predict trading volume on any day, given the history on all earlier days. To the left of the red bar (January 2, 1980) is training data, and to the right test data.
+
+:::
+
+The [`NYSE.csv`](https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/data/NYSE.csv) file contains three daily time series from the New York Stock Exchange (NYSE) for the period Dec 3, 1962-Dec 31, 1986 (6,051 trading days).
+
+- `Log trading volume` ($v_t$): This is the fraction of all outstanding shares that are traded on that day, relative to a 100-day moving average of past turnover, on the log scale.
+    
+- `Dow Jones return` ($r_t$): This is the difference between the log of the Dow Jones Industrial Index on consecutive trading days.
+    
+- `Log volatility` ($z_t$): This is based on the absolute values of daily price movements.
+
+```{r}
+# Read in NYSE data from url
+
+url = "https://raw.githubusercontent.com/ucla-biostat-212a/2024winter/master/slides/data/NYSE.csv"
+NYSE <- read_csv(url)
+
+NYSE
+```
+The **autocorrelation** at lag $\ell$ is the correlation of all pairs $(v_t, v_{t-\ell})$ that are $\ell$ trading days apart. These sizable correlations give us confidence that past values will be helpful in predicting the future.
+
+```{r}
+#| code-fold: true
+#| label: fig-nyse-autocor
+#| fig-cap: "The autocorrelation function for log volume. We see that nearby values are fairly strongly correlated, with correlations above 0.2 as far as 20 days apart."
+
+ggacf(NYSE$log_volume) + ggthemes::theme_few()
+
+```
+
+Do a similar plot for (1) the correlation between $v_t$ and lag $\ell$ `Dow Jones return` $r_{t-\ell}$ and (2) correlation between $v_t$ and lag $\ell$ `Log volatility` $z_{t-\ell}$.
+
+```{r}
+#| code-fold: true
+#| label: fig-v-vs-lagged-r
+#| fig-cap: "Correlations between log_volume and lagged DJ_return."
+
+seq(1, 30) %>% 
+  map(function(x) {cor(NYSE$log_volume , lag(NYSE$DJ_return, x), use = "pairwise.complete.obs")}) %>% 
+  unlist() %>% 
+  tibble(lag = 1:30, cor = .) %>% 
+  ggplot(aes(x = lag, y = cor)) + 
+  geom_hline(aes(yintercept = 0)) + 
+  geom_segment(mapping = aes(xend = lag, yend = 0)) + 
+  ggtitle("AutoCorrelation between `log volume` and lagged `DJ return`")
+```
+```{r}
+#| code-fold: true
+#| label: fig-v-vs-lagged-z
+#| fig-cap: "Weak correlations between log_volume and lagged log_volatility."
+
+seq(1, 30) %>% 
+  map(function(x) {cor(NYSE$log_volume , lag(NYSE$log_volatility, x), use = "pairwise.complete.obs")}) %>% 
+  unlist() %>% 
+  tibble(lag = 1:30, cor = .) %>% 
+  ggplot(aes(x = lag, y = cor)) + 
+  geom_hline(aes(yintercept = 0)) + 
+  geom_segment(mapping = aes(xend = lag, yend = 0)) + 
+  ggtitle("AutoCorrelation between `log volume` and lagged `log volatility`")
+```
+
+
+
+### Project goal
+
+Our goal is to forecast daily `Log trading volume`, using various machine learning algorithms we learnt in this class. 
+
+The data set is already split into train (before Jan 1st, 1980, $n_{\text{train}} = 4,281$) and test (after Jan 1st, 1980, $n_{\text{test}} = 1,770$) sets.
+
+<!-- Include `day_of_week` as a predictor in the models. -->
+
+In general, we will tune the lag $L$ to acheive best forecasting performance. In this project, we would fix $L=5$. That is we always use the previous five trading days' data to forecast today's `log trading volume`.
+
+Pay attention to the nuance of splitting time series data for cross validation. Study and use the [`time-series`](https://www.tidymodels.org/learn/models/time-series/) functionality in tidymodels. Make sure to use the same splits when tuning different machine learning algorithms.
+
+Use the $R^2$ between forecast and actual values as the cross validation and test evaluation criterion.
+
+### Baseline method (20 pts)
+
+We use the straw man (use yesterday’s value of `log trading volume` to predict that of today) as the baseline method. Evaluate the $R^2$ of this method on the test data.
+
+
+Before we tune different machine learning methods, let's first separate into the test and non-test sets. We drop the first 5 trading days which lack some lagged variables.
+
+```{r}
+# Lag: look back L trading days
+# Do not need to include, as we included them in receipe
+L = 5
+
+for(i in seq(1, L)) {
+  NYSE <- NYSE %>% 
+    mutate(!!paste("DJ_return_lag", i, sep = "") := lag(NYSE$DJ_return, i),
+           !!paste("log_volume_lag", i, sep = "") := lag(NYSE$log_volume, i),
+           !!paste("log_volatility_lag", i, sep = "") := lag(NYSE$log_volatility, i))
+}
+
+
+NYSE <-   NYSE %>% na.omit()
+```
+
+
+```{r}
+# Drop beginning trading days which lack some lagged variables
+NYSE_other <- NYSE %>% 
+  filter(train == 'TRUE') %>%
+  select(-train) %>%
+  drop_na()
+dim(NYSE_other)
+```
+
+```{r}
+NYSE_test = NYSE %>% 
+  filter(train == 'FALSE') %>%
+  select(-train) %>%
+  drop_na()
+dim(NYSE_test)
+```
+
+```{r}
+library(yardstick)
+# cor(NYSE_test$log_volume, NYSE_test$log_volume_lag1) %>% round(2)
+r2_test_strawman =  rsq_vec(NYSE_test$log_volume, lag(NYSE_test$log_volume, 1)) %>% round(2)
+print(paste("Straw man test R2: ", r2_test_strawman))
+```
+
+
+### Autoregression (AR) forecaster (30 pts)
+
+- Let
+$$
+y = \begin{pmatrix} v_{L+1} \\ v_{L+2} \\ v_{L+3} \\ \vdots \\ v_T \end{pmatrix}, \quad M = \begin{pmatrix}
+1 & v_L & v_{L-1} & \cdots & v_1 \\
+1 & v_{L+1} & v_{L} & \cdots & v_2 \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & v_{T-1} & v_{T-2} & \cdots & v_{T-L}
+\end{pmatrix}.
+$$
+
+- Fit an ordinary least squares (OLS) regression of $y$ on $M$, giving
+$$
+\hat v_t = \hat \beta_0 + \hat \beta_1 v_{t-1} + \hat \beta_2 v_{t-2} + \cdots + \hat \beta_L v_{t-L},
+$$
+known as an **order-$L$ autoregression** model or **AR($L$)**.
+
+- Before we start the model training, let's talk about time series resampling. We will use the `rolling_origin` function in the `rsample` package to create a time series cross-validation plan.
+
+- When the data have a strong time component, a resampling method should support modeling to estimate seasonal and other temporal trends within the data. A technique that randomly samples values from the training set can disrupt the model’s ability to estimate these patterns.
+
+
+```{r}
+NYSE %>% 
+  ggplot(aes(x = date, y = log_volume)) + 
+  geom_line() + 
+  geom_smooth(method = "lm")
+```
+
+
+```{r}
+wrong_split <- initial_split(NYSE_other)
+
+bind_rows(
+  training(wrong_split) %>% mutate(type = "train"),
+  testing(wrong_split) %>% mutate(type = "test")
+) %>% 
+  ggplot(aes(x = date, y = log_volume, color = type, group = NA)) + 
+  geom_line()
+```
+```{r}
+correct_split <- initial_time_split(NYSE_other %>% arrange(date))
+
+bind_rows(
+  training(correct_split) %>% mutate(type = "train"),
+  testing(correct_split) %>% mutate(type = "test")
+) %>% 
+  ggplot(aes(x = date, y = log_volume, color = type, group = NA)) + 
+  geom_line()
+```
+```{r}
+rolling_origin(NYSE_other %>% arrange(date), initial = 30, assess = 7) %>%
+#sliding_period(NYSE_other %>% arrange(date), date, period = "day", lookback = Inf, assess_stop = 1) %>% 
+  mutate(train_data = map(splits, analysis),
+         test_data = map(splits, assessment)) %>% 
+  select(-splits) %>% 
+  pivot_longer(-id) %>% 
+  filter(id %in% c("Slice0001", "Slice0002", "Slice0003")) %>% 
+  unnest(value) %>% 
+  ggplot(aes(x = date, y = log_volume, color = name, group = NA)) + 
+  geom_point() + 
+  geom_line() +
+  facet_wrap(~id, scales = "fixed")
+```
+```{r}
+sliding_period(NYSE_other %>% arrange(date), 
+               date, period = "month", lookback = Inf, assess_stop = 1) %>% 
+  mutate(train_data = map(splits, analysis),
+         test_data = map(splits, assessment)) %>% 
+  select(-splits) %>% 
+  pivot_longer(-id) %>% 
+  filter(id %in% c("Slice001", "Slice002", "Slice003")) %>% 
+  unnest(value) %>% 
+  ggplot(aes(x = date, y = log_volume, color = name, group = NA)) + 
+  geom_point() +
+  geom_line() + 
+  facet_wrap(~id, scales = "fixed")
+```
+
+- Rolling forecast origin resampling ([Hyndman and Athanasopoulos 2018](https://otexts.com/fpp3/)) provides a method that emulates how time series data is often partitioned in practice, estimating the model with historical data and evaluating it with the most recent data. 
+
+
+- Tune AR(5) with elastic net (lasso + ridge) regularization using all 3 features on the training data, and evaluate the test performance. 
+
+### Preprocessing
+
+```{r}
+en_receipe <- 
+  recipe(log_volume ~ ., data = NYSE_other) %>% 
+  step_dummy(all_nominal(), -all_outcomes()) %>% 
+  step_normalize(all_numeric_predictors(), -all_outcomes()) %>%  
+  step_naomit(all_predictors()) %>%
+  prep(data = NYSE_other)
+```
+
+### Model training
+
+```{r}
+### Model
+enet_mod <- 
+  # mixture = 0 (ridge), mixture = 1 (lasso)
+  # mixture = (0, 1) elastic net 
+  # As an example, we set mixture = 0.5. It needs to be tuned.
+  linear_reg(penalty = tune(), mixture = 0.5) %>% 
+  set_engine("glmnet")
+enet_mod
+```
+```{r}
+en_wf <- 
+  workflow() %>%
+  add_model(enet_mod) %>%
+  add_recipe(en_receipe %>% step_rm(date) %>% step_indicate_na())
+en_wf
+```
+
+```{r}
+folds <- NYSE_other %>% arrange(date) %>%
+    sliding_period(date, period = "month", lookback = Inf, assess_stop = 1)
+  # rolling_origin(initial = 5, assess = 1)
+
+
+month_folds <- NYSE_other %>%
+  sliding_period(
+    date,
+    "month",
+    lookback = Inf,
+    skip = 4)
+
+```
+
+
+```{r}
+lambda_grid <-
+  grid_regular(penalty(range = c(-8, -7), trans = log10_trans()), levels = 3)
+lambda_grid
+```
+
+```{r}
+en_fit <- tune_grid(en_wf, resamples = month_folds, grid = lambda_grid) %>%
+     collect_metrics() 
+en_fit
+```
+
+
+- Hint: [Workflow: Lasso](https://ucla-biostat-212a.github.io/2024winter/slides/06-modelselection/workflow_lasso.html) is a good starting point.
+
+### Random forest forecaster (30pts)
+
+- Use the same features as in AR($L$) for the random forest. Tune the random forest and evaluate the test performance.
+
+- Hint: [Workflow: Random Forest for Prediction](https://ucla-biostat-212a.github.io/2024winter/slides/08-tree/workflow_rf_reg.html) is a good starting point.
+
+### Boosting forecaster (30pts)
+
+- Use the same features as in AR($L$) for the boosting. Tune the boosting algorithm and evaluate the test performance.
+
+- Hint: [Workflow: Boosting tree for Prediction](https://ucla-biostat-212a.github.io/2024winter/slides/08-tree/workflow_boosting_reg.html) is a good starting point.
+
+
+### Summary (30pts)
+
+Your score for this question is largely determined by your final test performance.
+
+Summarize the performance of different machine learning forecasters in the following format. 
+
+| Method | CV $R^2$ | Test $R^2$ |
+|:------:|:------:|:------:|:------:|
+| Baseline | | | |
+| AR(5) | | | |
+| Random Forest | | | |
+| Boosting | | | |
+
+### Extension reading   
+- [MOIRAI: Salesforce’s Foundation Model for Time-Series Forecasting](https://towardsdatascience.com/moirai-salesforces-foundation-model-for-time-series-forecasting-4eff6c34093d)
+
+## ISL Exercise 12.6.13 (90 pts)
+### 12.6.13 (b) (30 pts)
+### PCA and UMAP (30 pts)
+### 12.6.13 (c) (30 pts)
+
