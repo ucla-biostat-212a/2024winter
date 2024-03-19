@@ -413,7 +413,8 @@ out <- tibble(gene = seq(1, nrow(Ch12Ex13)),
 ```{r}
 out %>% arrange(p_values) %>% head(10)
 
-sig <- out %>% arrange(p_values) %>% filter(p_values < 0.05/nrow(Ch12Ex13))
+# sig <- out %>% arrange(p_values) %>% filter(p_values < 0.05/nrow(Ch12Ex13))
+sig <- out %>% arrange(p_values) %>% filter(p_values < 0.05 )
 ```
 
 ```{r}
@@ -428,18 +429,17 @@ library(heatmaply) ## for constructing interactive heatmap
 ```{r}
 
 #create data frame for annotations
-dfh <- data.frame(sample=as.character(colnames(Ch12Ex13)), dex="disease") %>%
+dfh <- data.frame(sample=as.character(colnames(Ch12Ex13)), status = "disease") %>%
                 column_to_rownames("sample")
-dfh$dex[seq(21, 40)] <-  "healthy"
+dfh$status[seq(21, 40)] <-  "healthy"
 dfh
 
 
 pheatmap(Ch12Ex13[sig$gene, ], cluster_rows = FALSE, cluster_cols = T, scale="row", annotation_col = dfh,
-         annotation_colors=list(dex = c(disease = "orange", healthy = "black")),
+         annotation_colors=list(status = c(disease = "orange", healthy = "black")),
          color=colorRampPalette(c("navy", "white", "red"))(50))
 ```
 
-```{r}
-```
+
 
 
