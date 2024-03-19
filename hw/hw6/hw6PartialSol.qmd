@@ -31,6 +31,10 @@ library(readr)
 library(tswge)
 library(ggplot2)
 library(yardstick)
+library(workflows)
+library(parsnip)
+library(tidyclust)
+library(RcppHungarian)
 
 acfdf <- function(vec) {
     vacf <- acf(vec, plot = F)
@@ -292,6 +296,7 @@ enet_mod <-
   set_engine("glmnet")
 enet_mod
 ```
+
 ```{r}
 en_wf <- 
   workflow() %>%
@@ -364,4 +369,77 @@ Summarize the performance of different machine learning forecasters in the follo
 ### 12.6.13 (b) (30 pts)
 ### PCA and UMAP (30 pts)
 ### 12.6.13 (c) (30 pts)
+
+```{r}
+Ch12Ex13 <- read_csv("../../slides/data/Ch12Ex13.csv", col_names = paste("ID", 1:40, sep = ""))
+```
+
+```{r}
+set.seed(838383)
+hc_spec <- hier_clust(
+  # num_clusters = 3,
+  linkage_method = "average"
+)
+
+
+hc_fit <- hc_spec %>%
+  fit(~ .,
+    data = as.data.frame(t(Ch12Ex13)) 
+  )
+
+hc_fit %>%
+  summary()
+```
+
+```{r}
+hc_fit$fit %>% plot()
+```
+
+
+```{r}
+grp = factor(rep(c(1, 0), each = 20))
+
+regression <- function(y) {
+  sum <- summary(lm(y ~ grp))
+  pv <- sum$coefficients[2, 4]
+  return(pv)
+}
+
+
+out <- tibble(gene = seq(1, nrow(Ch12Ex13)),
+              p_values = unlist(purrr:: map(1:nrow(Ch12Ex13), ~regression(as.matrix(Ch12Ex13)[.x, ]))))
+```
+
+```{r}
+out %>% arrange(p_values) %>% head(10)
+
+sig <- out %>% arrange(p_values) %>% filter(p_values < 0.05/nrow(Ch12Ex13))
+```
+
+```{r}
+# install.packages("pheatmap")
+library(pheatmap)
+# install.packages("ggplotify")
+library(ggplotify) ## to convert pheatmap to ggplot2
+# install.packages("heatmaply")
+library(heatmaply) ## for constructing interactive heatmap
+```
+
+```{r}
+
+#create data frame for annotations
+dfh <- data.frame(sample=as.character(colnames(Ch12Ex13)), dex="disease") %>%
+                column_to_rownames("sample")
+dfh$dex[seq(21, 40)] <-  "healthy"
+dfh
+
+
+pheatmap(Ch12Ex13[sig$gene, ], cluster_rows = FALSE, cluster_cols = T, scale="row", annotation_col = dfh,
+         annotation_colors=list(dex = c(disease = "orange", healthy = "black")),
+         color=colorRampPalette(c("navy", "white", "red"))(50))
+```
+
+```{r}
+```
+
 
